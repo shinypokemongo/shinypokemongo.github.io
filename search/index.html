@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="포켓몬고 검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">
+<meta name="description" content="검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 포켓몬고 검색어 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">
 <title>이로치수집가 검색어 검사기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +74,15 @@
   .fixed { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green-deep); }
   .fixed code { color: var(--green); font-size: 14px; word-break: break-all; line-height: 1.45; }
 
+
+  /* 영상·블로그로 가는 길 */
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } }
 
   /* ── 2. 상황별 레시피 ── */
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -167,7 +176,7 @@
 
 <div class="wrap">
   <header>
-    <div class="brand">포켓몬고 <b>이로치 수집가</b> · 박스 검색어</div>
+    <div class="brand"><a href="../" style="color:inherit;text-decoration:none">포켓몬고 <b>이로치 수집가</b></a> · 박스 검색어</div>
     <h1>기호 하나면<br><em>이로치 전설</em>이 <strong>보낼 목록</strong>에</h1>
     <p class="lede">어디서 가져온 검색어든 붙여넣어 보세요. 무슨 뜻인지 말로 풀어주고, 틀린 곳은 짚어서 고친 걸 복사해 드립니다. 한국어판 게임에서 직접 쳐본 결과로 만들었어요.</p>
   </header>
@@ -193,6 +202,11 @@
       </div>
     </div>
   </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener"><b>검색어, 영상으로 보기</b><span>9,168마리 박스가 한 줄로 2,003마리가 되는 과정</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>한 장으로 보는 검색어</b><span>블로그에서 저장해 두고 보기</span></a>
+  </nav>
 
   <!-- 2. 상황별 레시피 -->
   <section aria-labelledby="rc-h">
@@ -280,7 +294,7 @@
 
   <footer>
     <div class="who">포켓몬고 <b>이로치 수집가</b></div>
-    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../showcase/">쇼케이스 점수 계산기</a></div>
     <div>한국어판에서 직접 확인 (2026.9.19). 결합 규칙 Pokémon GO Wiki · 교환 사탕 Bulbapedia·Pokétory · 반짝반짝 확정 Pokétory·pogoalley. 게임 업데이트로 검색어가 바뀔 수 있어요.</div>
   </footer>
 </div>

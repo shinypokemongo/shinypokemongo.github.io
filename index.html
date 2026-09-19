@@ -1,6 +1,66 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포켓몬고 이로치 수집가</title>
-<meta http-equiv="refresh" content="0; url=search/">
-<style>body{margin:0;background:#0F0D1C;color:#F1EEFA;font-family:"Malgun Gothic",sans-serif;display:grid;place-items:center;min-height:100vh;padding-inline:18px}a{color:#6BF2A6}</style>
-</head><body><p><a href="search/">포켓몬고 검색어 검사기로 이동</a></p></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="포켓몬고 이로치 수집가의 도구함 — 검색어 검사기, 쇼케이스 점수 계산기. 게임 데이터와 한국어판 실측으로 만들었습니다.">
+<title>이로치수집가 도구함</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+  :root { --ink: #0E0D1C; --surface: #181730; --line: #312E58; --text: #F1EEFA; --dim: #A29DBE; --gold: #FFD166; --green: #6BF2A6; --sky: #6BD6FF;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 40px 60px; display: grid; gap: 32px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  h1 { margin: 6px 0 8px; font-family: var(--display); font-weight: 900; font-size: clamp(32px, 8vw, 48px); line-height: 1.1; letter-spacing: -.035em; }
+  h1 b { color: var(--gold); }
+  p { margin: 0; color: var(--dim); }
+  .tools { display: grid; gap: 12px; }
+  .tool { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
+  .tool:hover, .tool:focus-visible { border-color: var(--gold); transform: translateY(-2px); outline: none; }
+  .tool .ic { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 20px; }
+  .tool b { display: block; font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .tool span { font-size: 14px; color: var(--dim); }
+  .tool .arrow { color: var(--gold); font-weight: 700; }
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  footer { font-size: 13px; color: var(--dim); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .tool { grid-template-columns: 48px 1fr; } .tool .ic { width: 48px; height: 48px; font-size: 17px; } .tool .arrow { display: none; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">포켓몬고 이로치 수집가</div>
+    <h1>영상 보고,<br><b>여기서 바로</b> 써먹기</h1>
+    <p>유튜브에서 설명한 내용을 바로 쓸 수 있게 만든 도구들입니다. 게임 데이터와 한국어판에서 직접 확인한 결과로 만들었어요.</p>
+  </header>
+
+  <nav class="tools" aria-label="도구">
+    <a class="tool" href="search/">
+      <span class="ic" style="background:#0E3B27;color:var(--green)">&amp;!</span>
+      <span><b>검색어 검사기</b><span>붙여넣으면 뜻을 풀어주고, 틀린 곳을 고쳐서 복사</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="showcase/">
+      <span class="ic" style="background:#3A2F12;color:var(--gold)">1178</span>
+      <span><b>쇼케이스 점수 계산기</b><span>키·몸무게·개체값을 넣으면 몇 점인지</span></span>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <nav class="go" aria-label="채널">
+    <a href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener"><b>▶ 유튜브</b><span>@ShinyPokemongo</span></a>
+    <a href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>▤ 블로그</b><span>한 장으로 보는 정리</span></a>
+  </nav>
+
+  <footer>닌텐도·나이언틱과 무관한 팬 도구입니다.</footer>
+</div>
+</body>
+</html>

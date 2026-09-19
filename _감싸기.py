@@ -1,11 +1,14 @@
 # 아티팩트 원본(스켈레톤 없는 html)을 GitHub Pages용 완전한 문서로 감싼다
-# 사용: python _감싸기.py <원본 index.html>
-import sys
-src = open(sys.argv[1], encoding='utf-8').read()
+# 사용: python _감싸기.py <원본 index.html> <폴더이름> "<설명 한 줄>"
+import sys, os
+src_path, folder, desc = sys.argv[1], sys.argv[2], sys.argv[3]
+src = open(src_path, encoding='utf-8').read()
 i = src.index('</style>') + len('</style>')
 head = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        '<meta name="description" content="포켓몬고 검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">\n')
+        f'<meta name="description" content="{desc}">\n')
 out = head + src[:i] + '\n</head>\n<body>\n' + src[i:] + '\n</body>\n</html>\n'
-open('C:/Users/user/pogo-site/search/index.html', 'w', encoding='utf-8').write(out)
-print('wrapped')
+dest = os.path.join('C:/Users/user/pogo-site', folder)
+os.makedirs(dest, exist_ok=True)
+open(os.path.join(dest, 'index.html'), 'w', encoding='utf-8').write(out)
+print('wrapped →', folder)

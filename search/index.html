@@ -79,6 +79,12 @@
   .hide .chip input:checked + label::before { content: "!"; font-family: var(--mono); font-weight: 700; }
   .pick .chip input:checked + label { background: #2A2248; border-color: var(--lilac); color: var(--lilac); }
   .note { font-size: 13px; color: var(--dim); margin: 0; }
+  .and .chip input:checked + label { background: #3A331A; border-color: var(--gold); color: var(--gold); }
+  .nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .num { display: grid; gap: 4px; }
+  .num label { font-size: 13px; font-weight: 600; color: var(--dim); }
+  .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
+  .num input::placeholder { color: #5E5980; font-weight: 600; }
 
   /* 결과 바 — 화면 아래 고정 */
   .out { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(15,13,28,.94); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
@@ -146,6 +152,20 @@
         <legend>빼고 볼 것<span>하나씩 느낌표가 붙어요</span></legend>
         <div class="chips" id="excl"></div>
       </fieldset>
+      <fieldset class="and">
+        <legend>진화 · 기술 조건<span>고른 건 모두 만족해야 나와요 (&amp;)</span></legend>
+        <div class="chips" id="cond"></div>
+      </fieldset>
+      <fieldset>
+        <legend>CP · 잡은 지 며칠<span>한쪽만 적어도 돼요</span></legend>
+        <div class="nums">
+          <div class="num"><label for="cpMin">최소 CP</label><input id="cpMin" type="number" inputmode="numeric" min="0" placeholder="예: 1000"></div>
+          <div class="num"><label for="cpMax">최대 CP</label><input id="cpMax" type="number" inputmode="numeric" min="0" placeholder="예: 1500"></div>
+          <div class="num"><label for="dayMin">최소 일수</label><input id="dayMin" type="number" inputmode="numeric" min="0" placeholder="예: 0"></div>
+          <div class="num"><label for="dayMax">최대 일수</label><input id="dayMax" type="number" inputmode="numeric" min="0" placeholder="예: 7"></div>
+        </div>
+        <p class="note">일수 0 = 오늘(24시간 안). 최대 1500 = 슈퍼리그, 2500 = 하이퍼리그.</p>
+      </fieldset>
       <fieldset class="pick">
         <legend>잡은 때<span>하나만</span></legend>
         <div class="chips" id="when"></div>
@@ -211,6 +231,15 @@
     ["tag", "태그 달린 것", "#", true],
     ["dmax", "다이맥스", "다이맥스", false],
   ];
+  const COND = [
+    ["evolve", "지금 진화 가능", "진화"],
+    ["newdex", "진화하면 도감 새로", "미등록"],
+    ["item", "도구 진화", "도구"],
+    ["quest", "조건 진화", "조건 진화"],
+    ["trade", "교환 진화", "교환진화"],
+    ["mega", "메가진화 가능", "메가 진화"],
+    ["weather", "날씨 부스트 기술", "@날씨"],
+  ];
   const STARS = [["0*", "0성"], ["1*", "1성"], ["2*", "2성"], ["3*", "3성"], ["4*", "4성(100)"]];
   const WHEN = [["", "상관없음"], ["일수0", "오늘 잡은 것"], ["연도-2020", "2020년까지 (반짝반짝 확정)"]];
   const DIST = [["", "상관없음"], ["거리100-", "100km 이상 (교환 사탕 3개)"], ["거리1000-", "1,000km 이상"]];
@@ -219,7 +248,8 @@
   const FAVS = [
     { name: "보낼 후보", note: "별 0~2개만, 귀한 건 전부 빼기", tone: "green", q: "0*,1*,2*&!색이 다른&!전설의 포켓몬&!환상&!울트라비스트&!반짝반짝&!그림자&!특별&!배경&!즐겨찾기&!@기술&!#",
       set: { stars: ["0*", "1*", "2*"], excl: EXCL.filter(e => e[3]).map(e => e[0]), when: "", dist: "", pvp: "" } },
-    { name: "정리 전 진화", note: "진화하면 도감이 새로 채워지는 것", tone: "gold", q: "진화&미등록" },
+    { name: "정리 전 진화", note: "진화하면 도감이 새로 채워지는 것", tone: "gold", q: "진화&미등록",
+      set: { stars: [], excl: [], when: "", dist: "", pvp: "", cond: ["evolve", "newdex"] } },
     { name: "교환 사탕 3개", note: "100km 넘게 떨어져 잡은 것", tone: "sky", q: "거리100-&!전설의 포켓몬",
       set: { stars: [], excl: ["legend"], when: "", dist: "거리100-", pvp: "" } },
     { name: "반짝반짝 확정", note: "2020년까지 잡은 것 · 교환하면 확정", tone: "gold", q: "연도-2020",
@@ -236,6 +266,7 @@
     const id = `${group}-${value || "none"}`.replace(/[^\w가-힣-]/g, "_");
     return `<div class="chip"><input type="${type}" id="${id}" name="${group}" value="${esc(value)}" ${checked ? "checked" : ""}><label for="${id}">${esc(label)}${code ? ` <code>${esc(code)}</code>` : ""}</label></div>`;
   }
+  $("cond").innerHTML = COND.map(([k, l, term]) => chip("cond", "checkbox", k, l, term, false)).join("");
   $("stars").innerHTML = STARS.map(([v, l]) => chip("stars", "checkbox", v, l, "", ["0*", "1*", "2*"].includes(v))).join("");
   $("excl").innerHTML = EXCL.map(([k, l, term, on]) => chip("excl", "checkbox", k, l, term === "#" ? "#" : "", on)).join("");
   $("when").innerHTML = WHEN.map(([v, l], i) => chip("when", "radio", v, l, v, i === 0)).join("");
@@ -248,7 +279,18 @@
     const dist = document.querySelector('input[name="dist"]:checked')?.value || "";
     const pvp = document.querySelector('input[name="pvp"]:checked')?.value || "";
     const stars = [...document.querySelectorAll('input[name="stars"]:checked')].map(i => i.value);
-    if (when) parts.push(when);
+    const onC = new Set([...document.querySelectorAll('input[name="cond"]:checked')].map(i => i.value));
+    for (const [k, , term] of COND) if (onC.has(k)) parts.push(term);
+    const range = (prefix, a, b) => {
+      const lo = $(a).value.trim(), hi = $(b).value.trim();
+      if (lo === "" && hi === "") return "";
+      if (lo !== "" && hi !== "") return lo === hi ? `${prefix}${lo}` : `${prefix}${lo}-${hi}`;
+      return lo !== "" ? `${prefix}${lo}-` : `${prefix}-${hi}`;
+    };
+    const cp = range("cp", "cpMin", "cpMax"), days = range("일수", "dayMin", "dayMax");
+    if (cp) parts.push(cp);
+    if (days) parts.push(days);
+    if (when && !(days && when === "일수0")) parts.push(when);
     if (dist) parts.push(dist);
     if (pvp) parts.push(pvp);
     if (stars.length && stars.length < STARS.length) parts.push(stars.join(",")); // 쉼표는 &보다 먼저 묶이므로 괄호 없이 안전
@@ -257,11 +299,14 @@
     $("result").value = parts.join("&") || "(조건을 골라 주세요)";
   }
   document.querySelector(".builder").addEventListener("change", build);
+  document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
 
   function applySet(set) {
     document.querySelectorAll('input[name="stars"]').forEach(i => { i.checked = set.stars.includes(i.value); });
     document.querySelectorAll('input[name="excl"]').forEach(i => { i.checked = set.excl.includes(i.value); });
     for (const g of ["when", "dist", "pvp"]) document.querySelectorAll(`input[name="${g}"]`).forEach(i => { i.checked = i.value === set[g]; });
+    document.querySelectorAll('input[name="cond"]').forEach(i => { i.checked = (set.cond || []).includes(i.value); });
+    for (const id of ["cpMin", "cpMax", "dayMin", "dayMax"]) $(id).value = "";
     build();
   }
 

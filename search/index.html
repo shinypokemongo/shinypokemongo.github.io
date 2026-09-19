@@ -115,6 +115,7 @@
   .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
   .num input::placeholder { color: #5E5980; font-weight: 600; }
   .hint { margin: 0; font-size: 13px; color: var(--dim); }
+  .reset-row { display: flex; justify-content: flex-end; margin-top: -12px; }
 
   /* ── 4. 평가 막대 ── */
   .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; }
@@ -239,6 +240,7 @@
         <div class="chips" id="dist"></div>
       </fieldset>
       <div class="fixed"><code id="bq"></code><button class="btn" type="button" id="bcopy">복사</button></div>
+      <div class="reset-row"><button class="btn ghost" type="button" id="breset">↺ 초기화</button></div>
       <p class="hint">리모트 레이드로 잡은 포켓몬은 거리를 레이드한 체육관 위치로 잽니다. 거리 검색엔 <b>전설</b>도 빼 두면 편해요.</p>
     </div>
   </section>
@@ -513,6 +515,15 @@
     $("bq").textContent = q; $("bcopy").dataset.copy = q;
   }
   document.querySelector(".builder").addEventListener("change", build);
+  $("breset").addEventListener("click", () => {
+    document.querySelectorAll('input[name="stars"]').forEach((i) => { i.checked = ["0*", "1*", "2*"].includes(i.value); });
+    document.querySelectorAll('input[name="excl"]').forEach((i) => { i.checked = B_EXCL.find((e) => e[0] === i.value)[3]; });
+    document.querySelectorAll('input[name="cond"]').forEach((i) => { i.checked = false; });
+    document.querySelectorAll('input[name="year"], input[name="dist"]').forEach((i) => { i.checked = i.value === ""; });
+    for (const id of ["cpMin", "cpMax", "dayMin", "dayMax"]) $(id).value = "";
+    build();
+    const t = $("toast"); t.textContent = "처음 상태로 돌렸어요"; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1400);
+  });
   document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
   build();
 

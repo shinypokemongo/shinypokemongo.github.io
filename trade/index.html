@@ -60,6 +60,8 @@
   .save { flex: 1 1 160px; padding: 12px; border-radius: 12px; border: 0; background: var(--shiny); color: var(--on-accent); font-family: var(--display); font-weight: 800; }
   .ghost { padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 14px; color: var(--dim); }
   .ghost.bad { color: var(--bad); }
+  .ghost:disabled { opacity: .4; cursor: not-allowed; }
+  .ghost.arm { background: var(--bad); border-color: var(--bad); color: #fff; }
   .seg { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 3px; border-radius: 12px; background: var(--surface-2); }
   .seg button { padding: 8px 13px; border: 0; border-radius: 9px; background: none; font-weight: 700; font-size: 14px; color: var(--dim); white-space: nowrap; }
   .seg button[aria-pressed="true"] { background: var(--shiny); color: var(--on-accent); }
@@ -133,6 +135,7 @@
     <div class="bar">
       <button type="button" class="save" id="save">이미지로 저장</button>
       <div class="seg" id="cols" role="group" aria-label="칸 크기"><button type="button" data-v="4">크게</button><button type="button" data-v="6">보통</button><button type="button" data-v="8">작게</button></div>
+      <button type="button" class="ghost bad" id="edel" disabled>고른 칸 빼기</button>
       <button type="button" class="ghost bad" id="clear">전부 지우기</button>
     </div>
 
@@ -147,7 +150,6 @@
         <button type="button" class="ghost" id="eleft" aria-label="앞으로 옮기기">←</button>
         <button type="button" class="ghost" id="eright" aria-label="뒤로 옮기기">→</button>
         <button type="button" class="ghost" id="eswap"></button>
-        <button type="button" class="ghost bad" id="edel">빼기</button>
       </div>
     </div>
 
@@ -315,7 +317,8 @@
     $("g-bg").innerHTML = `<button type="button" class="cell none" data-id="" aria-current="${!t.bg}">배경 없음</button>` + rows.map((b) => `<button type="button" class="cell bgc" data-id="${b[0]}" aria-current="${b[0] === t.bg}"><img src="${bgSrc(b[0], true)}" alt="" loading="lazy" width="160" height="160">${b[5].includes(r[1]) ? `<span class="tag">${b[6].includes(r[1]) ? "이로치로 나옴" : "나온 적 있음"}</span>` : ""}${b[4] ? '<span class="tag plain">바탕만</span>' : ""}<span>${b[1]}</span><small>${b[2]}</small></button>`).join("");
   }
   function drawEditor() {
-    const t = selTile(); $("editor").hidden = !t; $("tab-bg").disabled = !t;
+    const t = selTile(); $("editor").hidden = !t; $("tab-bg").disabled = !t; $("edel").disabled = !t;
+    $("clear").disabled = !L.want.length && !L.give.length;
     if (!t) { if (S.tab === "bg") S.tab = "mon"; return; }
     const r = MON.get(t.id);
     $("ename").innerHTML = `${r[2]}${r[3] ? `<small>${r[3]}</small>` : ""}`;
@@ -367,7 +370,13 @@
   $("eleft").addEventListener("click", () => move(-1)); $("eright").addEventListener("click", () => move(1));
   $("eswap").addEventListener("click", () => { const s = S.sel; if (!s) return; const to = s.list === "want" ? "give" : "want"; L[to].push(L[s.list].splice(s.i, 1)[0]); S.sel = { list: to, i: L[to].length - 1 }; render(); });
   $("edel").addEventListener("click", () => { const s = S.sel; if (!s) return; L[s.list].splice(s.i, 1); S.sel = null; render(); });
-  $("clear").addEventListener("click", () => { if (!L.want.length && !L.give.length) return; if (!confirm("구해요·드려요 목록을 전부 지울까요?")) return; L.want = []; L.give = []; S.sel = null; render(); });
+  let armTimer = 0;
+  const disarm = () => { clearTimeout(armTimer); $("clear").classList.remove("arm"); $("clear").textContent = "전부 지우기"; };
+  $("clear").addEventListener("click", () => {
+    if (!L.want.length && !L.give.length) return;
+    if (!$("clear").classList.contains("arm")) { $("clear").classList.add("arm"); $("clear").textContent = "한 번 더 누르면 지워요"; armTimer = setTimeout(disarm, 3500); return; }
+    disarm(); L.want = []; L.give = []; S.sel = null; render(); toast("전부 지웠어요");
+  });
 
   $("save").addEventListener("click", async () => {
     if (!L.want.length && !L.give.length) return toast("먼저 포켓몬을 골라 주세요");

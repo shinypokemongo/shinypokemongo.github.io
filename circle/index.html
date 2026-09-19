@@ -147,7 +147,13 @@
     </ol>
 
     <div class="opts">
-      <div><span class="lab">포켓몬 동작</span>
+      <div><span class="lab">포켓몬</span>
+        <div class="seg" id="kind" role="group" aria-label="포켓몬 종류">
+          <button type="button" data-v="normal" aria-pressed="true">일반 · 가끔 날뜀</button>
+          <button type="button" data-v="shadow" aria-pressed="false">그림자 · 자주 날뜀</button>
+        </div>
+      </div>
+      <div><span class="lab">동작 길이</span>
         <div class="seg" id="motion" role="group" aria-label="포켓몬 동작 길이">
           <button type="button" data-v="short" aria-pressed="true">짧게 0.8초</button>
           <button type="button" data-v="long" aria-pressed="false">길게 1.8초</button>
@@ -183,7 +189,7 @@
 
   <section aria-labelledby="diff-h">
     <h2 id="diff-h">실제 게임과 다른 점</h2>
-    <p class="sub" style="margin-bottom:0">포켓몬마다 날뛰는 동작의 길이와 모양이 달라요. 여기서는 짧은 동작과 긴 동작 두 가지로만 연습하니, 게임에서는 잡으려는 포켓몬의 동작이 어떻게 끝나는지 먼저 한두 번 지켜보세요. 커브볼은 넣지 않았습니다. 곧게 미는 것만으로 타이밍을 익히는 데는 충분해요.</p>
+    <p class="sub" style="margin-bottom:0">포켓몬마다 날뛰는 동작의 길이와 모양이 달라요. 그림자 포켓몬은 훨씬 자주 날뛰고요. 여기서는 일반·그림자, 짧은 동작·긴 동작으로만 연습하니, 게임에서는 잡으려는 포켓몬의 동작이 어떻게 끝나는지 먼저 한두 번 지켜보세요. 커브볼은 넣지 않았습니다. 곧게 미는 것만으로 타이밍을 익히는 데는 충분해요.</p>
   </section>
 
   <section class="about" aria-labelledby="ab-h">
@@ -212,7 +218,7 @@
   ];
   const gradeOf = (rho) => (rho <= 0.3 ? 2 : rho <= 0.7 ? 1 : 0);
 
-  const S = { stage: 0, long: false, aid: true, streak: 0, best: 0, n: 0, ok: 0 };
+  const S = { stage: 0, long: false, shadow: false, aid: true, streak: 0, best: 0, n: 0, ok: 0 };
   try { const o = JSON.parse(localStorage.getItem("circlelock") || "{}"); if (o.best > 0) S.best = o.best; if (o.stage >= 0 && o.stage <= 2) S.stage = o.stage; } catch (e) {}
   const save = () => { try { localStorage.setItem("circlelock", JSON.stringify({ best: S.best, stage: S.stage })); } catch (e) {} };
 
@@ -231,6 +237,8 @@
     fly: null, res: null, step: -1, cue: "",
   };
   const rand = (a, b) => a + Math.random() * (b - a);
+  // 다음 날뛰기까지 쉬는 시간. 그림자는 실측(잠만보: 착지 1.3초 뒤 또 점프)에 맞춰 촘촘하게, 일반은 느긋하게
+  const gap = () => (S.shadow ? rand(1.0, 1.8) : rand(3.5, 6.0));
 
   // ── 입력 ─────────────────────────────────────────────
   const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
@@ -316,10 +324,10 @@
     G.t += dt;
     const A = G.atk;
     if (!A.on && G.t >= G.nextAtk) { A.on = true; A.t0 = G.t; A.dur = S.long ? 1.8 : 0.8; A.id++; }
-    else if (A.on && G.t >= A.t0 + A.dur) { A.on = false; A.endedAt = G.t; G.nextAtk = G.t + rand(1.9, 3.8); }
+    else if (A.on && G.t >= A.t0 + A.dur) { A.on = false; A.endedAt = G.t; G.nextAtk = G.t + gap(); }
     if (G.ball === "held" && !A.on) { G.rho -= dt * ((1 - RHO_MIN) / SHRINK); if (G.rho < RHO_MIN) G.rho = 1; }
     if (G.ball === "fly" && G.t - G.fly.t0 >= FLIGHT) land();
-    if (G.ball === "result" && G.t - G.res.t0 > 1.25) { G.ball = "home"; G.res = null; G.rho = 1; G.nextAtk = Math.max(G.nextAtk, G.t + 1.6); }
+    if (G.ball === "result" && G.t - G.res.t0 > 1.25) { G.ball = "home"; G.res = null; G.rho = 1; G.nextAtk = Math.max(G.nextAtk, G.t + (S.shadow ? 1.0 : 1.6)); }
 
     // 지금 해야 할 일
     const zone = G.rho < GRADES[S.stage].zone;
@@ -342,8 +350,11 @@
     let jump = 0, rot = 0, sq = 1 + Math.sin(G.t * 2.2) * 0.025;
     if (atk) { jump = -Math.sin(Math.PI * p) * s * 1.0; rot = S.long ? p * Math.PI * 2 : Math.sin(p * Math.PI * 4) * 0.28; sq = 1; }
     ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.ellipse(x, y + s * 1.02, s * (0.95 + jump / (s * 4)), s * 0.2, 0, 0, 7); ctx.fill();
+    if (S.shadow) { // 그림자 오라
+      for (let i = 0; i < 7; i++) { const a = i * 0.9 + G.t * 1.6, r = s * (1.12 + 0.1 * Math.sin(G.t * 3 + i)); ctx.fillStyle = "rgba(150,70,230,.16)"; ctx.beginPath(); ctx.arc(x + Math.cos(a) * s * 0.3, y + jump + Math.sin(a) * s * 0.3 - s * 0.1, r, 0, 7); ctx.fill(); }
+    }
     ctx.save(); ctx.translate(x, y + jump); ctx.rotate(rot); ctx.scale(1 / sq, sq);
-    const body = ctx.createLinearGradient(0, -s, 0, s); body.addColorStop(0, "#5FE3D0"); body.addColorStop(1, "#1F8F97");
+    const body = ctx.createLinearGradient(0, -s, 0, s); body.addColorStop(0, S.shadow ? "#8E7BD8" : "#5FE3D0"); body.addColorStop(1, S.shadow ? "#3B2A78" : "#1F8F97");
     ctx.fillStyle = body;
     for (const k of [-1, 1]) { ctx.beginPath(); ctx.moveTo(k * s * 0.38, -s * 0.7); ctx.quadraticCurveTo(k * s * 0.95, -s * 1.55, k * s * 0.8, -s * 0.35); ctx.closePath(); ctx.fill(); }
     ctx.beginPath(); ctx.ellipse(0, 0, s, s * 0.93, 0, 0, 7); ctx.fill();
@@ -351,7 +362,7 @@
     ctx.fillStyle = "rgba(255,120,120,.55)"; for (const k of [-1, 1]) { ctx.beginPath(); ctx.ellipse(k * s * 0.6, s * 0.08, s * 0.13, s * 0.09, 0, 0, 7); ctx.fill(); }
     for (const k of [-1, 1]) {
       ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(k * s * 0.34, -s * 0.2, s * 0.17, s * 0.2, 0, 0, 7); ctx.fill();
-      ctx.fillStyle = "#10202E"; ctx.beginPath(); ctx.arc(k * s * 0.34, -s * 0.17, s * 0.09, 0, 7); ctx.fill();
+      ctx.fillStyle = S.shadow ? "#D81E3A" : "#10202E"; ctx.beginPath(); ctx.arc(k * s * 0.34, -s * 0.17, s * 0.09, 0, 7); ctx.fill();
       if (atk) { ctx.strokeStyle = "#10202E"; ctx.lineWidth = s * 0.07; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(k * s * 0.14, -s * 0.36); ctx.lineTo(k * s * 0.54, -s * 0.52); ctx.stroke(); }
     }
     ctx.fillStyle = "#10202E"; ctx.beginPath();
@@ -434,6 +445,7 @@
   }
   $("grade").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.stage = +b.dataset.g; S.streak = 0; save(); paintStage(); say("", GRADES[S.stage].ko, S.stage === 0 ? "원은 조금만 줄이고 손을 떼도 돼요. 날뛰는 중에 던져서 끝난 뒤에 도착시키는 타이밍부터 익히세요." : `점선 안쪽까지 원이 줄었을 때 손을 떼세요. 세 번 연속이면 ${S.stage === 1 ? "엑설런트로 올라갑니다." : "완성입니다."}`); });
   $("motion").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.long = b.dataset.v === "long"; $("motion").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); say("", S.long ? "긴 동작" : "짧은 동작", S.long ? "볼이 날아가는 시간보다 동작이 길어요. 시작하자마자 던지면 튕겨냅니다. 잡고 기다렸다가 끝나기 1초 전에 던지세요." : "동작이 짧아서 날뛰기 시작한 걸 보고 바로 던지면 맞아요."); });
+  $("kind").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.shadow = b.dataset.v === "shadow"; $("kind").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); G.nextAtk = G.t + gap(); say("", S.shadow ? "그림자 포켓몬" : "일반 포켓몬", S.shadow ? "쉴 틈 없이 날뜁니다. 한 번 놓쳐도 금방 또 날뛰니, 원만 줄여 두면 기회는 많아요. 대신 가만히 있을 때 던지면 거의 튕겨냅니다." : "가끔씩만 날뜁니다. 원을 줄여 두고 느긋하게 기다리세요."); });
   $("aid").addEventListener("change", (e) => { S.aid = e.target.checked; });
 
   let last = 0;

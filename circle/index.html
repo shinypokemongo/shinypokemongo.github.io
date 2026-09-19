@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="포켓몬고 원고정 연습기 — 원을 줄여 두고 날뛰는 틈에 던지는 타이밍을 브라우저에서 바로 연습합니다. 나이스부터 엑설런트까지.">
+<title>이로치수집가 원고정 연습기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 원고정 = 밤 들판의 포획 화면. 청록 남색 + 볼의 주황빨강, 쇼케이스(금)·검색어(초록)·강화(분홍)와 한 집안 */
+  :root {
+    --ink: #0A131F; --surface: #111F30; --surface-2: #182B41; --line: #27425F;
+    --text: #EDF4FB; --dim: #94A9C2; --faint: #5E7690;
+    --ball: #FF7A59; --ball-deep: #3D1A10;
+    --nice: #7FE0A8; --great: #FFC94D; --exc: #FF7A59; --sky: #6BD6FF;
+    --on-ball: #2B0D05; --on-nice: #06281A; --on-great: #2B1F00;
+    --good-bg: #0F2A20; --good-line: #2F6B4B; --bad-line: #6B3A2F; --up-bg: #2C2408; --up-line: #6B5A1E;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F3F7FB; --surface: #FFFFFF; --surface-2: #E8EFF6; --line: #D0DCE8;
+      --text: #12202F; --dim: #52677F; --faint: #8A9DB2;
+      --ball: #D9471F; --ball-deep: #FDE7DF; --nice: #0B8A50; --great: #9A6A00; --exc: #D9471F; --sky: #1670B8;
+      --on-ball: #FFFFFF; --on-nice: #FFFFFF; --on-great: #FFFFFF;
+      --good-bg: #E0F5EA; --good-line: #A9DFC2; --bad-line: #F3BBA9; --up-bg: #FBF0CF; --up-line: #E6CF8A;
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--sky); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--ball); outline-offset: 2px; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand b { color: var(--ball); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--ball); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
+
+  .game { display: grid; gap: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+  .seg { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 3px; border-radius: 10px; background: var(--surface-2); }
+  .seg button { padding: 7px 12px; border-radius: 8px; border: 0; background: none; font-size: 14px; font-weight: 700; color: var(--dim); cursor: pointer; white-space: nowrap; }
+  .seg button[aria-pressed="true"] { background: var(--ball); color: var(--on-ball); }
+  .seg button[data-g="0"][aria-pressed="true"] { background: var(--nice); color: var(--on-nice); }
+  .seg button[data-g="1"][aria-pressed="true"] { background: var(--great); color: var(--on-great); }
+  .streak { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--dim); }
+  .streak i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); }
+  .streak i.on { background: var(--ball); border-color: var(--ball); }
+
+  .stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0C1A2A; }
+  canvas { display: block; width: 100%; touch-action: pan-y; }
+  /* 볼이 놓인 아래쪽만 터치를 가져간다 — 위쪽은 화면 스크롤이 되게 */
+  .pad { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .pad:active { cursor: grabbing; }
+
+  .say { min-height: 3.2em; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 15px; }
+  .say b { font-family: var(--display); font-weight: 800; margin-right: 6px; }
+  .say.good { border-color: var(--good-line); background: var(--good-bg); } .say.good b { color: var(--nice); }
+  .say.bad { border-color: var(--bad-line); background: var(--ball-deep); } .say.bad b { color: var(--ball); }
+  .say.up { border-color: var(--up-line); background: var(--up-bg); } .say.up b { color: var(--great); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; gap: 2px; padding: 9px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--faint); line-height: 1.35; }
+  .steps li::before { content: counter(s); font-family: var(--mono); font-size: 12px; }
+  .steps li[aria-current="step"] { border-color: var(--ball); background: var(--ball-deep); color: var(--text); }
+  .steps li[aria-current="step"]::before { color: var(--ball); }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .opts .lab { font-size: 13px; font-weight: 700; color: var(--dim); margin-right: 6px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+  .check input { width: 20px; height: 20px; accent-color: var(--ball); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .stats div { display: grid; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .stats span { font-size: 12px; font-weight: 700; color: var(--dim); }
+  .stats b { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+  .keys { font-size: 13px; color: var(--faint); margin: 0; }
+  .keys kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .rule > b { font-family: var(--mono); font-size: 22px; line-height: 1.2; color: var(--ball); }
+  .rule strong { font-family: var(--display); font-weight: 800; font-size: 15px; display: block; }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--ball); }
+  @media (max-width: 520px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .go { grid-template-columns: 1fr; } }
+  @media (hover: none) { .keys { display: none; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a href="../">포켓몬고 <b>이로치 수집가</b></a> · 원고정</div>
+    <h1>원고정 연습기</h1>
+  </header>
+
+  <section class="game" aria-labelledby="game-h">
+    <h2 id="game-h" class="vh">연습장</h2>
+    <div class="bar">
+      <div class="seg" id="grade" role="group" aria-label="연습 단계">
+        <button type="button" data-g="0" aria-pressed="true">나이스</button>
+        <button type="button" data-g="1" aria-pressed="false">그레이트</button>
+        <button type="button" data-g="2" aria-pressed="false">엑설런트</button>
+      </div>
+      <div class="streak" id="streak" aria-label="연속 성공"><span>연속</span><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <canvas id="cv" aria-hidden="true"></canvas>
+      <div class="pad" id="pad" tabindex="0" role="application" aria-label="볼 조작 영역. 스페이스를 누르고 있으면 원이 줄어들고, 위쪽 화살표로 던집니다."></div>
+    </div>
+
+    <div class="say" id="say" aria-live="polite"><b>시작</b>아래 볼을 꾹 누르고 있어 보세요. 돌릴 필요 없이 누르고만 있어도 원이 줄어듭니다.</div>
+
+    <ol class="steps" id="steps">
+      <li>볼을 꾹 눌러 원 줄이고 손 떼기</li>
+      <li>날뛸 때까지 기다리기</li>
+      <li>날뛰기 시작하면 볼 잡기</li>
+      <li>끝나기 1초 전에 던지기</li>
+    </ol>
+
+    <div class="opts">
+      <div><span class="lab">포켓몬 동작</span>
+        <div class="seg" id="motion" role="group" aria-label="포켓몬 동작 길이">
+          <button type="button" data-v="short" aria-pressed="true">짧게 0.8초</button>
+          <button type="button" data-v="long" aria-pressed="false">길게 1.8초</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="aid" checked> 도움 표시 (기준선·타이밍 글자)</label>
+    </div>
+
+    <div class="stats">
+      <div><span>던진 횟수</span><b id="st-n">0</b></div>
+      <div><span>성공</span><b id="st-ok">0</b></div>
+      <div><span>최고 연속</span><b id="st-best">0</b></div>
+    </div>
+    <p class="keys">키보드: <kbd>Space</kbd> 누르고 있기 = 볼 잡기 · <kbd>↑</kbd> = 던지기</p>
+  </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener"><b>원고정, 영상으로 보기</b><span>실제 포획에서 두 번 연속 엑설런트</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>한 장으로 보는 정리</b><span>블로그에서 저장해 두고 보기</span></a>
+  </nav>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">원고정, 다섯 단계</h2>
+    <p class="sub">원을 원하는 크기에 멈춰 두고, 포켓몬이 날뛰는 틈에 던져서 매번 같은 크기에 맞히는 방법이에요.</p>
+    <div class="rules">
+      <div class="rule"><b>1</b><div><strong>볼을 눌러 원을 줄이고 손 떼기</strong>누르고만 있어도 원이 줄어요. 돌릴 필요 없습니다. 원하는 크기에서 손을 떼면 원은 안 보여도 그 크기로 남아 있어요.</div></div>
+      <div class="rule"><b>2</b><div><strong>날뛸 때까지 기다리기</strong>가만히 있을 때 던지면 날아가는 사이에 날뛰기 시작해서 튕겨낼 수 있어요. 기다리는 게 기술의 절반입니다.</div></div>
+      <div class="rule"><b>3</b><div><strong>날뛰기 시작하면 볼 잡기</strong>날뛰는 동안엔 원이 줄지 않아요. 다만 동작이 끝난 뒤에도 계속 잡고 있으면 다시 줄다가 큰 원으로 돌아가니, 잡으면 바로 던질 준비를 하세요.</div></div>
+      <div class="rule"><b>4</b><div><strong>끝나기 1초 전에 던지기</strong>볼이 날아가는 데 1초쯤 걸려요. 동작이 끝난 걸 보고 던지면 늦습니다. 던지는 순간이 아니라 도착하는 순간에 포켓몬이 가만히 있어야 해요. 그래서 끝나는 모습을 잘 봐 둬야 합니다.</div></div>
+      <div class="rule"><b>5</b><div><strong>나이스 → 그레이트 → 엑설런트</strong>처음부터 작은 원을 노리면 타이밍을 못 익혀요. 큰 원으로 타이밍부터 손에 붙이고 원을 줄여 가세요.</div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="diff-h">
+    <h2 id="diff-h">실제 게임과 다른 점</h2>
+    <p class="sub" style="margin-bottom:0">포켓몬마다 날뛰는 동작의 길이와 모양이 달라요. 여기서는 짧은 동작과 긴 동작 두 가지로만 연습하니, 게임에서는 잡으려는 포켓몬의 동작이 어떻게 끝나는지 먼저 한두 번 지켜보세요. 커브볼은 넣지 않았습니다. 곧게 미는 것만으로 타이밍을 익히는 데는 충분해요.</p>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">원고정, <em>손에 익을 때까지</em></h2>
+    <p class="lede">영상으로 봐도 손이 안 따라가는 기술이라 여기서 바로 연습할 수 있게 만들었어요. 나이스부터 시작해서 세 번 연속 성공하면 다음 단계로 올라갑니다. 볼이 아까울 일도 없어요.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../search/">검색어 검사기</a> · <a href="../showcase/">쇼케이스 계산기</a> · <a href="../powerup/">강화 계산기</a></div>
+    <div>손을 떼도 원 크기가 남는 것, 볼이 날아가는 시간은 직접 찍은 포획 영상 두 편을 0.1초 단위로 재서 맞췄어요. 연습용 포켓몬은 이 도구를 위해 그린 그림입니다. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d"), pad = $("pad"), stageEl = $("stage");
+
+  const FLIGHT = 0.9;          // 볼이 날아가는 시간(초) — 실측 0.8~1초
+  const SHRINK = 2.4;          // 큰 원 → 가장 작은 원
+  const RHO_MIN = 0.08;
+  const GRADES = [
+    { key: "nice", name: "Nice!", ko: "나이스", max: 1.0, zone: 0.95, color: "#7FE0A8" },
+    { key: "great", name: "Great!", ko: "그레이트", max: 0.7, zone: 0.7, color: "#FFC94D" },
+    { key: "exc", name: "Excellent!", ko: "엑설런트", max: 0.3, zone: 0.3, color: "#FF7A59" },
+  ];
+  const gradeOf = (rho) => (rho <= 0.3 ? 2 : rho <= 0.7 ? 1 : 0);
+
+  const S = { stage: 0, long: false, aid: true, streak: 0, best: 0, n: 0, ok: 0 };
+  try { const o = JSON.parse(localStorage.getItem("circlelock") || "{}"); if (o.best > 0) S.best = o.best; if (o.stage >= 0 && o.stage <= 2) S.stage = o.stage; } catch (e) {}
+  const save = () => { try { localStorage.setItem("circlelock", JSON.stringify({ best: S.best, stage: S.stage })); } catch (e) {} };
+
+  let W = 0, H = 0;
+  const geo = () => ({ tx: W / 2, ty: H * 0.36, R0: Math.min(W * 0.17, H * 0.14, 80), hx: W / 2, hy: H * 0.85, br: Math.min(34, W * 0.085) });
+  function resize() {
+    W = stageEl.clientWidth;
+    H = Math.round(Math.max(380, Math.min(W * 1.2, 580, innerHeight * 0.74)));
+    const d = Math.min(devicePixelRatio || 1, 2);
+    cv.style.height = H + "px"; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+
+  const G = {
+    t: 0, rho: 1, holding: false, ball: "home", px: 0, py: 0, samples: [],
+    atk: { on: false, t0: 0, dur: 0.8, id: 0, endedAt: -9 }, nextAtk: 3,
+    fly: null, res: null, step: -1, cue: "",
+  };
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  // ── 입력 ─────────────────────────────────────────────
+  const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  function grab(x, y) { if (G.ball !== "home") return false; G.holding = true; G.ball = "held"; G.px = x; G.py = y; G.samples = [{ x, y, t: performance.now() }]; return true; }
+  function letGo() { G.holding = false; if (G.ball === "held") G.ball = "home"; }
+  function throwBall(ox) {
+    const g = geo();
+    G.holding = false; G.ball = "fly";
+    G.fly = { t0: G.t, sx: G.px, sy: G.py, ox, atkId: G.atk.on ? G.atk.id : -1 };
+    S.n++; paintStats();
+  }
+  pad.addEventListener("pointerdown", (e) => {
+    const p = pos(e), g = geo();
+    if (Math.hypot(p.x - g.hx, p.y - g.hy) > g.br * 2.2) return;
+    if (grab(p.x, p.y)) { pad.setPointerCapture(e.pointerId); e.preventDefault(); }
+  });
+  pad.addEventListener("pointermove", (e) => {
+    if (G.ball !== "held" || !pad.hasPointerCapture(e.pointerId)) return;
+    const p = pos(e); G.px = p.x; G.py = Math.max(H * 0.5, p.y);
+    G.samples.push({ x: p.x, y: p.y, t: performance.now() });
+    if (G.samples.length > 12) G.samples.shift();
+  });
+  function pointerEnd(e) {
+    if (G.ball !== "held" || !pad.hasPointerCapture(e.pointerId)) return;
+    const now = performance.now(), recent = G.samples.filter((s) => now - s.t < 160);
+    const a = recent[0], b = recent[recent.length - 1];
+    if (a && b && b !== a) {
+      const dy = b.y - a.y, dx = b.x - a.x, dt = Math.max(1, b.t - a.t);
+      if (-dy > 26 && -dy / dt > 0.3) {
+        const g = geo(), slope = Math.max(-1.2, Math.min(1.2, dx / -dy));
+        return throwBall(slope * (g.hy - g.ty) * 0.45);
+      }
+    }
+    letGo();
+  }
+  pad.addEventListener("pointerup", pointerEnd);
+  pad.addEventListener("pointercancel", () => letGo());
+  pad.addEventListener("keydown", (e) => {
+    const g = geo();
+    if (e.code === "Space") { e.preventDefault(); if (!e.repeat) grab(g.hx, g.hy); }
+    if (e.code === "ArrowUp" || e.code === "Enter") { e.preventDefault(); if (G.ball === "held" || grab(g.hx, g.hy)) throwBall(0); }
+  });
+  pad.addEventListener("keyup", (e) => { if (e.code === "Space") { e.preventDefault(); letGo(); } });
+
+  // ── 판정 ─────────────────────────────────────────────
+  function say(kind, head, text) { const el = $("say"); el.className = "say " + kind; el.innerHTML = `<b>${head}</b>${text}`; }
+  function land() {
+    const g = geo(), f = G.fly, need = GRADES[S.stage], off = Math.abs(f.ox), r = g.R0 * G.rho;
+    const locked = f.atkId === G.atk.id && f.atkId >= 0 && !G.atk.on;   // 날뛰는 중에 던져서, 끝난 뒤에 도착
+    let res, ok = false;
+    if (G.atk.on) {
+      res = { text: "튕겨냈다!", color: "#FF5A5A" };
+      if (f.atkId === G.atk.id) {
+        const early = G.atk.t0 + G.atk.dur - G.t;
+        say("bad", "너무 빨랐어요", `동작이 끝나기 ${early.toFixed(1)}초 전에 도착했어요. 딱 그만큼만 늦게 던지면 됩니다.`);
+      } else say("bad", "튕겨냈어요", "던진 뒤에 날뛰기 시작했어요. 이래서 원고정을 씁니다. 날뛰는 걸 보고 나서 던지면 이런 일이 없어요.");
+    } else if (off > g.R0 + 14) {
+      res = { text: "빗나감", color: "#94A9C2" };
+      say("bad", "빗나갔어요", "옆으로 흘렀어요. 손가락을 위로 곧게 밀어 보세요.");
+    } else if (off > r + 9) {
+      res = { text: "원 밖", color: "#94A9C2" };
+      say("bad", "원 밖에 맞았어요", "포켓몬에는 맞았지만 원 안이 아니라 판정 글자가 안 떠요. 원이 작을수록 더 곧게 던져야 합니다.");
+    } else {
+      const gi = gradeOf(G.rho), gr = GRADES[gi];
+      res = { text: gr.name, color: gr.color };
+      const after = Math.max(0, G.t - G.atk.endedAt);
+      if (gi < S.stage) say("bad", `${gr.ko}`, `타이밍은 맞았는데 원이 아직 커요. ${need.ko} 크기까지 줄인 다음에 손을 떼세요.`);
+      else if (!locked) say("up", `${gr.ko}, 그런데`, "가만히 있을 때 던져서 맞은 거라 운이 섞였어요. 연속 기록은 날뛰는 중에 던진 것만 셉니다.");
+      else { ok = true; say("good", `${gr.ko}!`, `동작이 끝나고 ${after.toFixed(1)}초 뒤에 도착했어요. ${after < 0.5 ? "딱 좋은 타이밍이에요." : "맞았어요. 조금 더 일찍 던져도 됩니다."}`); }
+    }
+    if (ok) {
+      S.ok++; S.streak++; S.best = Math.max(S.best, S.streak);
+      if (S.streak >= 3 && S.stage < 2) { S.stage++; S.streak = 0; say("up", "세 번 연속!", `이제 ${GRADES[S.stage].ko} 크기로 올라갑니다. 원을 더 줄이고 손을 떼세요.`); paintStage(); }
+      save();
+    } else S.streak = 0;
+    try { if (ok && navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+    G.res = { ...res, t0: G.t, x: g.tx + f.ox * 0.4, ok };
+    G.ball = "result"; G.fly = null; paintStats();
+  }
+
+  // ── 진행 ─────────────────────────────────────────────
+  function update(dt) {
+    G.t += dt;
+    const A = G.atk;
+    if (!A.on && G.t >= G.nextAtk) { A.on = true; A.t0 = G.t; A.dur = S.long ? 1.8 : 0.8; A.id++; }
+    else if (A.on && G.t >= A.t0 + A.dur) { A.on = false; A.endedAt = G.t; G.nextAtk = G.t + rand(1.9, 3.8); }
+    if (G.ball === "held" && !A.on) { G.rho -= dt * ((1 - RHO_MIN) / SHRINK); if (G.rho < RHO_MIN) G.rho = 1; }
+    if (G.ball === "fly" && G.t - G.fly.t0 >= FLIGHT) land();
+    if (G.ball === "result" && G.t - G.res.t0 > 1.25) { G.ball = "home"; G.res = null; G.rho = 1; G.nextAtk = Math.max(G.nextAtk, G.t + 1.6); }
+
+    // 지금 해야 할 일
+    const zone = G.rho < GRADES[S.stage].zone;
+    let step, cue;
+    if (G.ball === "fly" || G.ball === "result") { step = 3; cue = ""; }
+    else if (A.on) {
+      const left = A.t0 + A.dur - G.t;
+      if (!zone) { step = 0; cue = "원부터 줄여야 해요"; }
+      else if (G.ball === "held") { step = 3; cue = left > FLIGHT + 0.12 ? "아직… 잡고만 있기" : "지금 던져요!"; }
+      else { step = 2; cue = "지금 볼을 잡아요!"; }
+    } else if (G.ball === "held") { step = 0; cue = zone ? "지금 손 떼기!" : "꾹 누르고 있기"; }
+    else { step = zone ? 1 : 0; cue = zone ? "날뛸 때까지 기다리기…" : "볼을 꾹 누르기"; }
+    G.cue = cue;
+    if (step !== G.step) { G.step = step; [...$("steps").children].forEach((li, i) => (i === step ? li.setAttribute("aria-current", "step") : li.removeAttribute("aria-current"))); }
+  }
+
+  // ── 그리기 ───────────────────────────────────────────
+  function drawMon(x, y, s, p) {
+    const atk = p >= 0;
+    let jump = 0, rot = 0, sq = 1 + Math.sin(G.t * 2.2) * 0.025;
+    if (atk) { jump = -Math.sin(Math.PI * p) * s * 1.0; rot = S.long ? p * Math.PI * 2 : Math.sin(p * Math.PI * 4) * 0.28; sq = 1; }
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.ellipse(x, y + s * 1.02, s * (0.95 + jump / (s * 4)), s * 0.2, 0, 0, 7); ctx.fill();
+    ctx.save(); ctx.translate(x, y + jump); ctx.rotate(rot); ctx.scale(1 / sq, sq);
+    const body = ctx.createLinearGradient(0, -s, 0, s); body.addColorStop(0, "#5FE3D0"); body.addColorStop(1, "#1F8F97");
+    ctx.fillStyle = body;
+    for (const k of [-1, 1]) { ctx.beginPath(); ctx.moveTo(k * s * 0.38, -s * 0.7); ctx.quadraticCurveTo(k * s * 0.95, -s * 1.55, k * s * 0.8, -s * 0.35); ctx.closePath(); ctx.fill(); }
+    ctx.beginPath(); ctx.ellipse(0, 0, s, s * 0.93, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.beginPath(); ctx.ellipse(0, s * 0.32, s * 0.62, s * 0.5, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "rgba(255,120,120,.55)"; for (const k of [-1, 1]) { ctx.beginPath(); ctx.ellipse(k * s * 0.6, s * 0.08, s * 0.13, s * 0.09, 0, 0, 7); ctx.fill(); }
+    for (const k of [-1, 1]) {
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(k * s * 0.34, -s * 0.2, s * 0.17, s * 0.2, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = "#10202E"; ctx.beginPath(); ctx.arc(k * s * 0.34, -s * 0.17, s * 0.09, 0, 7); ctx.fill();
+      if (atk) { ctx.strokeStyle = "#10202E"; ctx.lineWidth = s * 0.07; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(k * s * 0.14, -s * 0.36); ctx.lineTo(k * s * 0.54, -s * 0.52); ctx.stroke(); }
+    }
+    ctx.fillStyle = "#10202E"; ctx.beginPath();
+    if (atk) ctx.ellipse(0, s * 0.18, s * 0.16, s * 0.13, 0, 0, 7); else ctx.arc(0, s * 0.1, s * 0.12, 0.15 * Math.PI, 0.85 * Math.PI);
+    atk ? ctx.fill() : (ctx.strokeStyle = "#10202E", ctx.lineWidth = s * 0.05, ctx.lineCap = "round", ctx.stroke());
+    ctx.restore();
+    if (atk) { // 날뛰는 중 표시
+      ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(G.t * 30); ctx.strokeStyle = "#FF5A5A"; ctx.lineWidth = 4; ctx.lineCap = "round";
+      for (let i = 0; i < 6; i++) { const a = i * 1.047 + G.t * 3, r1 = s * 1.35, r2 = s * 1.6; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r1, y + jump + Math.sin(a) * r1); ctx.lineTo(x + Math.cos(a) * r2, y + jump + Math.sin(a) * r2); ctx.stroke(); }
+      ctx.restore();
+    }
+  }
+  function drawBall(x, y, r, rot, glow) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+    if (glow) { ctx.shadowColor = "rgba(255,255,255,.7)"; ctx.shadowBlur = 22; }
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fillStyle = "#F4F4F8"; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(0, 0, r, Math.PI, 0); ctx.fillStyle = "#FF5A5A"; ctx.fill();
+    ctx.fillStyle = "#1B1B28"; ctx.fillRect(-r, -r * 0.09, r * 2, r * 0.18);
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.3, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.17, 0, 7); ctx.fillStyle = "#F4F4F8"; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.lineWidth = Math.max(1.5, r * 0.07); ctx.strokeStyle = "#1B1B28"; ctx.stroke();
+    ctx.restore();
+  }
+  function pill(text, x, y, color) {
+    ctx.font = `800 ${Math.min(19, W * 0.048)}px "Gothic A1", "Malgun Gothic", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const w = ctx.measureText(text).width + 28, h = 36;
+    ctx.fillStyle = "rgba(8,16,26,.82)"; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, y - h / 2, w, h, 18) : ctx.rect(x - w / 2, y - h / 2, w, h); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = color; ctx.fillText(text, x, y + 1);
+  }
+  function draw() {
+    const g = geo(), A = G.atk;
+    // 밤 들판
+    const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, "#0B1830"); sky.addColorStop(0.55, "#12304A"); sky.addColorStop(0.56, "#123B33"); sky.addColorStop(1, "#0A211E");
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    for (let i = 0; i < 26; i++) { const sx = (i * 137.5) % W, sy = ((i * 89.3) % (H * 0.5)); ctx.globalAlpha = 0.25 + 0.35 * Math.abs(Math.sin(G.t * 0.8 + i)); ctx.fillRect(sx, sy, 2, 2); }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(255,255,255,.04)"; ctx.beginPath(); ctx.ellipse(g.tx, g.ty + g.R0 * 1.25, g.R0 * 2.3, g.R0 * 0.5, 0, 0, 7); ctx.fill();
+
+    const s = g.R0 * 0.92;
+    drawMon(g.tx, g.ty, s, A.on ? (G.t - A.t0) / A.dur : -1);
+
+    // 원: 날뛰는 중, 손 뗀 채 대기 중엔 안 보인다 (크기는 남아 있다)
+    const showRing = !A.on && (G.ball === "held" || G.ball === "fly" || G.ball === "result");
+    if (showRing) {
+      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0, 0, 7); ctx.stroke();
+      if (S.aid && S.stage > 0 && G.ball === "held") { ctx.setLineDash([5, 6]); ctx.lineWidth = 2; ctx.strokeStyle = GRADES[S.stage].color; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * GRADES[S.stage].max, 0, 7); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+      ctx.lineWidth = 5; ctx.strokeStyle = S.aid ? GRADES[gradeOf(G.rho)].color : "#B6F26B"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * G.rho, 0, 7); ctx.stroke();
+    } else if (S.aid && !A.on && G.ball === "home" && G.rho < 1) { // 손 뗀 뒤: 남아 있는 크기를 희미하게
+      ctx.setLineDash([3, 7]); ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.28)"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * G.rho, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // 볼
+    if (G.ball === "home") drawBall(g.hx, g.hy + Math.sin(G.t * 2.4) * 3, g.br, 0, false);
+    else if (G.ball === "held") drawBall(G.px, G.py, g.br * 1.08, 0, true);
+    else if (G.ball === "fly") {
+      const f = G.fly, p = Math.min(1, (G.t - f.t0) / FLIGHT), e = 1 - Math.pow(1 - p, 1.6);
+      const x = f.sx + (g.tx + f.ox - f.sx) * e, y = f.sy + (g.ty - f.sy) * e - Math.sin(Math.PI * p) * H * 0.13;
+      drawBall(x, y, g.br * (1 - 0.64 * e), p * 14, false);
+    }
+
+    // 판정 글자
+    if (G.res) {
+      const q = Math.min(1, (G.t - G.res.t0) / 0.18), sc = 0.6 + 0.4 * (1 - Math.pow(1 - q, 3));
+      ctx.save(); ctx.translate(g.tx, g.ty - g.R0 * 1.75); ctx.scale(sc, sc); ctx.globalAlpha = Math.min(1, (1.25 - (G.t - G.res.t0)) / 0.25);
+      ctx.font = `900 ${Math.min(44, W * 0.105)}px "Gothic A1", "Malgun Gothic", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.lineWidth = 8; ctx.strokeStyle = "rgba(6,12,20,.85)"; ctx.lineJoin = "round"; ctx.strokeText(G.res.text, 0, 0);
+      ctx.fillStyle = G.res.color; ctx.fillText(G.res.text, 0, 0); ctx.restore();
+    }
+    if (S.aid && G.cue) pill(G.cue, W / 2, H * 0.63, G.cue.includes("지금") ? "#FF7A59" : "#94A9C2");
+  }
+
+  // ── 화면 밖 표시 ─────────────────────────────────────
+  function paintStage() { $("grade").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.g === S.stage))); paintStats(); }
+  function paintStats() {
+    $("st-n").textContent = S.n; $("st-ok").textContent = S.ok; $("st-best").textContent = S.best;
+    $("streak").querySelectorAll("i").forEach((el, i) => el.classList.toggle("on", i < Math.min(3, S.streak)));
+    $("streak").firstElementChild.textContent = S.stage < 2 || S.streak <= 3 ? "연속" : `연속 ${S.streak}`;
+  }
+  $("grade").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.stage = +b.dataset.g; S.streak = 0; save(); paintStage(); say("", GRADES[S.stage].ko, S.stage === 0 ? "원은 조금만 줄이고 손을 떼도 돼요. 날뛰는 중에 던져서 끝난 뒤에 도착시키는 타이밍부터 익히세요." : `점선 안쪽까지 원이 줄었을 때 손을 떼세요. 세 번 연속이면 ${S.stage === 1 ? "엑설런트로 올라갑니다." : "완성입니다."}`); });
+  $("motion").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.long = b.dataset.v === "long"; $("motion").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); say("", S.long ? "긴 동작" : "짧은 동작", S.long ? "볼이 날아가는 시간보다 동작이 길어요. 시작하자마자 던지면 튕겨냅니다. 잡고 기다렸다가 끝나기 1초 전에 던지세요." : "동작이 짧아서 날뛰기 시작한 걸 보고 바로 던지면 맞아요."); });
+  $("aid").addEventListener("change", (e) => { S.aid = e.target.checked; });
+
+  let last = 0;
+  function frame(ts) { const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; update(dt); draw(); requestAnimationFrame(frame); }
+  addEventListener("resize", resize);
+  resize(); paintStage(); requestAnimationFrame(frame);
+</script>
+
+</body>
+</html>

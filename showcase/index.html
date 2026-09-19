@@ -15,24 +15,39 @@
     --text: #EEF1FA; --dim: #9AA5C4; --faint: #65708F;
     --gold: #FFC94D; --gold-deep: #3A2F12;
     --height: #6BD6FF; --weight: #B99BFF; --iv: #6BF2A6; --xxl: #FF8A5C;
+    --on-accent: #231A00; --result-top: #2A2A18; --result-line: #5A4A1E; --tip-text: #F5DFA0; --track: rgba(255,255,255,.06);
     --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
     color-scheme: dark;
   }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F5F6FB; --surface: #FFFFFF; --surface-2: #ECEFF8; --line: #D5DAEA;
+      --text: #151A2E; --dim: #566080; --faint: #8C95B0;
+      --gold: #9A6A00; --gold-deep: #FBF0CF;
+      --height: #0F86C2; --weight: #7A4FD6; --iv: #0B9A58; --xxl: #DD5A22;
+      --on-accent: #FFFFFF; --result-top: #FFF1C2; --result-line: #E6CF8A; --tip-text: #5C4300; --track: rgba(20,30,60,.08);
+      color-scheme: light;
+    }
+  }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
-  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 26px 60px; display: grid; gap: 40px; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
   a { color: var(--height); }
   input, button, select { font: inherit; color: inherit; }
   :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
-  header { display: grid; gap: 10px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
   .brand b { color: var(--gold); }
   .brand a { color: inherit; text-decoration: none; }
-  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(30px, 7.4vw, 46px); line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }
-  h1 em { font-style: normal; color: var(--gold); font-variant-numeric: tabular-nums; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--gold); }
   .lede { margin: 0; color: var(--dim); max-width: 60ch; }
   h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
   .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
@@ -44,6 +59,22 @@
   .field input#mon { font-family: var(--body); font-weight: 700; }
   .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .monrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .pickbtn { padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  .pickbtn[aria-expanded="true"] { border-color: var(--gold); color: var(--gold); }
+  .picker { display: grid; gap: 10px; padding: 12px; border-radius: 12px; background: var(--ink); border: 1px solid var(--line); }
+  .picker[hidden] { display: none; }
+  .seg { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 3px; border-radius: 10px; background: var(--surface-2); justify-self: start; }
+  .seg button { padding: 6px 14px; border-radius: 8px; border: 0; background: none; font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--gold); color: var(--on-accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { min-width: 40px; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .chips button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: var(--gold-deep); }
+  .monlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+  .monlist button { display: grid; gap: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); text-align: left; font-size: 14px; font-weight: 700; line-height: 1.3; cursor: pointer; }
+  .monlist button small { font-family: var(--mono); font-size: 11px; color: var(--faint); font-weight: 600; }
+  .monlist button:hover { border-color: var(--gold); }
+  .monlist button[aria-current="true"] { border-color: var(--gold); background: var(--gold-deep); color: var(--gold); }
   .monmeta { font-size: 13px; color: var(--dim); min-height: 1.4em; }
   .monmeta b { color: var(--text); font-family: var(--mono); }
   .check { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
@@ -51,19 +82,19 @@
   .check small { color: var(--dim); font-weight: 500; }
 
   /* 결과 — 트로피 판 */
-  .result { display: grid; gap: 14px; padding: 20px 18px; border-radius: 18px; background: radial-gradient(120% 90% at 50% 0%, #2A2A18 0%, var(--surface) 70%); border: 1px solid #5A4A1E; }
+  .result { display: grid; gap: 14px; padding: 20px 18px; border-radius: 18px; background: radial-gradient(120% 90% at 50% 0%, var(--result-top) 0%, var(--surface) 70%); border: 1px solid var(--result-line); }
   .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .total .n { font-family: var(--display); font-weight: 900; font-size: clamp(44px, 12vw, 64px); line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
   .total .n small { font-size: .42em; color: var(--dim); margin-left: 4px; }
   .total .range { font-size: 14px; color: var(--dim); }
-  .stack { display: flex; height: 22px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,.06); }
+  .stack { display: flex; height: 22px; border-radius: 8px; overflow: hidden; background: var(--track); }
   .stack i { display: block; height: 100%; }
   .parts { display: grid; gap: 8px; }
   .part { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
   .part .dot { width: 12px; height: 12px; border-radius: 3px; }
   .part .v { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
   .part .v small { color: var(--faint); font-weight: 600; }
-  .tip { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--gold-deep); color: #F5DFA0; }
+  .tip { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--gold-deep); color: var(--tip-text); }
 
   /* 영상·블로그로 가는 길 */
   .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -91,18 +122,27 @@
 <div class="wrap">
   <header>
     <div class="brand"><a href="../">포켓몬고 <b>이로치 수집가</b></a> · 쇼케이스</div>
-    <h1>내 포켓몬, 쇼케이스 <em>몇 점</em>일까</h1>
-    <p class="lede">포켓몬을 고르고 키·몸무게·개체값을 넣으면 점수를 계산합니다. 점수 공식은 게임 데이터에서 직접 꺼냈고, 실제 쇼케이스 점수 3건과 맞춰 봤어요.</p>
+    <h1>쇼케이스 점수 계산기</h1>
   </header>
 
   <section aria-labelledby="calc-h">
-    <h2 id="calc-h">점수 계산</h2>
-    <p class="sub">포켓몬 정보 화면의 키·몸무게, 평가 화면의 개체값을 그대로 넣으세요.</p>
+    <h2 id="calc-h" class="vh">점수 계산</h2>
     <div class="card">
       <div class="field">
         <label for="mon">포켓몬</label>
-        <input id="mon" list="mons" autocomplete="off" placeholder="이름 입력 (예: 에레키블)" value="에레키블">
+        <div class="monrow">
+          <input id="mon" list="mons" autocomplete="off" placeholder="이름 입력 (예: 에레키블)" value="에레키블">
+          <button type="button" class="pickbtn" id="pickbtn" aria-expanded="false" aria-controls="picker">목록에서 고르기</button>
+        </div>
         <datalist id="mons"></datalist>
+        <div class="picker" id="picker" hidden>
+          <div class="seg" role="group" aria-label="목록 나누는 기준">
+            <button type="button" data-mode="gen" aria-pressed="true">세대별</button>
+            <button type="button" data-mode="kana" aria-pressed="false">가나다순</button>
+          </div>
+          <div class="chips" id="pickchips" role="group" aria-label="묶음 고르기"></div>
+          <div class="monlist" id="monlist"></div>
+        </div>
         <div class="monmeta" id="meta"></div>
       </div>
       <div class="grid2">
@@ -115,6 +155,7 @@
         <div class="field"><label for="s">HP</label><input id="s" type="number" inputmode="numeric" min="0" max="15" value="15"></div>
       </div>
       <label class="check"><input type="checkbox" id="xxl" checked> 크기에 XXL이라고 떠요 <small id="xxlhint"></small></label>
+      <div class="monmeta">키·몸무게는 포켓몬 정보 화면, 개체값은 평가 화면의 값을 그대로 넣으세요.</div>
     </div>
   </section>
 
@@ -147,9 +188,14 @@
     </div>
   </section>
 
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">내 포켓몬, 쇼케이스 <em>몇 점</em>일까</h2>
+    <p class="lede">포켓몬을 고르고 키·몸무게·개체값을 넣으면 점수를 계산합니다. 점수 공식은 게임 데이터에서 직접 꺼냈고, 실제 쇼케이스 점수 3건과 맞춰 봤어요.</p>
+  </section>
+
   <footer>
     <div class="who">포켓몬고 <b>이로치 수집가</b></div>
-    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../search/">검색어 검사기</a></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../search/">검색어 검사기</a> · <a href="../powerup/">강화 계산기</a> · <a href="../circle/">원고정 연습기</a></div>
     <div>점수 배분·최대 키: Pokémon GO 게임 데이터 (2026.9.1판) · XXL 보너스 178: 실제 쇼케이스 점수 3건 역산 + pokemondb. 특수 폼(오리진·지가르데 등)은 아직 목록에 없어요. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
   </footer>
 </div>
@@ -174,6 +220,43 @@
     const hit = DATA.find((r) => r[1].startsWith(q) && q.length > 0);
     return hit || null;
   }
+  // 목록에서 고르기 — 세대별(도감 번호 구간) / 가나다순(지역 폼은 원래 이름 자리에)
+  const GENS = [[1, 151], [152, 251], [252, 386], [387, 493], [494, 649], [650, 721], [722, 809], [810, 905], [906, 1025]];
+  const CHO = ["ㄱ", "ㄱ", "ㄴ", "ㄷ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅂ", "ㅅ", "ㅅ", "ㅇ", "ㅈ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+  const KANA = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+  const baseName = (n) => n.slice(n.lastIndexOf(" ") + 1);
+  const choOf = (n) => { const c = baseName(n).charCodeAt(0) - 0xAC00; return c >= 0 && c < 11172 ? CHO[Math.floor(c / 588)] : "ㅎ"; };
+  const genOf = (dex) => GENS.findIndex(([a, b]) => dex >= a && dex <= b);
+  const SORTED = [...DATA].sort((x, y) => baseName(x[1]).localeCompare(baseName(y[1]), "ko") || x[1].localeCompare(y[1], "ko"));
+  let pickMode = "gen", pickKey = 0;
+  function drawPicker() {
+    const cur = find();
+    const keys = pickMode === "gen" ? GENS.map((_, i) => `${i + 1}세대`) : KANA;
+    $("pickchips").innerHTML = keys.map((k, i) => `<button type="button" data-k="${i}" aria-pressed="${i === pickKey}">${k}</button>`).join("");
+    const rows = pickMode === "gen" ? DATA.filter((r) => genOf(r[0]) === pickKey) : SORTED.filter((r) => choOf(r[1]) === KANA[pickKey]);
+    $("monlist").innerHTML = rows.map((r) => `<button type="button" data-n="${r[1]}" aria-current="${cur === r}"><small>#${String(r[0]).padStart(4, "0")}</small>${r[1]}</button>`).join("");
+    const on = $("monlist").querySelector('[aria-current="true"]');
+    $("monlist").scrollTop = on ? on.offsetTop - $("monlist").offsetTop - 40 : 0;
+  }
+  $("pickbtn").addEventListener("click", () => {
+    const open = $("picker").hidden;
+    $("picker").hidden = !open; $("pickbtn").setAttribute("aria-expanded", open);
+    if (open) { const cur = find(); if (cur) pickKey = pickMode === "gen" ? genOf(cur[0]) : KANA.indexOf(choOf(cur[1])); drawPicker(); }
+  });
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+    pickMode = b.dataset.mode;
+    document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    const cur = find(); pickKey = cur ? (pickMode === "gen" ? genOf(cur[0]) : KANA.indexOf(choOf(cur[1]))) : 0;
+    drawPicker();
+  }));
+  $("pickchips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; pickKey = +b.dataset.k; drawPicker(); });
+  $("monlist").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    $("mon").value = b.dataset.n; userTouchedXxl = false; calc();
+    $("picker").hidden = true; $("pickbtn").setAttribute("aria-expanded", false);
+    $("h").focus(); $("h").select();
+  });
+
   let userTouchedXxl = false;
   $("xxl").addEventListener("change", () => { userTouchedXxl = true; calc(); });
   function calc() {

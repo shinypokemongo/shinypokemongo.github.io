@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
 <style>
-  /* 영상(박스 정리 검색어 편)과 같은 세계: 먹색 남보라 바탕 + 네온 초록 검색칩. 다크 한 가지로 고정 */
+  /* 영상(박스 정리 검색어 편)과 같은 세계: 먹색 남보라 바탕 + 네온 초록 검색칩. 기기 설정이 라이트면 밝은 판으로 */
   :root {
     --ink: #0F0D1C; --surface: #1A1830; --surface-2: #221F3D; --line: #34305A;
     --text: #F1EEFA; --dim: #A29DBE; --faint: #6C6790;
@@ -19,34 +19,49 @@
     --lilac: #C6A8FF; --lilac-deep: #2A2248;
     --sky: #86CBFF; --sky-deep: #152D45;
     --bar: #F5A04A; --bar-full: #F2555A; /* 게임 평가 막대 색 */
+    --on-green: #07140D; --on-gold: #1E1400; --red-line: #6A2C3A; --gold-line: #6A5A26; --green-line: #1F6A47; --game-line: transparent;
     --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
     color-scheme: dark;
   }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F6F4FB; --surface: #FFFFFF; --surface-2: #EFECF7; --line: #D9D3EA;
+      --text: #1B1730; --dim: #5C567A; --faint: #918BAE;
+      --green: #0B8A50; --green-deep: #E0F5EA; --red: #D03A4C; --red-deep: #FCE4E7;
+      --gold: #9A6B00; --gold-deep: #FBF0CF; --lilac: #7446C8; --lilac-deep: #EDE4FB; --sky: #1670B8; --sky-deep: #E0EFFA;
+      --on-green: #FFFFFF; --on-gold: #FFFFFF; --red-line: #F1B5BD; --gold-line: #E6CF8A; --green-line: #A9DFC2; --game-line: #D9D3EA;
+      color-scheme: light;
+    }
+  }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
-  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 26px 60px; display: grid; gap: 44px; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 44px; }
   a { color: var(--sky); }
   button, select, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; }
   :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
   code, .mono { font-family: var(--mono); font-weight: 700; }
 
-  header { display: grid; gap: 10px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
   .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
   .brand b { color: var(--gold); }
-  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(30px, 7.4vw, 46px); line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }
-  h1 em { font-style: normal; color: var(--red); text-decoration: line-through; text-decoration-thickness: 4px; }
-  h1 strong { color: var(--green); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--red); text-decoration: line-through; text-decoration-thickness: 3px; }
+  .about h2 strong { color: var(--green); }
   .lede { margin: 0; color: var(--dim); max-width: 60ch; }
   h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 23px; letter-spacing: -.02em; }
   .sub { margin: 4px 0 16px; color: var(--dim); font-size: 14px; }
   .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--green); }
 
-  .btn { border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; background: var(--green); color: #07140D; white-space: nowrap; }
+  .btn { border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; background: var(--green); color: var(--on-green); white-space: nowrap; }
   .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
-  .btn.done { background: var(--gold); color: #1E1400; }
+  .btn.done { background: var(--gold); color: var(--on-gold); }
 
   /* ── 1. 해석기 · 검사기 ── */
   .checker { display: grid; gap: 14px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
@@ -55,9 +70,9 @@
   .samples button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 10px; font-size: 13px; color: var(--dim); }
   .verdict { display: grid; gap: 10px; }
   .issue { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; font-size: 14px; }
-  .issue.bad { background: var(--red-deep); border: 1px solid #6A2C3A; }
-  .issue.warn { background: var(--gold-deep); border: 1px solid #6A5A26; }
-  .issue.ok { background: var(--green-deep); border: 1px solid #1F6A47; }
+  .issue.bad { background: var(--red-deep); border: 1px solid var(--red-line); }
+  .issue.warn { background: var(--gold-deep); border: 1px solid var(--gold-line); }
+  .issue.ok { background: var(--green-deep); border: 1px solid var(--green-line); }
   .issue b { font-family: var(--display); font-weight: 800; }
   .issue.bad b { color: var(--red); } .issue.warn b { color: var(--gold); } .issue.ok b { color: var(--green); }
   .reading { display: grid; gap: 8px; }
@@ -122,12 +137,12 @@
   .num { display: grid; gap: 4px; }
   .num label { font-size: 13px; font-weight: 600; color: var(--dim); }
   .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
-  .num input::placeholder { color: #5E5980; font-weight: 600; }
+  .num input::placeholder { color: var(--faint); font-weight: 600; }
   .hint { margin: 0; font-size: 13px; color: var(--dim); }
   .reset-row { display: flex; justify-content: flex-end; margin-top: -12px; }
 
   /* ── 4. 평가 막대 ── */
-  .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; }
+  .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; border: 1px solid var(--game-line); }
   .appraisal .ahead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .appraisal .ahead b { font-family: var(--display); font-weight: 800; font-size: 15px; }
   .appraisal .ahead span { font-size: 12px; color: #7A7788; }
@@ -161,7 +176,7 @@
   footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
   footer .who b { color: var(--gold); }
 
-  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(16px); opacity: 0; pointer-events: none; z-index: 6; padding: 10px 18px; border-radius: 999px; background: var(--gold); color: #1E1400; font-weight: 700; font-size: 14px; transition: opacity .2s, transform .2s; white-space: nowrap; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(16px); opacity: 0; pointer-events: none; z-index: 6; padding: 10px 18px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-weight: 700; font-size: 14px; transition: opacity .2s, transform .2s; white-space: nowrap; }
   .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   @media (max-width: 440px) {
@@ -177,15 +192,12 @@
 <div class="wrap">
   <header>
     <div class="brand"><a href="../" style="color:inherit;text-decoration:none">포켓몬고 <b>이로치 수집가</b></a> · 박스 검색어</div>
-    <h1>기호 하나면<br><em>이로치 전설</em>이 <strong>보낼 목록</strong>에</h1>
-    <p class="lede">어디서 가져온 검색어든 붙여넣어 보세요. 무슨 뜻인지 말로 풀어주고, 틀린 곳은 짚어서 고친 걸 복사해 드립니다. 한국어판 게임에서 직접 쳐본 결과로 만들었어요.</p>
+    <h1>검색어 검사기</h1>
   </header>
 
   <!-- 1. 해석기 · 검사기 -->
   <section aria-labelledby="chk-h">
-    <div class="eyebrow">검사기</div>
-    <h2 id="chk-h">내 검색어, 제대로 쓴 걸까?</h2>
-    <p class="sub">붙여넣으면 바로 읽어 드립니다.</p>
+    <h2 id="chk-h" class="vh">내 검색어, 제대로 쓴 걸까?</h2>
     <div class="checker">
       <label for="q" class="sr" style="font-size:13px;color:var(--dim)">검색어</label>
       <textarea id="q" spellcheck="false" autocomplete="off">0*,1*,2*&amp;!색이 다른,전설의 포켓몬&amp;거리100</textarea>
@@ -290,6 +302,11 @@
       <div class="rule"><b>!</b><span>바로 뒤 한 단어 빼고</span></div>
       <div class="rule"><b>-</b><span>숫자 뒤 = 이상</span></div>
     </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">기호 하나면 <em>이로치 전설</em>이 <strong>보낼 목록</strong>에</h2>
+    <p class="lede">어디서 가져온 검색어든 붙여넣어 보세요. 무슨 뜻인지 말로 풀어주고, 틀린 곳은 짚어서 고친 걸 복사해 드립니다. 한국어판 게임에서 직접 쳐본 결과로 만들었어요.</p>
   </section>
 
   <footer>

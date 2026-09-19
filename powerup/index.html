@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="포켓몬고 강화 비용 계산기 — 강화 버튼 숫자만 골라도 목표 레벨까지 별의모래·사탕·사탕XL이 얼마나 드는지 계산합니다.">
+<title>이로치수집가 강화 비용 계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 강화 = 별의모래가 빨려 들어가는 화면. 밤하늘 남색 + 별의모래 분홍보라, 쇼케이스(금)·검색어(초록)와 한 집안 */
+  :root {
+    --ink: #100C1F; --surface: #191433; --surface-2: #221C45; --line: #382F66;
+    --text: #F3EFFC; --dim: #A79FC8; --faint: #6F6894;
+    --dust: #F29BFF; --dust-deep: #3A1745; --candy: #6BD6FF; --xl: #FFC94D;
+    --s1: #6BD6FF; --s2: #6BF2A6; --s3: #FFC94D; --s4: #FF8A5C;
+    --on-accent: #2A0B33; --result-top: #34163F; --result-line: #6A3A7A; --tip-text: #F6D3FF; --track: rgba(255,255,255,.06);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F7F4FC; --surface: #FFFFFF; --surface-2: #F0EAF9; --line: #DCD2EE;
+      --text: #1D1533; --dim: #5E547C; --faint: #968DB0;
+      --dust: #A528C7; --dust-deep: #F5E1FA; --candy: #1279B8; --xl: #9A6A00;
+      --s1: #2AA7DB; --s2: #1FB874; --s3: #E0A100; --s4: #E8622E;
+      --on-accent: #FFFFFF; --result-top: #F7DFFC; --result-line: #E3B8EE; --tip-text: #5B1470; --track: rgba(80,40,120,.07);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--candy); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--dust); outline-offset: 2px; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand b { color: var(--dust); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--dust); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
+
+  .card { display: grid; gap: 20px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .step { display: grid; gap: 10px; }
+  .step > .q { display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .step > .q i { font-style: normal; font-family: var(--mono); font-size: 13px; color: var(--dust); }
+  .hint { font-size: 13px; color: var(--dim); margin: 0; }
+  .hint b { color: var(--text); font-family: var(--mono); }
+  .field { display: grid; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 700; color: var(--dim); }
+  .field input, .field select { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-family: var(--mono); font-weight: 700; font-size: 17px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .seg { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 3px; border-radius: 10px; background: var(--surface-2); justify-self: start; }
+  .seg button { padding: 7px 14px; border-radius: 8px; border: 0; background: none; font-size: 14px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--dust); color: var(--on-accent); }
+  .seg button:disabled { opacity: .35; cursor: not-allowed; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .chips button b { font-family: var(--mono); color: var(--text); margin-left: 4px; }
+  .chips button[aria-pressed="true"] { border-color: var(--dust); color: var(--dust); background: var(--dust-deep); }
+  .chips button[aria-pressed="true"] b { color: var(--dust); }
+  .check { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+  .check input { width: 20px; height: 20px; accent-color: var(--dust); }
+  .check small { color: var(--dim); font-weight: 500; }
+  [hidden] { display: none !important; }
+
+  /* 결과 */
+  .result { display: grid; gap: 14px; padding: 20px 18px; border-radius: 18px; background: radial-gradient(120% 90% at 50% 0%, var(--result-top) 0%, var(--surface) 70%); border: 1px solid var(--result-line); }
+  .total { display: grid; gap: 2px; }
+  .total .k { font-size: 13px; font-weight: 700; color: var(--dim); }
+  .total .n { font-family: var(--display); font-weight: 900; font-size: clamp(40px, 11vw, 60px); line-height: 1.05; color: var(--dust); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .total .n.range { font-size: clamp(28px, 7.6vw, 44px); }
+  .total .n small { font-size: .42em; color: var(--dim); margin-left: 4px; letter-spacing: 0; }
+  .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .trio div { display: grid; gap: 0; padding: 10px 12px; border-radius: 12px; background: var(--track); }
+  .trio span { font-size: 12px; font-weight: 700; color: var(--dim); }
+  .trio b { font-family: var(--mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+  .stack { display: flex; height: 22px; border-radius: 8px; overflow: hidden; background: var(--track); }
+  .stack i { display: block; height: 100%; }
+  .parts { display: grid; gap: 8px; }
+  .part { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+  .part .dot { width: 12px; height: 12px; border-radius: 3px; }
+  .part .v { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .part .v small { color: var(--faint); font-weight: 600; }
+  .part.off { opacity: .35; }
+  .tip { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--dust-deep); color: var(--tip-text); }
+  .msg { font-size: 15px; color: var(--dim); }
+
+  .days { display: grid; gap: 12px; padding-top: 14px; border-top: 1px dashed var(--result-line); }
+  .days .out { font-size: 15px; }
+  .days .out b { font-family: var(--mono); color: var(--dust); font-size: 20px; }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .rule b.big { font-family: var(--mono); font-size: 20px; line-height: 1.2; }
+  .rule b.big small { display: block; font-family: var(--body); font-size: 12px; color: var(--dim); font-weight: 600; }
+
+  details { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  summary { padding: 14px 16px; font-family: var(--display); font-weight: 800; cursor: pointer; }
+  .tablewrap { overflow-x: auto; padding: 0 12px 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 12px; color: var(--dim); font-weight: 700; }
+  td { font-family: var(--mono); font-weight: 600; }
+  tr.now td { background: var(--dust-deep); color: var(--dust); }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--dust); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .rule { grid-template-columns: 70px 1fr; } .trio b { font-size: 16px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a href="../">포켓몬고 <b>이로치 수집가</b></a> · 강화</div>
+    <h1>강화 비용 계산기</h1>
+  </header>
+
+  <section aria-labelledby="calc-h">
+    <h2 id="calc-h" class="vh">비용 계산</h2>
+    <div class="card">
+      <div class="step">
+        <div class="q"><i>1</i>어떤 포켓몬인가요</div>
+        <div class="seg" id="state" role="group" aria-label="포켓몬 상태">
+          <button type="button" data-v="normal" aria-pressed="true">일반</button>
+          <button type="button" data-v="shadow" aria-pressed="false">그림자</button>
+          <button type="button" data-v="purified" aria-pressed="false">정화</button>
+        </div>
+        <label class="check"><input type="checkbox" id="lucky"> 반짝반짝 포켓몬이에요 <small id="luckyhint">(별의모래 절반)</small></label>
+      </div>
+
+      <div class="step">
+        <div class="q"><i>2</i>지금 어디쯤인가요</div>
+        <div class="seg" id="startmode" role="group" aria-label="지금 레벨을 고르는 방법">
+          <button type="button" data-v="dust" aria-pressed="true">강화 버튼 숫자로</button>
+          <button type="button" data-v="level" aria-pressed="false">레벨로</button>
+        </div>
+        <div id="bydust" class="step">
+          <div class="grid2">
+            <div class="field"><label for="dustsel">강화 버튼에 적힌 별의모래</label><select id="dustsel"></select></div>
+            <div class="field"><label for="exact">정확한 레벨 (몰라도 돼요)</label><select id="exact"></select></div>
+          </div>
+          <p class="hint" id="bandhint"></p>
+        </div>
+        <div id="bylevel" class="step" hidden>
+          <div class="field"><label for="from">지금 레벨</label><select id="from"></select></div>
+          <p class="hint">얻고 나서 한 번도 강화 안 했다면 아래에서 고르세요.</p>
+          <div class="chips" id="presets">
+            <button type="button" data-lv="1" data-st="normal">CP 10짜리<b>1</b></button>
+            <button type="button" data-lv="15" data-st="normal">리서치 보상<b>15</b></button>
+            <button type="button" data-lv="20" data-st="normal">알·레이드<b>20</b></button>
+            <button type="button" data-lv="25" data-st="normal">레이드(날씨 부스트)<b>25</b></button>
+            <button type="button" data-lv="8" data-st="shadow">로켓단 그림자<b>8</b></button>
+            <button type="button" data-lv="13" data-st="shadow">로켓단 그림자(날씨)<b>13</b></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="q"><i>3</i>어디까지 올릴 건가요</div>
+        <div class="seg" id="tomode" role="group" aria-label="목표를 정하는 방법">
+          <button type="button" data-v="level" aria-pressed="true">목표 레벨</button>
+          <button type="button" data-v="count" aria-pressed="false">강화 횟수</button>
+        </div>
+        <div id="tolevel" class="step">
+          <div class="chips" id="tochips">
+            <button type="button" data-lv="30">30</button>
+            <button type="button" data-lv="35">35</button>
+            <button type="button" data-lv="40">40 <b>사탕만으로 끝</b></button>
+            <button type="button" data-lv="50">50 <b>최대</b></button>
+          </div>
+          <div class="field"><label for="to">목표 레벨</label><select id="to"></select></div>
+        </div>
+        <div id="tocount" class="step" hidden>
+          <div class="chips" id="cntchips">
+            <button type="button" data-n="3">3회</button><button type="button" data-n="5">5회</button><button type="button" data-n="10">10회</button><button type="button" data-n="15">15회</button><button type="button" data-n="25">25회</button>
+          </div>
+          <div class="field"><label for="cnt">강화 횟수</label><input id="cnt" type="number" inputmode="numeric" min="1" max="98" value="15"></div>
+          <p class="hint">"포켓몬을 ○회 강화하기" 리서치용. 1회 = 레벨 0.5. 가장 싸게 깨려면 CP 10짜리(레벨 1)로: 15회에 <b>7,000</b>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="result" aria-live="polite" aria-label="계산 결과">
+    <div class="total"><div class="k" id="totk">필요한 별의모래</div><div class="n" id="tot">0</div></div>
+    <div class="trio">
+      <div><span>사탕</span><b id="rc">0</b></div>
+      <div><span>사탕XL</span><b id="rx">0</b></div>
+      <div><span>강화 횟수</span><b id="rn">0</b></div>
+    </div>
+    <div class="stack" aria-hidden="true"><i id="b1" style="background:var(--s1)"></i><i id="b2" style="background:var(--s2)"></i><i id="b3" style="background:var(--s3)"></i><i id="b4" style="background:var(--s4)"></i></div>
+    <div class="parts">
+      <div class="part" id="p1"><span class="dot" style="background:var(--s1)"></span><span>레벨 1~20 구간</span><span class="v"></span></div>
+      <div class="part" id="p2"><span class="dot" style="background:var(--s2)"></span><span>레벨 20~30 구간</span><span class="v"></span></div>
+      <div class="part" id="p3"><span class="dot" style="background:var(--s3)"></span><span>레벨 30~40 구간</span><span class="v"></span></div>
+      <div class="part" id="p4"><span class="dot" style="background:var(--s4)"></span><span>레벨 40~50 구간 (사탕XL)</span><span class="v"></span></div>
+    </div>
+    <div class="tip" id="tip"></div>
+
+    <div class="days">
+      <div class="grid2">
+        <div class="field"><label for="have">지금 가진 별의모래</label><input id="have" type="number" inputmode="numeric" min="0" step="1000" placeholder="0"></div>
+        <div class="field"><label for="perday">하루에 버는 별의모래</label><input id="perday" type="number" inputmode="numeric" min="0" step="1000" value="30000"></div>
+      </div>
+      <div class="chips" id="daychips">
+        <button type="button" data-n="10000">가볍게 1만</button><button type="button" data-n="30000">매일 3만</button><button type="button" data-n="50000">열심히 5만</button><button type="button" data-n="100000">이벤트 10만</button>
+      </div>
+      <div class="out" id="daysout"></div>
+      <p class="hint">야생 1마리 <b>100</b> · 날씨 부스트면 <b>125</b> · 진화형(2단계) <b>300</b> · 최종 진화형(3단계) <b>500</b> · 별의조각을 쓰면 1.5배.</p>
+    </div>
+  </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener"><b>별의모래, 영상으로 보기</b><span>어디에 쓰고 어디서 아끼는지</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>한 장으로 보는 정리</b><span>블로그에서 저장해 두고 보기</span></a>
+  </nav>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">강화 비용은 이렇게 정해져요</h2>
+    <p class="sub">CP가 아니라 레벨로 정해집니다. 같은 CP 1500이어도 종에 따라 비용이 달라요.</p>
+    <div class="rules">
+      <div class="rule"><b class="big" style="color:var(--dust)">+0.5<small>1회당 레벨</small></b><div>강화 한 번에 레벨이 0.5씩 올라요. 같은 비용이 네 번(두 레벨) 이어지다가 다음 칸으로 넘어갑니다. 그래서 버튼 숫자만 봐도 레벨을 두 레벨 안쪽으로 좁힐 수 있어요.</div></div>
+      <div class="rule"><b class="big" style="color:var(--s4)">25만<small>40→50</small></b><div>레벨 1에서 40까지가 별의모래 약 27만, 40에서 50까지가 25만. 마지막 열 레벨이 그 앞 전체와 맞먹어요. 40부터는 사탕 대신 사탕XL 296개가 들어갑니다.</div></div>
+      <div class="rule"><b class="big" style="color:var(--xl)">½<small>반짝반짝</small></b><div>반짝반짝 포켓몬은 별의모래가 절반이에요. 사탕은 그대로입니다. 50까지 키울 포켓몬이라면 26만을 아끼는 셈이에요.</div></div>
+      <div class="rule"><b class="big" style="color:var(--candy)">×1.2<small>그림자</small></b><div>그림자는 별의모래·사탕 모두 1.2배, 정화하면 0.9배. 정화 포켓몬이 반짝반짝까지 되면 0.45배로 가장 쌉니다.</div></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>레벨별 비용표 펼치기 <span id="tablestate" style="color:var(--dim);font-weight:600;font-size:13px"></span></summary>
+    <div class="tablewrap"><table id="table"></table></div>
+  </details>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">끝까지 키우려면 별의모래 <em>얼마나</em> 들까</h2>
+    <p class="lede">게임은 포켓몬 레벨을 안 보여 주죠. 그래서 강화 버튼에 적힌 숫자만 골라도 계산되게 만들었어요. 비용표는 게임 데이터에서 직접 꺼냈습니다.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../search/">검색어 검사기</a> · <a href="../showcase/">쇼케이스 계산기</a></div>
+    <div>비용표·배율: Pokémon GO 게임 데이터 POKEMON_UPGRADE_SETTINGS · LUCKY_POKEMON_SETTINGS (2026.9.1판). 레벨 1에서 25회까지는 게임에서 직접 눌러 본 합계 9개와 맞췄어요. 레벨 1부터 키우면 표보다 세 군데서 조금씩 싸서 15회 합계가 7,000입니다. 그 밖의 시작 레벨은 게임 데이터 표 그대로 계산합니다. 그림자·정화의 사탕 수는 배율을 곱해 올림한 값이에요. 무한다이노처럼 전용 사탕을 쓰는 포켓몬은 사탕 수가 다릅니다. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  // 게임 데이터 POKEMON_UPGRADE_SETTINGS (2026.9.1판). 칸 하나 = 정수 레벨 하나, 레벨마다 강화 2회
+  const DUST = [200, 200, 400, 400, 600, 600, 800, 800, 1000, 1000, 1300, 1300, 1600, 1600, 1900, 1900, 2200, 2200, 2500, 2500, 3000, 3000, 3500, 3500, 4000, 4000, 4500, 4500, 5000, 5000, 6000, 6000, 7000, 7000, 8000, 8000, 9000, 9000, 10000, 10000, 11000, 11000, 12000, 12000, 13000, 13000, 14000, 14000, 15000];
+  const CANDY = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 15];
+  const XL = [10, 10, 12, 12, 15, 15, 17, 17, 20, 20]; // 레벨 40~49
+  const MULT = { normal: 1, shadow: 1.2, purified: 0.9 };
+  const LUCKY = 0.5;
+  const MAXH = 100; // 레벨 50 = 반 레벨 100칸째
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => Math.round(n).toLocaleString("ko-KR");
+  const lv = (h) => (h / 2).toString();
+  const up = (v) => Math.ceil(v - 1e-9);
+
+  const S = { state: "normal", lucky: false, startMode: "dust", band: 9, exact: 0, from: 40, toMode: "level", to: 80, cnt: 15 };
+
+  // h = 레벨×2. h에서 한 번 강화하는 비용
+  function stepCost(h) {
+    const L = Math.floor(h / 2), m = MULT[S.state];
+    return {
+      dust: Math.round(DUST[L - 1] * m * (S.lucky ? LUCKY : 1)),
+      candy: L < 40 ? up(CANDY[L - 1] * m) : 0,
+      xl: L >= 40 ? up(XL[L - 40] * m) : 0,
+    };
+  }
+  function sum(fromH, toH) {
+    const o = { dust: 0, candy: 0, xl: 0, n: 0, seg: [0, 0, 0, 0] };
+    for (let h = fromH; h < toH; h++) {
+      // 실측(2026.9.19): 레벨 1부터 키우면 레벨 7·9·13에서 누르는 강화가 앞 구간 값으로 계산된다 → 15회 7,000 · 17회 8,600 · 25회 18,100
+      const c = stepCost(fromH === 2 && (h === 14 || h === 18 || h === 26) ? h - 1 : h);
+      o.dust += c.dust; o.candy += c.candy; o.xl += c.xl; o.n++;
+      o.seg[h < 40 ? 0 : h < 60 ? 1 : h < 80 ? 2 : 3] += c.dust;
+    }
+    return o;
+  }
+
+  // 같은 비용이 이어지는 구간들 (버튼 숫자 → 레벨 범위)
+  const BANDS = [];
+  for (let L = 1; L <= 49; L++) {
+    const last = BANDS[BANDS.length - 1];
+    if (last && last.base === DUST[L - 1]) last.hi = L * 2 + 1; else BANDS.push({ base: DUST[L - 1], lo: L * 2, hi: L * 2 + 1 });
+  }
+  const shown = (base) => Math.round(base * MULT[S.state] * (S.lucky ? LUCKY : 1));
+
+  function fillSelects() {
+    $("dustsel").innerHTML = BANDS.map((b, i) => `<option value="${i}">${fmt(shown(b.base))}</option>`).join("");
+    $("dustsel").value = S.band;
+    const b = BANDS[S.band];
+    let opts = `<option value="0">모르겠어요</option>`;
+    for (let h = b.lo; h <= b.hi; h++) opts += `<option value="${h}">레벨 ${lv(h)}</option>`;
+    $("exact").innerHTML = opts;
+    if (S.exact && (S.exact < b.lo || S.exact > b.hi)) S.exact = 0;
+    $("exact").value = S.exact;
+    $("bandhint").innerHTML = `버튼에 <b>${fmt(shown(b.base))}</b>이 적혀 있으면 레벨 <b>${lv(b.lo)}~${lv(b.hi)}</b> 사이예요. 정확한 레벨을 모르면 결과를 범위로 보여 드려요.`;
+  }
+  function fillLevels() {
+    let a = "", t = "";
+    for (let h = 2; h < MAXH; h++) a += `<option value="${h}">${lv(h)}</option>`;
+    for (let h = 3; h <= MAXH; h++) t += `<option value="${h}">${lv(h)}</option>`;
+    $("from").innerHTML = a; $("to").innerHTML = t;
+  }
+
+  function startRange() {
+    if (S.startMode === "level") return [S.from, S.from];
+    const b = BANDS[S.band];
+    return S.exact ? [S.exact, S.exact] : [b.lo, b.hi];
+  }
+  const target = (fromH) => Math.min(MAXH, S.toMode === "level" ? S.to : fromH + S.cnt);
+
+  function press(group, v) { group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === v))); }
+
+  function render() {
+    // 그림자는 교환이 안 돼서 반짝반짝이 될 수 없다
+    const sh = S.state === "shadow";
+    if (sh) S.lucky = false;
+    $("lucky").checked = S.lucky; $("lucky").disabled = sh;
+    $("luckyhint").textContent = sh ? "(그림자는 교환이 안 돼서 해당 없음)" : "(별의모래 절반)";
+    press($("state"), S.state); press($("startmode"), S.startMode); press($("tomode"), S.toMode);
+    $("bydust").hidden = S.startMode !== "dust"; $("bylevel").hidden = S.startMode !== "level";
+    $("tolevel").hidden = S.toMode !== "level"; $("tocount").hidden = S.toMode !== "count";
+    fillSelects();
+    $("from").value = S.from; $("to").value = S.to; $("cnt").value = S.cnt;
+    $("tochips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.lv * 2 === S.to)));
+    $("cntchips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.n === S.cnt)));
+    $("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.lv * 2 === S.from && (b.dataset.st === "shadow") === (S.state === "shadow"))));
+
+    const [lo, hi] = startRange();
+    // 시작 레벨이 낮을수록 많이 든다 → lo가 최대, hi가 최소
+    const big = sum(lo, target(lo)), small = sum(hi, target(hi));
+    const isRange = big.dust !== small.dust;
+    const R = (a, b) => (a === b ? fmt(a) : `${fmt(a)}~${fmt(b)}`);
+    const none = big.n === 0;
+
+    $("totk").textContent = S.toMode === "level" ? `레벨 ${lv(S.to)}까지 필요한 별의모래` : `${S.cnt}회 강화에 필요한 별의모래`;
+    $("tot").className = "n" + (isRange ? " range" : "");
+    $("tot").innerHTML = none ? "0" : R(small.dust, big.dust);
+    $("rc").textContent = R(small.candy, big.candy);
+    $("rx").textContent = R(small.xl, big.xl);
+    $("rn").textContent = small.n === big.n ? `${big.n}회` : `${small.n}~${big.n}회`;
+
+    // 막대는 많이 드는 쪽 기준
+    big.seg.forEach((v, i) => {
+      $("b" + (i + 1)).style.width = big.dust ? `${(v / big.dust * 100).toFixed(2)}%` : "0";
+      const row = $("p" + (i + 1));
+      row.classList.toggle("off", v === 0);
+      row.querySelector(".v").innerHTML = v ? `${fmt(v)} <small>${Math.round(v / big.dust * 100)}%</small>` : "—";
+    });
+
+    let tip;
+    if (none) tip = "목표가 지금 레벨보다 높아야 계산돼요.";
+    else if (isRange) tip = `정확한 레벨을 모를 땐 큰 쪽(${fmt(big.dust)})으로 준비하면 안전해요. 위에서 정확한 레벨을 고르면 하나로 좁혀집니다.`;
+    else {
+      const top = big.seg.indexOf(Math.max(...big.seg));
+      const name = ["1~20", "20~30", "30~40", "40~50"][top];
+      tip = big.seg.filter((v) => v > 0).length > 1 ? `가장 많이 드는 곳은 레벨 ${name} 구간: ${fmt(big.seg[top])} (${Math.round(big.seg[top] / big.dust * 100)}%).` : `전부 레벨 ${name} 구간에서 나가요.`;
+      if (!S.lucky && !sh) tip += ` 같은 포켓몬이 반짝반짝이었다면 ${fmt(big.dust / 2)}으로 끝났어요.`;
+    }
+    $("tip").textContent = tip;
+
+    // 며칠 걸릴까
+    const have = Math.max(0, parseFloat($("have").value) || 0), per = Math.max(0, parseFloat($("perday").value) || 0);
+    $("daychips").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.n === per)));
+    const need = Math.max(0, big.dust - have);
+    $("daysout").innerHTML = none ? "" : need === 0 ? "지금 가진 별의모래로 <b>바로</b> 끝낼 수 있어요."
+      : per > 0 ? `모자란 별의모래 <b>${fmt(need)}</b> → 하루 ${fmt(per)}씩이면 <b>${fmt(Math.ceil(need / per))}일</b>${isRange ? " (큰 쪽 기준)" : ""}`
+      : `모자란 별의모래 <b>${fmt(need)}</b>`;
+
+    // 비용표
+    $("tablestate").textContent = `(${{ normal: "일반", shadow: "그림자", purified: "정화" }[S.state]}${S.lucky ? " · 반짝반짝" : ""} 기준)`;
+    let rows = "<tr><th>레벨</th><th>별의모래</th><th>사탕</th><th>사탕XL</th><th>여기서 50까지</th></tr>";
+    for (let L = 1; L <= 49; L++) {
+      const c = stepCost(L * 2), now = L * 2 + 1 >= lo && L * 2 <= hi;
+      rows += `<tr class="${now ? "now" : ""}"><td>${L} · ${L}.5</td><td>${fmt(c.dust)}</td><td>${c.candy || "—"}</td><td>${c.xl || "—"}</td><td>${fmt(sum(L * 2, MAXH).dust)}</td></tr>`;
+    }
+    $("table").innerHTML = rows;
+  }
+
+  fillLevels();
+  $("state").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.state = b.dataset.v; render(); } });
+  $("startmode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.startMode = b.dataset.v; render(); } });
+  $("tomode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.toMode = b.dataset.v; render(); } });
+  $("lucky").addEventListener("change", (e) => { S.lucky = e.target.checked; render(); });
+  $("dustsel").addEventListener("change", (e) => { S.band = +e.target.value; S.exact = 0; render(); });
+  $("exact").addEventListener("change", (e) => { S.exact = +e.target.value; render(); });
+  $("from").addEventListener("change", (e) => { S.from = +e.target.value; render(); });
+  $("to").addEventListener("change", (e) => { S.to = +e.target.value; render(); });
+  $("cnt").addEventListener("input", (e) => { const v = Math.floor(+e.target.value); if (v >= 1) { S.cnt = Math.min(98, v); render(); } });
+  $("presets").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.from = +b.dataset.lv * 2; if ((b.dataset.st === "shadow") !== (S.state === "shadow")) S.state = b.dataset.st; render(); } });
+  $("tochips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.to = +b.dataset.lv * 2; render(); } });
+  $("cntchips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.cnt = +b.dataset.n; render(); } });
+  $("daychips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { $("perday").value = b.dataset.n; render(); } });
+  ["have", "perday"].forEach((id) => $(id).addEventListener("input", render));
+  render();
+</script>
+
+</body>
+</html>

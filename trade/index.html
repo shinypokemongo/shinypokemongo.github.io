@@ -140,8 +140,8 @@
       <div class="rowline"><span class="name" id="ename"></span>
         <div class="seg" id="eshiny" role="group" aria-label="이로치 또는 일반"><button type="button" data-v="1">이로치</button><button type="button" data-v="0">일반</button></div>
       </div>
-      <div class="field"><label for="ecap">칸 아래에 적을 말 (기술·개체값 등, 비워도 돼요)</label><input id="ecap" maxlength="16" autocomplete="off" placeholder="예: 공간절단, 시간의포효, 100%"></div>
-      <div class="chips" id="ecaps"><button type="button">레거시 기술</button><button type="button">100%</button><button type="button">배경 있음</button><button type="button">XXL</button><button type="button">XXS</button><button type="button">반짝반짝 말고</button></div>
+      <div class="field"><label for="ecap">칸 아래에 적을 말 (기술 이름 등, 비워도 돼요)</label><input id="ecap" maxlength="16" autocomplete="off" placeholder="예: 공간절단, 시간의포효"></div>
+      <div class="chips" id="ecaps"><button type="button">레거시 기술</button><button type="button">배경 있음</button><button type="button">XXL</button><button type="button">XXS</button></div>
       <div class="bar">
         <button type="button" class="ghost" id="ebg">배경 고르기</button>
         <button type="button" class="ghost" id="eleft" aria-label="앞으로 옮기기">←</button>
@@ -160,6 +160,9 @@
     <div class="tabs" role="tablist"><button type="button" role="tab" data-t="mon">포켓몬 추가</button><button type="button" role="tab" data-t="bg" id="tab-bg">고른 칸의 배경</button></div>
 
     <div class="panel" id="p-mon">
+      <div class="rowline"><span class="lab">목록에 보일 그림 · 새로 넣을 칸</span>
+        <div class="seg" id="pshiny" role="group" aria-label="목록에 보일 그림"><button type="button" data-v="1">이로치</button><button type="button" data-v="0">일반</button></div>
+      </div>
       <input class="search" id="q" type="search" autocomplete="off" placeholder="이름으로 찾기 (예: 펄기아, 한복, 할로윈)" aria-label="포켓몬 이름으로 찾기">
       <div class="chips" id="mchips"></div>
       <p class="count" id="mcount"></p>
@@ -182,7 +185,7 @@
   <section aria-labelledby="how-h">
     <h2 id="how-h" style="margin-bottom:14px">알아 두면 좋은 것</h2>
     <div class="rules">
-      <div class="rule"><b>칸 아래 글씨</b><div>공간절단·시간의포효처럼 <b>지금은 배울 수 없는 기술</b>을 가진 포켓몬은 값어치가 달라요. 칸을 누르고 아래에 기술 이름이나 개체값을 적어 두면 한눈에 보입니다.</div></div>
+      <div class="rule"><b>칸 아래 글씨</b><div>공간절단·시간의포효처럼 <b>지금은 배울 수 없는 기술</b>을 가진 포켓몬은 값어치가 달라요. 칸을 누르고 아래에 기술 이름을 적어 두면 한눈에 보입니다. 개체값은 교환하면 새로 정해지니 적을 필요가 없어요.</div></div>
       <div class="rule"><b>그림이 있다고 나온 건 아니에요</b><div>여기 있는 이로치는 <b>게임 파일에 그림이 들어 있는 것</b> 전부예요. 그림은 이벤트 몇 주 전에 먼저 들어오기도 하고, 들어만 있고 아직 안 풀린 것도 있습니다.</div></div>
       <div class="rule"><b>나온 적 있는 배경</b><div>초록 표시는 <b>그 포켓몬이 그 배경으로 나온 기록</b>이 있다는 뜻이에요. 어떤 코스튬이었는지까지는 기록에 없어서 종 단위로만 표시합니다. 「바탕만」은 달·무늬 같은 효과가 게임 안에서 따로 얹히는 배경이라 실제 화면보다 단순하게 보여요.</div></div>
       <div class="rule"><b>내 목록은 이 기기에만</b><div>만든 목록은 이 브라우저에만 저장돼요. 서버로 보내지 않습니다. 다른 기기에서는 처음부터 다시 만들어야 해요.</div></div>
@@ -214,7 +217,7 @@
 
   // 칸 하나 = { id: 포켓몬, s: 이로치(1/0), bg: 배경 id 또는 "", cap: 아래 글씨 }
   const L = { want: [], give: [], cols: 6, memo: "" };
-  const S = { target: "want", sel: null, tab: "mon", mgroup: "c", bgroup: "real", q: "", limit: 120 };
+  const S = { target: "want", shiny: 1, sel: null, tab: "mon", mgroup: "c", bgroup: "real", q: "", limit: 120 };
   const KEY = "trade-list-v1";
   try { const o = JSON.parse(localStorage.getItem(KEY) || "null"); if (o) { for (const k of ["want", "give"]) L[k] = (o[k] || []).filter((t) => MON.has(t.id)).map((t) => ({ id: t.id, s: t.s ? 1 : 0, bg: BGM.has(t.bg) ? t.bg : "", cap: String(t.cap || "").slice(0, 16) })); if ([4, 6, 8].includes(o.cols)) L.cols = o.cols; L.memo = String(o.memo || "").slice(0, 40); } } catch (e) {}
   const store = () => { try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) {} };
@@ -268,9 +271,9 @@
         const bg = t.bg && ims.get(bgSrc(t.bg));
         if (bg) { const s = Math.max(T / bg.width, T / bg.height); ctx.drawImage(bg, tx + (T - bg.width * s) / 2, ty + (T - bg.height * s) / 2, bg.width * s, bg.height * s); }
         else { ctx.fillStyle = "#231B38"; ctx.fillRect(tx, ty, T, T); }
-        // 포켓몬: 그림의 긴 쪽을 칸의 78%에 맞추고 정가운데 — 어떤 포켓몬이든 같은 자리, 같은 크기 틀
+        // 포켓몬: 그림의 긴 쪽을 칸의 84%에 맞추고 정가운데 (그림은 같은 포켓몬끼리 같은 틀로 잘라 둠) — 어떤 포켓몬이든 같은 자리, 같은 크기 틀
         const im = ims.get(monSrc(t.id, shinyOf(t)));
-        if (im) { const s = T * 0.78 / Math.max(im.width, im.height), w = im.width * s, h = im.height * s; ctx.imageSmoothingQuality = "high"; ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = T * 0.06; ctx.shadowOffsetY = T * 0.03; ctx.drawImage(im, tx + (T - w) / 2, ty + (T - h) / 2, w, h); }
+        if (im) { const s = T * 0.84 / Math.max(im.width, im.height), w = im.width * s, h = im.height * s; ctx.imageSmoothingQuality = "high"; ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = T * 0.06; ctx.shadowOffsetY = T * 0.03; ctx.drawImage(im, tx + (T - w) / 2, ty + (T - h) / 2, w, h); }
         ctx.restore();
         rr(tx, ty, T, T, rad); ctx.lineWidth = 2; ctx.strokeStyle = "rgba(160,140,220,.45)"; ctx.stroke();
         if (shinyOf(t)) sparkle(tx + T * 0.05, ty + T * 0.05, T * 0.2);
@@ -298,7 +301,7 @@
     $("mchips").innerHTML = MG.map(([k, n]) => `<button type="button" data-k="${k}" aria-pressed="${!S.q && k === S.mgroup}">${n}</button>`).join("");
     const rows = monRows(), shown = rows.slice(0, S.limit);
     $("mcount").textContent = `${S.q ? `"${S.q}" ` : ""}${rows.length}개 · 누르면 「${S.target === "want" ? "구해요" : "드려요"}」에 들어가요`;
-    $("g-mon").innerHTML = shown.map((r) => `<button type="button" class="cell" data-id="${r[0]}"><img src="${monSrc(r[0], 1, true)}" alt="" loading="lazy" width="96" height="96"><span>${r[2]}</span><small>${r[3] || "#" + String(r[1]).padStart(4, "0")}</small></button>`).join("");
+    $("g-mon").innerHTML = shown.map((r) => `<button type="button" class="cell" data-id="${r[0]}"><img src="${monSrc(r[0], S.shiny || !r[6], true)}" alt="" loading="lazy" width="96" height="96"><span>${r[2]}</span><small>${r[3] || "#" + String(r[1]).padStart(4, "0")}</small></button>`).join("");
     $("mmore").hidden = rows.length <= S.limit; $("mmore").textContent = `더 보기 (${rows.length - S.limit}개 남음)`;
   }
   function drawBgs() {
@@ -323,6 +326,7 @@
   }
   function render() {
     document.querySelectorAll("#cols button").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.v === L.cols)));
+    document.querySelectorAll("#pshiny button").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.v === S.shiny)));
     document.querySelectorAll("#target button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.v === S.target)));
     drawEditor();
     document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.t === S.tab)));
@@ -342,7 +346,7 @@
   $("g-mon").addEventListener("click", (e) => {
     const c = e.target.closest(".cell"); if (!c) return;
     if (L.want.length + L.give.length >= 96) return toast("한 장에 96칸까지만 넣을 수 있어요");
-    L[S.target].push({ id: c.dataset.id, s: 1, bg: "", cap: "" }); S.sel = { list: S.target, i: L[S.target].length - 1 }; S.bgroup = "real";
+    L[S.target].push({ id: c.dataset.id, s: S.shiny, bg: "", cap: "" }); S.sel = { list: S.target, i: L[S.target].length - 1 }; S.bgroup = "real";
     render(); toast(`「${S.target === "want" ? "구해요" : "드려요"}」에 넣었어요`);
   });
   $("g-bg").addEventListener("click", (e) => { const c = e.target.closest(".cell"), t = selTile(); if (!c || !t) return; t.bg = c.dataset.id; render(); });
@@ -354,7 +358,8 @@
   $("target").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.target = b.dataset.v; render(); } });
   $("memo").value = L.memo; $("memo").addEventListener("input", (e) => { L.memo = e.target.value.trim(); draw(false); store(); });
   document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b && !b.disabled) { S.tab = b.dataset.t; render(); } });
-  $("eshiny").addEventListener("click", (e) => { const b = e.target.closest("button"), t = selTile(); if (b && t && !b.disabled) { t.s = +b.dataset.v; render(); } });
+  $("eshiny").addEventListener("click", (e) => { const b = e.target.closest("button"), t = selTile(); if (b && t && !b.disabled) { t.s = +b.dataset.v; S.shiny = t.s; render(); } });
+  $("pshiny").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { S.shiny = +b.dataset.v; render(); } });
   $("ecap").addEventListener("input", (e) => { const t = selTile(); if (t) { t.cap = e.target.value.trim(); draw(false); store(); } });
   $("ecaps").addEventListener("click", (e) => { const b = e.target.closest("button"), t = selTile(); if (b && t) { t.cap = b.textContent; $("ecap").value = t.cap; render(); } });
   $("ebg").addEventListener("click", () => { S.tab = "bg"; render(); $("p-bg").scrollIntoView({ block: "start", behavior: "smooth" }); });

@@ -74,13 +74,6 @@
   .fixed { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green-deep); }
   .fixed code { color: var(--green); font-size: 14px; word-break: break-all; line-height: 1.45; }
 
-  /* 자체 광고 칸 — 나중에 광고 코드를 넣을 자리 */
-  .slot { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; background: linear-gradient(135deg, #24204A, #1A1830); border: 1px dashed #4A4478; text-decoration: none; color: var(--text); }
-  .slot .ic { font-size: 26px; }
-  .slot b { display: block; font-family: var(--display); font-weight: 800; }
-  .slot span { font-size: 13px; color: var(--dim); }
-  .slot .go { font-weight: 700; color: var(--gold); font-size: 14px; }
-  .slot-label { font-size: 11px; color: var(--faint); letter-spacing: .1em; margin-bottom: 4px; }
 
   /* ── 2. 상황별 레시피 ── */
   .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -99,7 +92,31 @@
   .typepick { display: flex; flex-wrap: wrap; gap: 6px; }
   .typepick select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
 
-  /* ── 3. 평가 막대 ── */
+
+  /* ── 3. 직접 만들기 ── */
+  .builder { display: grid; gap: 22px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+  fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+  legend { padding: 0; margin-bottom: 8px; font-family: var(--display); font-weight: 800; font-size: 15px; }
+  legend span { font-family: var(--body); font-weight: 500; color: var(--dim); font-size: 13px; margin-left: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--dim); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .chip label code { font-size: 12px; opacity: .8; }
+  .chip input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .show .chip input:checked + label { background: var(--green-deep); border-color: var(--green); color: var(--green); }
+  .hide .chip input:checked + label { background: var(--red-deep); border-color: var(--red); color: var(--red); }
+  .hide .chip input:checked + label::before { content: "!"; font-family: var(--mono); font-weight: 700; }
+  .and .chip input:checked + label { background: var(--gold-deep); border-color: var(--gold); color: var(--gold); }
+  .pick .chip input:checked + label { background: var(--lilac-deep); border-color: var(--lilac); color: var(--lilac); }
+  .nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .num { display: grid; gap: 4px; }
+  .num label { font-size: 13px; font-weight: 600; color: var(--dim); }
+  .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
+  .num input::placeholder { color: #5E5980; font-weight: 600; }
+  .hint { margin: 0; font-size: 13px; color: var(--dim); }
+
+  /* ── 4. 평가 막대 ── */
   .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; }
   .appraisal .ahead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .appraisal .ahead b { font-family: var(--display); font-weight: 800; font-size: 15px; }
@@ -140,8 +157,6 @@
   @media (max-width: 440px) {
     .rules { grid-template-columns: repeat(2, 1fr); }
     .row { grid-template-columns: 64px 1fr; }
-    .slot { grid-template-columns: auto 1fr; }
-    .slot .go { grid-column: 2; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -178,15 +193,6 @@
     </div>
   </section>
 
-  <div>
-    <div class="slot-label">이로치 수집가</div>
-    <a class="slot" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener">
-      <span class="ic" aria-hidden="true">▶</span>
-      <span><b>이 검색어들, 영상으로 보기</b><span>9,168마리 박스가 한 줄로 2,003마리가 되는 과정</span></span>
-      <span class="go">YouTube →</span>
-    </a>
-  </div>
-
   <!-- 2. 상황별 레시피 -->
   <section aria-labelledby="rc-h">
     <div class="eyebrow">상황별 레시피</div>
@@ -196,7 +202,48 @@
     <div class="recipe" id="recipe" role="tabpanel"></div>
   </section>
 
-  <!-- 3. 평가 막대 -->
+  <!-- 3. 직접 만들기 -->
+  <section aria-labelledby="bd-h">
+    <div class="eyebrow">직접 만들기</div>
+    <h2 id="bd-h">눌러서 조립하기</h2>
+    <p class="sub">고르면 바로 아래에 검색어가 만들어져요. 쉼표·느낌표·대시는 알아서 맞춰 드립니다.</p>
+    <div class="builder">
+      <fieldset class="show">
+        <legend>보여줄 평가<span>아무것도 안 고르면 전체</span></legend>
+        <div class="chips" id="stars"></div>
+      </fieldset>
+      <fieldset class="hide">
+        <legend>빼고 볼 것<span>하나씩 느낌표가 붙어요</span></legend>
+        <div class="chips" id="excl"></div>
+      </fieldset>
+      <fieldset class="and">
+        <legend>진화 · 기술 조건<span>고른 건 모두 만족해야 나와요</span></legend>
+        <div class="chips" id="cond"></div>
+      </fieldset>
+      <fieldset>
+        <legend>CP · 잡은 지 며칠<span>한쪽만 적어도 돼요</span></legend>
+        <div class="nums">
+          <div class="num"><label for="cpMin">최소 CP</label><input id="cpMin" type="number" inputmode="numeric" min="0" placeholder="예: 1000"></div>
+          <div class="num"><label for="cpMax">최대 CP</label><input id="cpMax" type="number" inputmode="numeric" min="0" placeholder="예: 1500"></div>
+          <div class="num"><label for="dayMin">최소 일수</label><input id="dayMin" type="number" inputmode="numeric" min="0" placeholder="예: 0"></div>
+          <div class="num"><label for="dayMax">최대 일수</label><input id="dayMax" type="number" inputmode="numeric" min="0" placeholder="예: 7"></div>
+        </div>
+        <p class="hint">일수 0 = 오늘(24시간 안). 최대 CP 1500 = 슈퍼리그, 2500 = 하이퍼리그.</p>
+      </fieldset>
+      <fieldset class="pick">
+        <legend>잡은 해<span>하나만</span></legend>
+        <div class="chips" id="year"></div>
+      </fieldset>
+      <fieldset class="pick">
+        <legend>잡은 곳 거리<span>대시는 숫자 뒤 = 이상</span></legend>
+        <div class="chips" id="dist"></div>
+      </fieldset>
+      <div class="fixed"><code id="bq"></code><button class="btn" type="button" id="bcopy">복사</button></div>
+      <p class="hint">리모트 레이드로 잡은 포켓몬은 거리를 레이드한 체육관 위치로 잽니다. 거리 검색엔 <b>전설</b>도 빼 두면 편해요.</p>
+    </div>
+  </section>
+
+  <!-- 4. 평가 막대 -->
   <section aria-labelledby="ap-h">
     <div class="eyebrow">배틀리그</div>
     <h2 id="ap-h">평가 막대로 고르기</h2>
@@ -217,33 +264,6 @@
     </div>
   </section>
 
-  <!-- 4. 이번 이벤트 -->
-  <section aria-labelledby="ev-h">
-    <div class="eyebrow">이번 이벤트</div>
-    <h2 id="ev-h">다가오는 이벤트용</h2>
-    <p class="sub">이벤트마다 새로 올립니다. 당일 직접 쳐보고 확정해요.</p>
-    <div class="event">
-      <div class="when"><span>10월 10일(토) 14~17시</span> 조로아 커뮤니티 데이</div>
-      <div class="step" style="background:var(--surface-2)">
-        <span class="n">1</span>
-        <div class="body">
-          <div class="t">오늘 잡은 조로아 중 정리 후보</div>
-          <div class="q"><code>+조로아&amp;일수0&amp;0*,1*,2*&amp;!색이 다른</code><button class="btn" type="button" data-copy="+조로아&amp;일수0&amp;0*,1*,2*&amp;!색이 다른">복사</button></div>
-          <div><span class="pending">당일 확인 전</span></div>
-        </div>
-      </div>
-      <p class="note" style="margin:0;font-size:13px;color:var(--dim)">+조로아는 조로아·조로아크를 함께 찾습니다. 진화시키면 조로아크가 전용 기술(기습)을 배워요. 일정 출처 Leek Duck.</p>
-    </div>
-  </section>
-
-  <div>
-    <div class="slot-label">이로치 수집가</div>
-    <a class="slot" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener">
-      <span class="ic" aria-hidden="true">📋</span>
-      <span><b>한 장으로 보는 검색어 정리</b><span>저장해 두고 필요할 때 꺼내 보는 포스터</span></span>
-      <span class="go">블로그 →</span>
-    </a>
-  </div>
 
   <section aria-labelledby="ru-h">
     <h2 id="ru-h">기호는 네 개</h2>
@@ -449,7 +469,54 @@
   $("tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) renderRecipe(b.dataset.id); });
   renderRecipe("cd");
 
-  /* ───────── 3. 평가 막대 ───────── */
+
+  /* ───────── 3. 직접 만들기 ───────── */
+  const B_EXCL = [
+    ["shiny", "이로치", "색이 다른", true], ["legend", "전설", "전설의 포켓몬", true], ["myth", "환상", "환상", true],
+    ["ub", "울트라비스트", "울트라비스트", true], ["lucky", "반짝반짝", "반짝반짝", true], ["shadow", "그림자", "그림자", true],
+    ["costume", "코스튬", "특별", true], ["bg", "배경", "배경", true], ["fav", "즐겨찾기", "즐겨찾기", true],
+    ["legacy", "레거시 기술", "@기술", true], ["tag", "태그 달린 것", "#", true], ["dmax", "다이맥스", "다이맥스", false],
+  ];
+  const B_COND = [["evolve", "지금 진화 가능", "진화"], ["newdex", "진화하면 도감 새로", "미등록"], ["item", "도구 진화", "도구"],
+    ["quest", "조건 진화", "조건 진화"], ["trade", "교환 진화", "교환진화"], ["mega", "메가진화 가능", "메가 진화"], ["weather", "날씨 부스트 기술", "@날씨"]];
+  const B_STARS = [["0*", "0성"], ["1*", "1성"], ["2*", "2성"], ["3*", "3성"], ["4*", "4성(100)"]];
+  const B_YEAR = [["", "상관없음"], ["연도-2020", "2020년까지 (교환하면 반짝반짝 확정)"], ["연도2016", "2016년 (첫해)"]];
+  const B_DIST = [["", "상관없음"], ["거리100-", "100km 이상 (교환 사탕 3개)"], ["거리1000-", "1,000km 이상"]];
+  function chip(group, type, value, label, code, checked) {
+    const id = `${group}-${value || "none"}`.replace(/[^\w가-힣-]/g, "_");
+    return `<div class="chip"><input type="${type}" id="${id}" name="${group}" value="${esc(value)}" ${checked ? "checked" : ""}><label for="${id}">${esc(label)}${code ? ` <code>${esc(code)}</code>` : ""}</label></div>`;
+  }
+  $("stars").innerHTML = B_STARS.map(([v, l]) => chip("stars", "checkbox", v, l, "", ["0*", "1*", "2*"].includes(v))).join("");
+  $("excl").innerHTML = B_EXCL.map(([k, l, term, on]) => chip("excl", "checkbox", k, l, term === "#" ? "#" : "", on)).join("");
+  $("cond").innerHTML = B_COND.map(([k, l, term]) => chip("cond", "checkbox", k, l, term, false)).join("");
+  $("year").innerHTML = B_YEAR.map(([v, l], i) => chip("year", "radio", v, l, v, i === 0)).join("");
+  $("dist").innerHTML = B_DIST.map(([v, l], i) => chip("dist", "radio", v, l, v, i === 0)).join("");
+  function bRange(prefix, a, b) {
+    const lo = $(a).value.trim(), hi = $(b).value.trim();
+    if (lo === "" && hi === "") return "";
+    if (lo !== "" && hi !== "") return lo === hi ? `${prefix}${lo}` : `${prefix}${lo}-${hi}`;
+    return lo !== "" ? `${prefix}${lo}-` : `${prefix}-${hi}`;
+  }
+  function build() {
+    const parts = [];
+    const onC = new Set([...document.querySelectorAll('input[name="cond"]:checked')].map((i) => i.value));
+    for (const [k, , term] of B_COND) if (onC.has(k)) parts.push(term);
+    const cp = bRange("cp", "cpMin", "cpMax"), days = bRange("일수", "dayMin", "dayMax");
+    if (cp) parts.push(cp);
+    if (days) parts.push(days);
+    for (const g of ["year", "dist"]) { const v = document.querySelector(`input[name="${g}"]:checked`)?.value; if (v) parts.push(v); }
+    const stars = [...document.querySelectorAll('input[name="stars"]:checked')].map((i) => i.value);
+    if (stars.length && stars.length < B_STARS.length) parts.push(stars.join(",")); // 쉼표는 &보다 먼저 묶여서 괄호 없이 안전
+    const onE = new Set([...document.querySelectorAll('input[name="excl"]:checked')].map((i) => i.value));
+    for (const [k, , term] of B_EXCL) if (onE.has(k)) parts.push("!" + term);
+    const q = parts.join("&") || "(조건을 골라 주세요)";
+    $("bq").textContent = q; $("bcopy").dataset.copy = q;
+  }
+  document.querySelector(".builder").addEventListener("change", build);
+  document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
+  build();
+
+  /* ───────── 4. 평가 막대 ───────── */
   const SEG = [["0", "0"], ["1", "1~5"], ["2", "6~10"], ["3", "11~14"], ["4", "15"]];
   const sel = { "공격": [0, 1], "방어": [4, 4], "HP": [4, 4] };
   function renderAppraisal() {

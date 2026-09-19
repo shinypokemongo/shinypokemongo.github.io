@@ -3,6 +3,8 @@
 # 공유 미리보기(og) 이미지는 og/<폴더이름>.png — _og만들기.py가 만든다
 import sys, os, re
 SITE = 'https://shinypokemongo.github.io'
+# 방문 집계(GoatCounter, 쿠키 없음) — 통계는 https://shinypokemongo.goatcounter.com
+GC = '<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>'
 src_path, folder = sys.argv[1], sys.argv[2]
 dest = os.path.join('C:/Users/user/pogo-site', folder)
 if len(sys.argv) > 3:
@@ -22,7 +24,7 @@ head = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
         f'<meta property="og:title" content="{title}">\n<meta property="og:description" content="{desc}">\n<meta property="og:url" content="{url}">\n'
         f'<meta property="og:image" content="{SITE}/og/{folder}.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
         '<meta name="twitter:card" content="summary_large_image">\n')
-out = head + src[:i] + '\n</head>\n<body>\n' + src[i:] + '\n</body>\n</html>\n'
+out = head + src[:i] + '\n</head>\n<body>\n' + src[i:] + '\n' + GC + '\n</body>\n</html>\n'
 os.makedirs(dest, exist_ok=True)
 open(os.path.join(dest, 'index.html'), 'w', encoding='utf-8').write(out)
 print('wrapped ->', folder)

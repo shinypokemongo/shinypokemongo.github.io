@@ -516,13 +516,11 @@
   }
   document.querySelector(".builder").addEventListener("change", build);
   $("breset").addEventListener("click", () => {
-    document.querySelectorAll('input[name="stars"]').forEach((i) => { i.checked = ["0*", "1*", "2*"].includes(i.value); });
-    document.querySelectorAll('input[name="excl"]').forEach((i) => { i.checked = B_EXCL.find((e) => e[0] === i.value)[3]; });
-    document.querySelectorAll('input[name="cond"]').forEach((i) => { i.checked = false; });
+    document.querySelectorAll('input[name="stars"], input[name="excl"], input[name="cond"]').forEach((i) => { i.checked = false; });
     document.querySelectorAll('input[name="year"], input[name="dist"]').forEach((i) => { i.checked = i.value === ""; });
     for (const id of ["cpMin", "cpMax", "dayMin", "dayMax"]) $(id).value = "";
     build();
-    const t = $("toast"); t.textContent = "처음 상태로 돌렸어요"; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1400);
+    const t = $("toast"); t.textContent = "선택을 모두 지웠어요"; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1400);
   });
   document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
   build();

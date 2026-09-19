@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="포켓몬고 레이드 데미지 배율 계산기 — 타입 상성, 자속, 날씨, 그림자, 메가, 친구 보너스를 켜고 끄면서 다 겹치면 몇 배가 되는지 확인합니다.">
+<link rel="canonical" href="https://shinypokemongo.github.io/damage/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 데미지 배율 쌓기">
+<meta property="og:description" content="포켓몬고 레이드 데미지 배율 계산기 — 타입 상성, 자속, 날씨, 그림자, 메가, 친구 보너스를 켜고 끄면서 다 겹치면 몇 배가 되는지 확인합니다.">
+<meta property="og:url" content="https://shinypokemongo.github.io/damage/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/damage.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 데미지 배율 쌓기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 배율 쌓기 = 레이드 화면의 파란 팀 파워 빛. 남색 + 전기 파랑, 다른 도구들과 한 집안. 기기 설정이 라이트면 밝은 판 */
+  :root {
+    --ink: #0A1020; --surface: #121A30; --surface-2: #1A2442; --line: #2B3A63;
+    --text: #EEF2FB; --dim: #98A6C6; --faint: #63719A;
+    --hit: #5CC8FF; --hit-deep: #10304A; --warn: #FFC94D; --warn-deep: #3A2F12; --warn-line: #6A5A26;
+    --on-accent: #04202F; --result-top: #123A57; --result-line: #2D6A91; --tip-text: #CFEFFF; --track: rgba(255,255,255,.07);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F3F7FC; --surface: #FFFFFF; --surface-2: #E9F0F9; --line: #D2DDEC;
+      --text: #111B2E; --dim: #536482; --faint: #8B9AB5;
+      --hit: #0B78B8; --hit-deep: #DDF0FB; --warn: #8F6200; --warn-deep: #FBF0CF; --warn-line: #E6CF8A;
+      --on-accent: #FFFFFF; --result-top: #D3ECFA; --result-line: #A9D3EC; --tip-text: #0B4A70; --track: rgba(20,40,80,.08);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--hit); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--hit); outline-offset: 2px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand b { color: var(--hit); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--hit); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+
+  /* 결과 — 화면 위에 붙어 따라온다 */
+  .result { position: sticky; top: 8px; z-index: 3; display: grid; gap: 10px; padding: 16px 18px; border-radius: 18px; background: radial-gradient(120% 120% at 50% 0%, var(--result-top) 0%, var(--surface) 75%); border: 1px solid var(--result-line); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .total .n { font-family: var(--display); font-weight: 900; font-size: clamp(44px, 12vw, 62px); line-height: 1; color: var(--hit); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .total .n small { font-size: .4em; color: var(--dim); margin-left: 4px; letter-spacing: 0; }
+  .total .eg { font-size: 14px; color: var(--dim); text-align: right; }
+  .total .eg b { font-family: var(--mono); color: var(--text); }
+  .chain { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--dim); min-height: 1.6em; }
+  .chain span { padding: 1px 7px; border-radius: 6px; background: var(--track); color: var(--text); white-space: nowrap; }
+  .chain span small { font-family: var(--body); font-weight: 600; color: var(--dim); margin-right: 4px; }
+  .bars { display: grid; gap: 5px; }
+  .bar { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; font-size: 12px; font-weight: 700; color: var(--dim); }
+  .bar div { height: 12px; border-radius: 6px; background: var(--track); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 6px; background: var(--faint); transition: width .25s; }
+  .bar.now i { background: var(--hit); }
+  .maybe { font-size: 13px; padding: 8px 10px; border-radius: 10px; background: var(--warn-deep); border: 1px solid var(--warn-line); color: var(--text); }
+  .maybe b { font-family: var(--mono); color: var(--warn); }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets button { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .presets button:hover { border-color: var(--hit); color: var(--hit); }
+
+  .stack { display: grid; gap: 10px; }
+  .item { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .item.on { border-color: var(--hit); }
+  .item.extra.on { border-color: var(--warn); }
+  .item .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .item .name { font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .item .name small { font-family: var(--body); font-weight: 600; font-size: 12px; color: var(--warn); margin-left: 6px; }
+  .item .mul { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .item.on .mul { color: var(--hit); } .item.extra.on .mul { color: var(--warn); }
+  .item p { margin: 0; font-size: 13px; color: var(--dim); }
+  .item p b { color: var(--text); }
+  .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opts button { padding: 7px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .opts button b { font-family: var(--mono); margin-left: 4px; color: var(--faint); }
+  .opts button[aria-pressed="true"] { background: var(--hit); border-color: var(--hit); color: var(--on-accent); }
+  .opts button[aria-pressed="true"] b { color: var(--on-accent); }
+  .extra .opts button[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); }
+  .divider { display: grid; gap: 2px; margin-top: 8px; }
+  .divider b { font-family: var(--display); font-weight: 800; color: var(--warn); }
+  .divider span { font-size: 13px; color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .rule b.big { font-family: var(--mono); font-size: 20px; line-height: 1.2; color: var(--hit); }
+  .rule b.big small { display: block; font-family: var(--body); font-size: 12px; color: var(--dim); font-weight: 600; }
+
+  details { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  summary { padding: 14px 16px; font-family: var(--display); font-weight: 800; cursor: pointer; }
+  .tablewrap { overflow-x: auto; padding: 0 12px 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; color: var(--dim); font-weight: 700; }
+  td:first-child { font-weight: 700; white-space: nowrap; }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--hit); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .rule { grid-template-columns: 60px 1fr; } .total .eg { text-align: left; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a href="../">포켓몬고 <b>이로치 수집가</b></a> · 레이드 데미지</div>
+    <h1>데미지 배율 쌓기</h1>
+  </header>
+
+  <section aria-labelledby="calc-h" style="display:grid;gap:14px">
+    <h2 id="calc-h" class="vh">배율 계산</h2>
+
+    <div class="result" aria-live="polite" aria-label="지금 배율">
+      <div class="total">
+        <div class="n" id="tot">×1.00</div>
+        <div class="eg" id="eg"></div>
+      </div>
+      <div class="chain" id="chain"></div>
+      <div class="bars" aria-hidden="true">
+        <div class="bar"><span>맨몸</span><div><i id="bar0"></i></div></div>
+        <div class="bar now"><span>지금</span><div><i id="bar1"></i></div></div>
+      </div>
+      <div class="maybe" id="maybe" hidden></div>
+    </div>
+
+    <div class="presets" id="presets" aria-label="바로 넣어 보기">
+      <button type="button" data-p="none">전부 끄기</button>
+      <button type="button" data-p="solo">혼자 약점만 찌를 때</button>
+      <button type="button" data-p="video">영상의 5.3배 조합</button>
+      <button type="button" data-p="shadow">그림자까지 얹으면</button>
+    </div>
+
+    <div class="stack" id="stack"></div>
+  </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener"><b>데미지 올리는 6가지, 영상으로</b><span>1위는 딱 한 방, 2위는 남이 받는다</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>한 장으로 보는 정리</b><span>블로그에서 저장해 두고 보기</span></a>
+  </nav>
+
+  <details>
+    <summary>날씨별 부스트 타입 7종</summary>
+    <div class="tablewrap"><table>
+      <tr><th>날씨</th><th>위력 +20% 받는 기술 타입</th></tr>
+      <tr><td>☀️ 맑음</td><td>땅 · 불꽃 · 풀</td></tr>
+      <tr><td>🌤️ 약간구름</td><td>노말 · 바위</td></tr>
+      <tr><td>☁️ 흐림</td><td>격투 · 독 · 페어리</td></tr>
+      <tr><td>🌧️ 비</td><td>벌레 · 물 · 전기</td></tr>
+      <tr><td>❄️ 눈</td><td>강철 · 얼음</td></tr>
+      <tr><td>💨 강풍</td><td>비행 · 에스퍼 · 드래곤</td></tr>
+      <tr><td>🌫️ 안개</td><td>고스트 · 악</td></tr>
+    </table>
+    <p class="sub" style="margin:10px 4px 0">약간구름과 흐림이 가장 많이 헷갈려요. 박스 검색창에 <b>@날씨</b>를 치면 지금 날씨로 부스트받는 기술을 가진 포켓몬만 나옵니다.</p></div>
+  </details>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">알고 쌓아야 하는 것들</h2>
+    <p class="sub">크기만 보면 안 되는 이유가 하나씩 붙어 있어요.</p>
+    <div class="rules">
+      <div class="rule"><b class="big">×2<small>팀 파워</small></b><div>가장 크지만 <b>다음 스페셜 어택 한 방</b>에만 붙어요. 저절로 걸리지도 않습니다. 노말 어택으로 게이지를 채우고 왼쪽 아래 파란 원을 눌러야 해요.</div></div>
+      <div class="rule"><b class="big">+30%<small>메가</small></b><div>상시 보너스 중엔 가장 큰데 <b>내가 아니라 같이 싸우는 다른 트레이너</b>가 받아요. 메가와 타입이 달라도 +10%는 줍니다. 여러 명이 꺼내도 가장 높은 것 하나만 적용돼요.</div></div>
+      <div class="rule"><b class="big">+20%<small>날씨</small></b><div>공짜지만 <b>보스 기술에도 똑같이 붙어요.</b> 보스 기술 타입이 부스트되는 날씨면 내가 더 빨리 쓰러집니다.</div></div>
+      <div class="rule"><b class="big">2.56<small>이중약점</small></b><div>포켓몬고의 약점은 2배가 아니라 1.6배, 이중약점은 4배가 아니라 2.56배예요. 0배도 없어서 가장 안 먹히는 경우가 0.244배입니다.</div></div>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">같은 기술인데 <em>1.6배와 5.3배</em></h2>
+    <p class="lede">약점만 찌르면 1.6배, 자속·날씨·친구·메가까지 겹치면 같은 기술이 5.3배로 들어갑니다. 스위치를 하나씩 켜 보면서 무엇이 크고 무엇이 함정인지 확인해 보세요. 배율은 영상에서 출처를 맞춰 본 값만 넣었어요.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../">도구함</a></div>
+    <div>상성·자속·날씨·메가 배율: Pokétory 「레이드 조건별 대미지 배율」 · PoGoMate 한글판 · Pokémon GO Wiki 세 곳 일치. 그림자 1.2: 게임 데이터. 친구 보너스 %는 공식이 소·중·대로만 밝혀서 커뮤니티 추정치예요. 팀 파워 2배: 공식 한글 공지. 거수참: 공식 pokemongo.com. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  // 위 여섯 개는 서로 곱해지는 게 교차 확인된 것, extra 두 개는 같은 식으로 곱해지는지 확인된 적이 없는 것
+  const ITEMS = [
+    { id: "type", name: "타입 상성", note: "포켓몬고엔 0배가 없어요. 가장 안 먹히는 경우가 0.244배.",
+      opts: [["이중약점", 2.56], ["약점", 1.6], ["보통", 1], ["반감", 0.625], ["이중반감", 0.390625], ["가장 안 먹힘", 0.244140625]], def: 2 },
+    { id: "stab", name: "자속", note: "기술 타입이 내 포켓몬 타입과 같을 때.", opts: [["없음", 1], ["자속", 1.2]], def: 0 },
+    { id: "weather", name: "날씨 부스트", note: "<b>보스 기술에도 똑같이 붙어요.</b> GO 배틀리그에는 없습니다.", opts: [["없음", 1], ["부스트", 1.2]], def: 0 },
+    { id: "shadow", name: "그림자 포켓몬", note: "공격이 1.2배인 대신 <b>받는 데미지도 1.2배</b>예요.", opts: [["일반", 1], ["그림자", 1.2]], def: 0 },
+    { id: "mega", name: "메가진화 (같이 싸우는 사람 것)", note: "<b>내가 아니라 다른 트레이너가 받아요.</b> 여러 명이 꺼내도 가장 높은 것 하나만.",
+      opts: [["없음", 1], ["타입 다름", 1.1], ["같은 타입", 1.3]], def: 0 },
+    { id: "friend", name: "친구와 함께", tag: "추정치", note: "공식은 소·중·대로만 밝혀요. 포에버 프렌드는 최단 180일.",
+      opts: [["없음", 1], ["굿", 1.03], ["그레이트", 1.05], ["울트라", 1.07], ["베스트", 1.1], ["포에버", 1.12]], def: 0 },
+    { id: "zacian", extra: true, name: "자시안 거수참", note: "6분에 별의모래 5,000 + 자시안 사탕 5. 어드벤처 이펙트는 <b>한 번에 하나만</b> 켜져요.", opts: [["없음", 1], ["켬", 1.1]], def: 0 },
+    { id: "party", extra: true, name: "팀 파워", note: "<b>다음 스페셜 어택 한 방만.</b> 게이지를 채우고 왼쪽 아래 파란 원을 눌러야 걸려요.", opts: [["없음", 1], ["발동", 2]], def: 0 },
+  ];
+  const PRESETS = {
+    none: { type: 2 }, solo: { type: 1, stab: 1 },
+    video: { type: 0, stab: 1, weather: 1, mega: 2, friend: 4 },
+    shadow: { type: 0, stab: 1, weather: 1, mega: 2, friend: 4, shadow: 1 },
+  };
+  const S = Object.fromEntries(ITEMS.map((it) => [it.id, it.def]));
+  const fx = (v) => (v >= 1 ? `×${+v.toFixed(2)}` : `×${+v.toFixed(3)}`);
+  const pct = (v) => (v === 1 ? "—" : v === 2 || v < 1 || v > 1.4 ? fx(v) : `+${Math.round((v - 1) * 100)}%`);
+
+  function build() {
+    let html = "";
+    ITEMS.forEach((it, idx) => {
+      if (it.extra && !ITEMS[idx - 1].extra) html += `<div class="divider"><b>따로 보는 것</b><span>아래 둘은 위의 배율들과 같은 식으로 곱해지는지 확인된 적이 없어요. 그래서 큰 숫자에는 넣지 않고 따로 보여 드립니다.</span></div>`;
+      html += `<div class="item${it.extra ? " extra" : ""}" id="it-${it.id}"><div class="top"><span class="name">${it.name}${it.tag ? `<small>${it.tag}</small>` : ""}</span><span class="mul"></span></div>
+        <div class="opts" role="group" aria-label="${it.name}">${it.opts.map((o, i) => `<button type="button" data-id="${it.id}" data-i="${i}">${o[0]}${o[1] !== 1 || it.id === "type" ? `<b>${it.id === "type" ? fx(o[1]) : pct(o[1])}</b>` : ""}</button>`).join("")}</div>
+        <p>${it.note}</p></div>`;
+    });
+    $("stack").innerHTML = html;
+  }
+
+  function render() {
+    let sure = 1, all = 1; const chain = [];
+    ITEMS.forEach((it) => {
+      const [label, v] = it.opts[S[it.id]];
+      const el = $("it-" + it.id), on = v !== 1;
+      el.classList.toggle("on", on);
+      el.querySelector(".mul").textContent = on ? fx(v) : "×1";
+      el.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === S[it.id])));
+      all *= v; if (!it.extra) { sure *= v; if (on) chain.push(`<span><small>${it.id === "type" ? label : it.name.split(" ")[0]}</small>${+v.toFixed(3)}</span>`); }
+    });
+    $("tot").innerHTML = `${fx(sure)}<small>배</small>`;
+    $("eg").innerHTML = `맨몸으로 <b>100</b> 들어가던 기술이<br><b>${Math.round(sure * 100).toLocaleString("ko-KR")}</b> 들어가요`;
+    $("chain").innerHTML = chain.length ? chain.join(" × ") : "아래에서 하나씩 켜 보세요";
+    const scale = Math.max(6, sure);
+    $("bar0").style.width = `${100 / scale}%`; $("bar1").style.width = `${Math.max(1.5, sure / scale * 100)}%`;
+    const extraOn = all !== sure;
+    $("maybe").hidden = !extraOn;
+    if (extraOn) {
+      const names = ITEMS.filter((it) => it.extra && it.opts[S[it.id]][1] !== 1).map((it) => it.name);
+      $("maybe").innerHTML = `${names.join("·")}까지 같은 식으로 곱해진다면 <b>약 ${fx(all)}</b>. ${S.party ? "팀 파워는 그 한 방에만요." : "확인된 적은 없는 계산이에요."}`;
+    }
+  }
+
+  build();
+  $("stack").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    const it = ITEMS.find((x) => x.id === b.dataset.id), i = +b.dataset.i;
+    // 켬/끔 두 개짜리는 같은 버튼을 다시 누르면 꺼진다
+    S[it.id] = it.opts.length === 2 && S[it.id] === i && i === 1 ? 0 : i;
+    render();
+  });
+  $("presets").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    ITEMS.forEach((it) => (S[it.id] = it.def)); Object.assign(S, PRESETS[b.dataset.p]); render();
+  });
+  render();
+</script>
+
+</body>
+</html>

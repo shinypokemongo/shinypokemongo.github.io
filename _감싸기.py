@@ -5,7 +5,7 @@ src = open(sys.argv[1], encoding='utf-8').read()
 i = src.index('</style>') + len('</style>')
 head = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        '<meta name="description" content="포켓몬고 박스 정리 검색어를 누르면 복사. 보낼 후보·반짝반짝 확정·교환 사탕·레거시 기술·배틀리그 검색어를 한국어판에서 직접 확인했습니다.">\n')
+        '<meta name="description" content="포켓몬고 검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">\n')
 out = head + src[:i] + '\n</head>\n<body>\n' + src[i:] + '\n</body>\n</html>\n'
 open('C:/Users/user/pogo-site/search/index.html', 'w', encoding='utf-8').write(out)
 print('wrapped')

@@ -3,27 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="포켓몬고 박스 정리 검색어를 누르면 복사. 보낼 후보·반짝반짝 확정·교환 사탕·레거시 기술·배틀리그 검색어를 한국어판에서 직접 확인했습니다.">
-<title>이로치수집가 검색어 복사기</title>
+<meta name="description" content="포켓몬고 검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">
+<title>이로치수집가 검색어 검사기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
 <style>
-  /* 영상(박스 정리 검색어 편)과 같은 세계: 먹색 남보라 바탕 + 네온 초록 검색칩. 다크 한 가지로 고정한 디자인 */
+  /* 영상(박스 정리 검색어 편)과 같은 세계: 먹색 남보라 바탕 + 네온 초록 검색칩. 다크 한 가지로 고정 */
   :root {
-    --ink: #0F0D1C;
-    --surface: #1A1830;
-    --surface-2: #221F3D;
-    --line: #34305A;
-    --text: #F1EEFA;
-    --dim: #A29DBE;
-    --green: #6BF2A6;
-    --green-deep: #0E3B27;
-    --red: #FF7A87;
-    --red-deep: #3A1A26;
-    --gold: #FFD166;
-    --lilac: #C6A8FF;
-    --sky: #86CBFF;
+    --ink: #0F0D1C; --surface: #1A1830; --surface-2: #221F3D; --line: #34305A;
+    --text: #F1EEFA; --dim: #A29DBE; --faint: #6C6790;
+    --green: #6BF2A6; --green-deep: #0E3B27;
+    --red: #FF7A87; --red-deep: #3A1A26;
+    --gold: #FFD166; --gold-deep: #3A331A;
+    --lilac: #C6A8FF; --lilac-deep: #2A2248;
+    --sky: #86CBFF; --sky-deep: #152D45;
+    --bar: #F5A04A; --bar-full: #F2555A; /* 게임 평가 막대 색 */
     --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
@@ -31,90 +26,122 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
-  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 140px; display: grid; gap: 40px; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 26px 60px; display: grid; gap: 44px; }
   a { color: var(--sky); }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  button, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  code, .mono { font-family: var(--mono); font-weight: 700; }
 
-  /* 머리 */
   header { display: grid; gap: 10px; }
-  .brand { font-family: var(--display); font-weight: 800; font-size: 14px; letter-spacing: .08em; color: var(--dim); }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
   .brand b { color: var(--gold); }
-  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(30px, 7vw, 44px); line-height: 1.15; letter-spacing: -.03em; text-wrap: balance; }
-  h1 em { font-style: normal; color: var(--green); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(30px, 7.4vw, 46px); line-height: 1.12; letter-spacing: -.035em; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--red); text-decoration: line-through; text-decoration-thickness: 4px; }
+  h1 strong { color: var(--green); }
   .lede { margin: 0; color: var(--dim); max-width: 60ch; }
-  .steps { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-  .step { font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
-  .step b { color: var(--green); margin-right: 4px; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 23px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 16px; color: var(--dim); font-size: 14px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--green); }
 
-  h2 { margin: 0 0 4px; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
-  .sub { margin: 0 0 14px; color: var(--dim); font-size: 14px; }
+  .btn { border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; background: var(--green); color: #07140D; white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.done { background: var(--gold); color: #1E1400; }
 
-  /* 즐겨찾기용 6개 */
-  .favs { display: grid; gap: 10px; }
-  .fav { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: center; padding: 14px 14px 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
-  .fav .name { font-family: var(--display); font-weight: 800; font-size: 16px; }
-  .fav .name small { font-family: var(--body); font-weight: 500; color: var(--dim); font-size: 13px; margin-left: 6px; }
-  .fav code { grid-column: 1 / -1; font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--green); background: var(--green-deep); border-radius: 10px; padding: 10px 12px; word-break: break-all; line-height: 1.45; }
-  .fav[data-tone="lilac"] code { color: var(--lilac); background: #2A2248; }
-  .fav[data-tone="gold"] code { color: var(--gold); background: #3A331A; }
-  .fav[data-tone="sky"] code { color: var(--sky); background: #152D45; }
-  .fav[data-tone="red"] code { color: var(--red); background: var(--red-deep); }
-  .copy { grid-row: 1; grid-column: 2; border: 0; border-radius: 10px; padding: 8px 16px; font-weight: 700; font-size: 14px; background: var(--green); color: #07140D; white-space: nowrap; }
-  .copy.done { background: var(--gold); }
+  /* ── 1. 해석기 · 검사기 ── */
+  .checker { display: grid; gap: 14px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .checker textarea { width: 100%; min-height: 84px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-family: var(--mono); font-weight: 700; font-size: 16px; line-height: 1.45; }
+  .samples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--dim); }
+  .samples button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 10px; font-size: 13px; color: var(--dim); }
+  .verdict { display: grid; gap: 10px; }
+  .issue { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; font-size: 14px; }
+  .issue.bad { background: var(--red-deep); border: 1px solid #6A2C3A; }
+  .issue.warn { background: var(--gold-deep); border: 1px solid #6A5A26; }
+  .issue.ok { background: var(--green-deep); border: 1px solid #1F6A47; }
+  .issue b { font-family: var(--display); font-weight: 800; }
+  .issue.bad b { color: var(--red); } .issue.warn b { color: var(--gold); } .issue.ok b { color: var(--green); }
+  .reading { display: grid; gap: 8px; }
+  .reading h3 { margin: 0; font-size: 13px; letter-spacing: .08em; color: var(--dim); font-weight: 700; }
+  .rows { display: grid; gap: 6px; }
+  .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: start; }
+  .tag { justify-self: start; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .tag.show { background: var(--green-deep); color: var(--green); }
+  .tag.hide { background: var(--red-deep); color: var(--red); }
+  .tag.unk { background: var(--surface-2); color: var(--faint); }
+  .row .what { font-size: 15px; }
+  .row .what .or { color: var(--dim); font-size: 13px; margin: 0 4px; }
+  .row .what code { font-size: 12px; color: var(--faint); margin-left: 6px; }
+  .fixed { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green-deep); }
+  .fixed code { color: var(--green); font-size: 14px; word-break: break-all; line-height: 1.45; }
 
-  /* 만들기 */
-  .builder { display: grid; gap: 22px; padding: 20px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
-  fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
-  legend { padding: 0; margin-bottom: 8px; font-family: var(--display); font-weight: 800; font-size: 15px; }
-  legend span { font-family: var(--body); font-weight: 500; color: var(--dim); font-size: 13px; margin-left: 6px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { position: relative; }
-  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-  .chip label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--dim); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
-  .chip label code { font-family: var(--mono); font-size: 12px; opacity: .8; }
-  .chip input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
-  .show .chip input:checked + label { background: var(--green-deep); border-color: var(--green); color: var(--green); }
-  .hide .chip input:checked + label { background: var(--red-deep); border-color: var(--red); color: var(--red); }
-  .hide .chip input:checked + label::before { content: "!"; font-family: var(--mono); font-weight: 700; }
-  .pick .chip input:checked + label { background: #2A2248; border-color: var(--lilac); color: var(--lilac); }
-  .note { font-size: 13px; color: var(--dim); margin: 0; }
-  .and .chip input:checked + label { background: #3A331A; border-color: var(--gold); color: var(--gold); }
-  .nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
-  .num { display: grid; gap: 4px; }
-  .num label { font-size: 13px; font-weight: 600; color: var(--dim); }
-  .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
-  .num input::placeholder { color: #5E5980; font-weight: 600; }
+  /* 자체 광고 칸 — 나중에 광고 코드를 넣을 자리 */
+  .slot { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; background: linear-gradient(135deg, #24204A, #1A1830); border: 1px dashed #4A4478; text-decoration: none; color: var(--text); }
+  .slot .ic { font-size: 26px; }
+  .slot b { display: block; font-family: var(--display); font-weight: 800; }
+  .slot span { font-size: 13px; color: var(--dim); }
+  .slot .go { font-weight: 700; color: var(--gold); font-size: 14px; }
+  .slot-label { font-size: 11px; color: var(--faint); letter-spacing: .1em; margin-bottom: 4px; }
 
-  /* 결과 바 — 화면 아래 고정 */
-  .out { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(15,13,28,.94); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
-  .out-in { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
-  .out-label { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--dim); }
-  .out textarea { width: 100%; resize: none; border: 1px solid var(--green); border-radius: 10px; background: var(--green-deep); color: var(--green); font-family: var(--mono); font-weight: 700; font-size: 14px; line-height: 1.4; padding: 8px 10px; height: 64px; }
-  .out .copy { grid-row: auto; grid-column: auto; height: 64px; padding: 0 20px; font-size: 16px; }
+  /* ── 2. 상황별 레시피 ── */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .tabs button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 14px; color: var(--dim); }
+  .tabs button[aria-selected="true"] { background: var(--text); color: var(--ink); border-color: var(--text); }
+  .recipe { display: grid; gap: 10px; }
+  .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .step .n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 900; background: var(--surface-2); color: var(--gold); }
+  .step .body { display: grid; gap: 8px; min-width: 0; }
+  .step .t { font-family: var(--display); font-weight: 800; }
+  .step .why { font-size: 14px; color: var(--dim); }
+  .step .q { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--green-deep); }
+  .step .q code { color: var(--green); font-size: 14px; word-break: break-all; }
+  .step .fav { font-size: 12px; color: var(--faint); }
+  .step .fav b { color: var(--dim); }
+  .typepick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .typepick select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
+
+  /* ── 3. 평가 막대 ── */
+  .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; }
+  .appraisal .ahead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .appraisal .ahead b { font-family: var(--display); font-weight: 800; font-size: 15px; }
+  .appraisal .ahead span { font-size: 12px; color: #7A7788; }
+  .stat { display: grid; gap: 6px; }
+  .stat .lab { font-size: 13px; font-weight: 700; color: #5A5868; display: flex; justify-content: space-between; }
+  .stat .lab em { font-style: normal; font-family: var(--mono); color: #2F7D55; }
+  .segs { display: grid; grid-template-columns: 0.6fr 1fr 1fr 0.8fr 0.6fr; gap: 4px; margin-bottom: 18px; }
+  .seg { height: 34px; border: 0; border-radius: 4px; background: #D9D5CE; position: relative; font-size: 11px; font-weight: 700; color: #8A8698; padding: 0; }
+  .seg.on { background: var(--bar); color: #3A1D00; }
+  .seg.on.full { background: var(--bar-full); color: #fff; }
+  .seg small { position: absolute; left: 0; right: 0; bottom: -18px; font-size: 11px; color: #8A8698; font-weight: 600; }
+  .appraisal .note { font-size: 12px; color: #7A7788; margin: 10px 0 0; }
+  .appraisal .fixed { background: #E3F5EA; }
+  .appraisal .fixed code { color: #1D6B45; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets button { border: 1px solid #CFCAC2; background: #fff; border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 700; color: #4A4858; }
+
+  /* ── 4. 이번 이벤트 ── */
+  .event { display: grid; gap: 10px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .event .when { font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .event .when span { color: var(--gold); }
+  .pending { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--gold-deep); color: var(--gold); }
 
   /* 규칙 */
-  .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .rule { text-align: center; padding: 10px 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
   .rule b { display: block; font-family: var(--mono); font-size: 26px; color: var(--green); line-height: 1.1; }
   .rule span { font-size: 13px; font-weight: 600; }
-  .traps { display: grid; gap: 10px; }
-  .trap { padding: 12px 14px; border-radius: 12px; border: 1px solid #5A2A38; background: #1F1424; font-size: 14px; }
-  .trap strong { display: block; color: var(--red); font-family: var(--display); font-weight: 800; margin-bottom: 2px; }
-  .trap code { font-family: var(--mono); font-weight: 700; padding: 1px 6px; border-radius: 6px; background: var(--surface-2); }
-  .trap .x { color: var(--red); text-decoration: line-through; }
-  .trap .o { color: var(--green); }
 
   footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
   footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
   footer .who b { color: var(--gold); }
 
-  .toast { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; z-index: 6; padding: 10px 18px; border-radius: 999px; background: var(--gold); color: #1E1400; font-weight: 700; font-size: 14px; transition: opacity .2s, transform .2s; white-space: nowrap; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(16px); opacity: 0; pointer-events: none; z-index: 6; padding: 10px 18px; border-radius: 999px; background: var(--gold); color: #1E1400; font-weight: 700; font-size: 14px; transition: opacity .2s, transform .2s; white-space: nowrap; }
   .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  @media (max-width: 420px) {
+  @media (max-width: 440px) {
     .rules { grid-template-columns: repeat(2, 1fr); }
-    .out textarea { height: 72px; font-size: 13px; }
+    .row { grid-template-columns: 64px 1fr; }
+    .slot { grid-template-columns: auto 1fr; }
+    .slot .go { grid-column: 2; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -124,218 +151,328 @@
 
 <div class="wrap">
   <header>
-    <div class="brand">포켓몬고 <b>이로치 수집가</b> · 박스 정리 검색어</div>
-    <h1>누르면 <em>복사</em>, 붙여넣고<br>길게 눌러 저장</h1>
-    <p class="lede">영상에서 본 긴 검색어를 여기서 복사하세요. 게임 검색창에 붙여넣고, 최근 검색을 길게 누르면 즐겨찾기에 저장됩니다. 한국어판 게임에서 직접 쳐보고 되는 것만 넣었습니다.</p>
-    <div class="steps" aria-label="사용 순서">
-      <span class="step"><b>1</b>복사</span>
-      <span class="step"><b>2</b>포켓몬 목록 검색창에 붙여넣기</span>
-      <span class="step"><b>3</b>최근 검색을 길게 눌러 즐겨찾기</span>
-    </div>
+    <div class="brand">포켓몬고 <b>이로치 수집가</b> · 박스 검색어</div>
+    <h1>기호 하나면<br><em>이로치 전설</em>이 <strong>보낼 목록</strong>에</h1>
+    <p class="lede">어디서 가져온 검색어든 붙여넣어 보세요. 무슨 뜻인지 말로 풀어주고, 틀린 곳은 짚어서 고친 걸 복사해 드립니다. 한국어판 게임에서 직접 쳐본 결과로 만들었어요.</p>
   </header>
 
-  <section aria-labelledby="favs-h">
-    <h2 id="favs-h">즐겨찾기용 6개</h2>
-    <p class="sub">영상 마지막에 나온 그 6개입니다. 버튼을 누르면 바로 복사됩니다.</p>
-    <div class="favs" id="favs"></div>
-  </section>
-
-  <section aria-labelledby="build-h">
-    <h2 id="build-h">직접 만들기</h2>
-    <p class="sub">고르면 아래 막대에 검색어가 바로 만들어집니다. 쉼표·느낌표·대시 규칙은 알아서 맞춰 드려요.</p>
-    <div class="builder">
-      <fieldset class="show">
-        <legend>보여줄 평가<span>쉼표로 묶여요 · 아무것도 안 고르면 전체</span></legend>
-        <div class="chips" id="stars"></div>
-      </fieldset>
-      <fieldset class="hide">
-        <legend>빼고 볼 것<span>하나씩 느낌표가 붙어요</span></legend>
-        <div class="chips" id="excl"></div>
-      </fieldset>
-      <fieldset class="and">
-        <legend>진화 · 기술 조건<span>고른 건 모두 만족해야 나와요 (&amp;)</span></legend>
-        <div class="chips" id="cond"></div>
-      </fieldset>
-      <fieldset>
-        <legend>CP · 잡은 지 며칠<span>한쪽만 적어도 돼요</span></legend>
-        <div class="nums">
-          <div class="num"><label for="cpMin">최소 CP</label><input id="cpMin" type="number" inputmode="numeric" min="0" placeholder="예: 1000"></div>
-          <div class="num"><label for="cpMax">최대 CP</label><input id="cpMax" type="number" inputmode="numeric" min="0" placeholder="예: 1500"></div>
-          <div class="num"><label for="dayMin">최소 일수</label><input id="dayMin" type="number" inputmode="numeric" min="0" placeholder="예: 0"></div>
-          <div class="num"><label for="dayMax">최대 일수</label><input id="dayMax" type="number" inputmode="numeric" min="0" placeholder="예: 7"></div>
-        </div>
-        <p class="note">일수 0 = 오늘(24시간 안). 최대 1500 = 슈퍼리그, 2500 = 하이퍼리그.</p>
-      </fieldset>
-      <fieldset class="pick">
-        <legend>잡은 때<span>하나만</span></legend>
-        <div class="chips" id="when"></div>
-      </fieldset>
-      <fieldset class="pick">
-        <legend>잡은 곳 거리<span>대시는 숫자 뒤 = 이상</span></legend>
-        <div class="chips" id="dist"></div>
-      </fieldset>
-      <fieldset class="pick">
-        <legend>배틀리그 개체값<span>0 = 0 · 1 = 1~5 · 2 = 6~10 · 3 = 11~14 · 4 = 15</span></legend>
-        <div class="chips" id="pvp"></div>
-      </fieldset>
-      <p class="note">리모트 레이드로 잡은 포켓몬은 거리를 레이드한 체육관 위치로 잽니다. 거리 검색을 쓸 땐 <b>전설</b>을 빼두면 편해요.</p>
+  <!-- 1. 해석기 · 검사기 -->
+  <section aria-labelledby="chk-h">
+    <div class="eyebrow">검사기</div>
+    <h2 id="chk-h">내 검색어, 제대로 쓴 걸까?</h2>
+    <p class="sub">붙여넣으면 바로 읽어 드립니다.</p>
+    <div class="checker">
+      <label for="q" class="sr" style="font-size:13px;color:var(--dim)">검색어</label>
+      <textarea id="q" spellcheck="false" autocomplete="off">0*,1*,2*&amp;!색이 다른,전설의 포켓몬&amp;거리100</textarea>
+      <div class="samples">예시:
+        <button type="button" data-s="!색이 다른,전설의 포켓몬">느낌표 함정</button>
+        <button type="button" data-s="거리100&amp;!전설의 포켓몬">대시 없음</button>
+        <button type="button" data-s="다이 맥스&amp;4">띄어쓰기·별표</button>
+        <button type="button" data-s="0*,1*,2*&amp;!색이 다른&amp;!전설의 포켓몬&amp;!환상&amp;!울트라비스트&amp;!반짝반짝&amp;!그림자&amp;!특별&amp;!배경&amp;!즐겨찾기&amp;!@기술&amp;!#">보낼 후보 한 줄</button>
+      </div>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div class="reading">
+        <h3>이렇게 읽혀요</h3>
+        <div class="rows" id="rows"></div>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="rules-h">
-    <h2 id="rules-h">손으로 고칠 때 헷갈리는 것</h2>
-    <p class="sub">기호는 네 개뿐입니다.</p>
+  <div>
+    <div class="slot-label">이로치 수집가</div>
+    <a class="slot" href="https://www.youtube.com/@ShinyPokemongo" target="_blank" rel="noopener">
+      <span class="ic" aria-hidden="true">▶</span>
+      <span><b>이 검색어들, 영상으로 보기</b><span>9,168마리 박스가 한 줄로 2,003마리가 되는 과정</span></span>
+      <span class="go">YouTube →</span>
+    </a>
+  </div>
+
+  <!-- 2. 상황별 레시피 -->
+  <section aria-labelledby="rc-h">
+    <div class="eyebrow">상황별 레시피</div>
+    <h2 id="rc-h">지금 뭐 하려고요?</h2>
+    <p class="sub">순서대로 복사해서 쓰세요. 한 번 쓴 건 최근 검색을 길게 눌러 즐겨찾기로 저장해 두면 다음부터 편합니다.</p>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="recipe" id="recipe" role="tabpanel"></div>
+  </section>
+
+  <!-- 3. 평가 막대 -->
+  <section aria-labelledby="ap-h">
+    <div class="eyebrow">배틀리그</div>
+    <h2 id="ap-h">평가 막대로 고르기</h2>
+    <p class="sub">게임 평가 화면처럼 칸을 누르세요. 누른 구간에 들어가는 포켓몬만 나오는 검색어가 만들어집니다.</p>
+    <div class="appraisal">
+      <div class="ahead"><b>개체값 구간</b><span>0 · 1~5 · 6~10 · 11~14 · 15</span></div>
+      <div class="stat" data-stat="공격"><div class="lab">공격 <em></em></div><div class="segs"></div></div>
+      <div class="stat" data-stat="방어"><div class="lab">방어 <em></em></div><div class="segs"></div></div>
+      <div class="stat" data-stat="HP"><div class="lab">체력 <em></em></div><div class="segs"></div></div>
+      <div class="presets">
+        <button type="button" data-p="0-1,4,4">배틀리그 엄격</button>
+        <button type="button" data-p="0-1,3-4,3-4">배틀리그 넓게</button>
+        <button type="button" data-p="4,4,4">100개체</button>
+        <button type="button" data-p="0,0,0">0개체</button>
+      </div>
+      <div class="fixed"><code id="apq"></code><button class="btn" type="button" id="apcopy">복사</button></div>
+      <p class="note" style="margin:0">공격이 낮을수록 CP 상한 안에서 레벨을 더 올릴 수 있어요. 슈퍼리그면 결과 앞에 cp-1500&amp; 를 붙이세요.</p>
+    </div>
+  </section>
+
+  <!-- 4. 이번 이벤트 -->
+  <section aria-labelledby="ev-h">
+    <div class="eyebrow">이번 이벤트</div>
+    <h2 id="ev-h">다가오는 이벤트용</h2>
+    <p class="sub">이벤트마다 새로 올립니다. 당일 직접 쳐보고 확정해요.</p>
+    <div class="event">
+      <div class="when"><span>10월 10일(토) 14~17시</span> 조로아 커뮤니티 데이</div>
+      <div class="step" style="background:var(--surface-2)">
+        <span class="n">1</span>
+        <div class="body">
+          <div class="t">오늘 잡은 조로아 중 정리 후보</div>
+          <div class="q"><code>+조로아&amp;일수0&amp;0*,1*,2*&amp;!색이 다른</code><button class="btn" type="button" data-copy="+조로아&amp;일수0&amp;0*,1*,2*&amp;!색이 다른">복사</button></div>
+          <div><span class="pending">당일 확인 전</span></div>
+        </div>
+      </div>
+      <p class="note" style="margin:0;font-size:13px;color:var(--dim)">+조로아는 조로아·조로아크를 함께 찾습니다. 진화시키면 조로아크가 전용 기술(기습)을 배워요. 일정 출처 Leek Duck.</p>
+    </div>
+  </section>
+
+  <div>
+    <div class="slot-label">이로치 수집가</div>
+    <a class="slot" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener">
+      <span class="ic" aria-hidden="true">📋</span>
+      <span><b>한 장으로 보는 검색어 정리</b><span>저장해 두고 필요할 때 꺼내 보는 포스터</span></span>
+      <span class="go">블로그 →</span>
+    </a>
+  </div>
+
+  <section aria-labelledby="ru-h">
+    <h2 id="ru-h">기호는 네 개</h2>
+    <p class="sub">쉼표는 &amp;보다 먼저 묶이고, 괄호는 안 됩니다.</p>
     <div class="rules">
       <div class="rule"><b>&amp;</b><span>그리고</span></div>
       <div class="rule"><b>,</b><span>또는</span></div>
-      <div class="rule"><b>!</b><span>빼고</span></div>
+      <div class="rule"><b>!</b><span>바로 뒤 한 단어 빼고</span></div>
       <div class="rule"><b>-</b><span>숫자 뒤 = 이상</span></div>
-    </div>
-    <div class="traps">
-      <div class="trap"><strong>느낌표는 바로 뒤 한 단어에만</strong><code class="x">!색이 다른,전설의 포켓몬</code> 은 "이로치 아님 <b>또는</b> 전설" → 이로치 전설이 딸려 나와요. 빼는 건 하나씩: <code class="o">!색이 다른&amp;!전설의 포켓몬</code></div>
-      <div class="trap"><strong>쉼표가 &amp;보다 먼저 묶임 · 괄호는 안 됨</strong><code class="o">3*,4*&amp;색이 다른</code> = 별 3~4개 중에서 이로치</div>
-      <div class="trap"><strong>대시는 숫자 뒤에</strong><code class="x">거리100</code> = 100km 이내 · <code class="o">거리100-</code> = 100km 이상</div>
-      <div class="trap"><strong>띄어쓰기 · 별표</strong><code class="o">색이 다른</code> 띄어 씀 · <code class="o">다이맥스</code> 붙여 씀 · <code class="o">거다이 맥스</code> 띄어 씀 · <code class="o">4*</code> 별표까지</div>
     </div>
   </section>
 
   <footer>
     <div class="who">포켓몬고 <b>이로치 수집가</b></div>
     <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
-    <div>한국어판에서 직접 확인 (2026.9.19) · 결합 규칙 Pokémon GO Wiki · 교환 사탕 Bulbapedia·Pokétory · 반짝반짝 확정 Pokétory·pogoalley. 게임 업데이트로 검색어가 바뀔 수 있어요.</div>
+    <div>한국어판에서 직접 확인 (2026.9.19). 결합 규칙 Pokémon GO Wiki · 교환 사탕 Bulbapedia·Pokétory · 반짝반짝 확정 Pokétory·pogoalley. 게임 업데이트로 검색어가 바뀔 수 있어요.</div>
   </footer>
 </div>
-
-<div class="out" role="region" aria-label="만든 검색어">
-  <div class="out-in">
-    <div class="out-label">만든 검색어</div>
-    <textarea id="result" readonly aria-label="만든 검색어"></textarea>
-    <button class="copy" id="copyResult" type="button">복사</button>
-  </div>
-</div>
-<div class="toast" id="toast" role="status" aria-live="polite">복사했어요 · 게임 검색창에 붙여넣으세요</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  // 전부 한국어판 실측 검색어 (검색어.mp4 · 검색어2.mp4 · 검색어3.mp4 + 사용자 확인 2026-09-19)
-  const EXCL = [
-    ["shiny", "이로치", "색이 다른", true],
-    ["legend", "전설", "전설의 포켓몬", true],
-    ["myth", "환상", "환상", true],
-    ["ub", "울트라비스트", "울트라비스트", true],
-    ["lucky", "반짝반짝", "반짝반짝", true],
-    ["shadow", "그림자", "그림자", true],
-    ["costume", "코스튬", "특별", true],
-    ["bg", "배경", "배경", true],
-    ["fav", "즐겨찾기", "즐겨찾기", true],
-    ["legacy", "레거시 기술", "@기술", true],
-    ["tag", "태그 달린 것", "#", true],
-    ["dmax", "다이맥스", "다이맥스", false],
-  ];
-  const COND = [
-    ["evolve", "지금 진화 가능", "진화"],
-    ["newdex", "진화하면 도감 새로", "미등록"],
-    ["item", "도구 진화", "도구"],
-    ["quest", "조건 진화", "조건 진화"],
-    ["trade", "교환 진화", "교환진화"],
-    ["mega", "메가진화 가능", "메가 진화"],
-    ["weather", "날씨 부스트 기술", "@날씨"],
-  ];
-  const STARS = [["0*", "0성"], ["1*", "1성"], ["2*", "2성"], ["3*", "3성"], ["4*", "4성(100)"]];
-  const WHEN = [["", "상관없음"], ["일수0", "오늘 잡은 것"], ["연도-2020", "2020년까지 (반짝반짝 확정)"]];
-  const DIST = [["", "상관없음"], ["거리100-", "100km 이상 (교환 사탕 3개)"], ["거리1000-", "1,000km 이상"]];
-  const PVP = [["", "상관없음"], ["0-1공격&4방어&4HP", "공격 최저 · 방어·체력 15"], ["0-1공격&3-4방어&3-4HP", "공격 최저 · 방어·체력 11~15"]];
-
-  const FAVS = [
-    { name: "보낼 후보", note: "별 0~2개만, 귀한 건 전부 빼기", tone: "green", q: "0*,1*,2*&!색이 다른&!전설의 포켓몬&!환상&!울트라비스트&!반짝반짝&!그림자&!특별&!배경&!즐겨찾기&!@기술&!#",
-      set: { stars: ["0*", "1*", "2*"], excl: EXCL.filter(e => e[3]).map(e => e[0]), when: "", dist: "", pvp: "" } },
-    { name: "정리 전 진화", note: "진화하면 도감이 새로 채워지는 것", tone: "gold", q: "진화&미등록",
-      set: { stars: [], excl: [], when: "", dist: "", pvp: "", cond: ["evolve", "newdex"] } },
-    { name: "교환 사탕 3개", note: "100km 넘게 떨어져 잡은 것", tone: "sky", q: "거리100-&!전설의 포켓몬",
-      set: { stars: [], excl: ["legend"], when: "", dist: "거리100-", pvp: "" } },
-    { name: "반짝반짝 확정", note: "2020년까지 잡은 것 · 교환하면 확정", tone: "gold", q: "연도-2020",
-      set: { stars: [], excl: [], when: "연도-2020", dist: "", pvp: "" } },
-    { name: "레거시 기술", note: "개체값 낮아도 보내지 말고 교환", tone: "lilac", q: "@기술" },
-    { name: "배틀리그", note: "공격은 낮고 방어·체력은 꽉 찬 것", tone: "red", q: "0-1공격&4방어&4HP",
-      set: { stars: [], excl: [], when: "", dist: "", pvp: "0-1공격&4방어&4HP" } },
-  ];
-
   const $ = (id) => document.getElementById(id);
-  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
-  function chip(group, type, value, label, code, checked) {
-    const id = `${group}-${value || "none"}`.replace(/[^\w가-힣-]/g, "_");
-    return `<div class="chip"><input type="${type}" id="${id}" name="${group}" value="${esc(value)}" ${checked ? "checked" : ""}><label for="${id}">${esc(label)}${code ? ` <code>${esc(code)}</code>` : ""}</label></div>`;
-  }
-  $("cond").innerHTML = COND.map(([k, l, term]) => chip("cond", "checkbox", k, l, term, false)).join("");
-  $("stars").innerHTML = STARS.map(([v, l]) => chip("stars", "checkbox", v, l, "", ["0*", "1*", "2*"].includes(v))).join("");
-  $("excl").innerHTML = EXCL.map(([k, l, term, on]) => chip("excl", "checkbox", k, l, term === "#" ? "#" : "", on)).join("");
-  $("when").innerHTML = WHEN.map(([v, l], i) => chip("when", "radio", v, l, v, i === 0)).join("");
-  $("dist").innerHTML = DIST.map(([v, l], i) => chip("dist", "radio", v, l, v, i === 0)).join("");
-  $("pvp").innerHTML = PVP.map(([v, l], i) => chip("pvp", "radio", v, l, "", i === 0)).join("");
-
-  function build() {
-    const parts = [];
-    const when = document.querySelector('input[name="when"]:checked')?.value || "";
-    const dist = document.querySelector('input[name="dist"]:checked')?.value || "";
-    const pvp = document.querySelector('input[name="pvp"]:checked')?.value || "";
-    const stars = [...document.querySelectorAll('input[name="stars"]:checked')].map(i => i.value);
-    const onC = new Set([...document.querySelectorAll('input[name="cond"]:checked')].map(i => i.value));
-    for (const [k, , term] of COND) if (onC.has(k)) parts.push(term);
-    const range = (prefix, a, b) => {
-      const lo = $(a).value.trim(), hi = $(b).value.trim();
-      if (lo === "" && hi === "") return "";
-      if (lo !== "" && hi !== "") return lo === hi ? `${prefix}${lo}` : `${prefix}${lo}-${hi}`;
-      return lo !== "" ? `${prefix}${lo}-` : `${prefix}-${hi}`;
-    };
-    const cp = range("cp", "cpMin", "cpMax"), days = range("일수", "dayMin", "dayMax");
-    if (cp) parts.push(cp);
-    if (days) parts.push(days);
-    if (when && !(days && when === "일수0")) parts.push(when);
-    if (dist) parts.push(dist);
-    if (pvp) parts.push(pvp);
-    if (stars.length && stars.length < STARS.length) parts.push(stars.join(",")); // 쉼표는 &보다 먼저 묶이므로 괄호 없이 안전
-    const on = new Set([...document.querySelectorAll('input[name="excl"]:checked')].map(i => i.value));
-    for (const [k, , term] of EXCL) if (on.has(k)) parts.push("!" + term);
-    $("result").value = parts.join("&") || "(조건을 골라 주세요)";
-  }
-  document.querySelector(".builder").addEventListener("change", build);
-  document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
-
-  function applySet(set) {
-    document.querySelectorAll('input[name="stars"]').forEach(i => { i.checked = set.stars.includes(i.value); });
-    document.querySelectorAll('input[name="excl"]').forEach(i => { i.checked = set.excl.includes(i.value); });
-    for (const g of ["when", "dist", "pvp"]) document.querySelectorAll(`input[name="${g}"]`).forEach(i => { i.checked = i.value === set[g]; });
-    document.querySelectorAll('input[name="cond"]').forEach(i => { i.checked = (set.cond || []).includes(i.value); });
-    for (const id of ["cpMin", "cpMax", "dayMin", "dayMax"]) $(id).value = "";
-    build();
-  }
-
-  let toastTimer;
+  /* ───────── 복사 ───────── */
+  let toastT;
   async function copy(text, btn) {
     let ok = false;
-    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ok = false; }
-    if (!ok) { // 클립보드 권한이 막힌 환경: 글자를 선택해서 복사
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+    if (!ok) {
       const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select();
-      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
-      ta.remove();
+      document.body.appendChild(ta); ta.select(); try { ok = document.execCommand("copy"); } catch (e) {} ta.remove();
     }
-    const t = $("toast");
-    t.textContent = ok ? "복사했어요 · 게임 검색창에 붙여넣으세요" : "자동 복사가 막혔어요 · 글자를 길게 눌러 복사하세요";
-    t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 1800);
-    if (btn) { const old = btn.textContent; btn.textContent = ok ? "복사됨" : "길게 눌러 복사"; btn.classList.add("done"); setTimeout(() => { btn.textContent = old; btn.classList.remove("done"); }, 1600); }
+    const t = $("toast"); t.textContent = ok ? "복사했어요 · 게임 검색창에 붙여넣으세요" : "자동 복사가 막혔어요 · 글자를 길게 눌러 복사하세요";
+    t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1800);
+    if (btn) { const o = btn.textContent; btn.textContent = ok ? "복사됨" : "길게 눌러 복사"; btn.classList.add("done"); setTimeout(() => { btn.textContent = o; btn.classList.remove("done"); }, 1500); }
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-copy]"); if (b) copy(b.dataset.copy, b); });
+
+  /* ───────── 1. 해석기 · 검사기 ───────── */
+  // 한국어판에서 직접 확인한 키워드만 "확인됨"으로 읽는다
+  const KW = {
+    "색이 다른": "이로치", "전설의 포켓몬": "전설", "환상": "환상", "울트라비스트": "울트라비스트", "반짝반짝": "반짝반짝",
+    "그림자": "그림자", "특별": "코스튬(이벤트)", "배경": "배경 있는 것", "즐겨찾기": "즐겨찾기", "@기술": "레거시 기술 가진 것",
+    "#": "태그 달린 것", "진화": "지금 진화 가능", "미등록": "진화하면 도감이 새로 채워지는 것", "도구": "도구로 진화하는 것",
+    "조건 진화": "조건 진화", "교환진화": "교환하면 진화 사탕이 줄거나 없는 것", "메가 진화": "지금 메가진화 가능",
+    "다이맥스": "다이맥스 가능", "거다이 맥스": "거다이맥스 가능", "xxl": "아주 큰 것(XXL)", "xxs": "아주 작은 것(XXS)",
+    "방어 포켓몬": "체육관 지키는 중", "@날씨": "오늘 날씨에 강해지는 기술 가진 것",
+  };
+  // 공식 도움말엔 있지만 한국어판에서 아직 직접 쳐보지 않은 키워드
+  const UNVERIFIED = { "교환": "교환받은 것", "부화": "알에서 부화한 것", "정화": "정화한 것", "레이드": "레이드에서 잡은 것", "리서치": "리서치로 잡은 것", "로켓": "로켓단에게서 얻은 것", "사탕XL": "XL 사탕으로 강화한 것", "알": "알에서만 나오는 것", "로케이션배경": "장소 배경 있는 것" };
+  const TYPES = ["노말", "불꽃", "물", "풀", "전기", "얼음", "격투", "독", "땅", "비행", "에스퍼", "벌레", "바위", "고스트", "드래곤", "악", "강철", "페어리"];
+  const BUCKET = { "0": "0", "1": "1~5", "2": "6~10", "3": "11~14", "4": "15" };
+  const STAR = { "0": "0성(평가 49% 이하)", "1": "1성(51~64%)", "2": "2성(67~80%)", "3": "3성(82~98%)", "4": "4성(100%)" };
+  const STAT = { "공격": "공격", "방어": "방어", "hp": "체력", "체력": "체력" };
+  // 친 대로면 0마리가 나오는 것 (실측) → 고친 말
+  const TYPO = { "색이다른": "색이 다른", "다이 맥스": "다이맥스", "거다이맥스": "거다이 맥스", "@특별": null, "럭키": "반짝반짝" };
+
+  // 숫자 범위: 대시 위치에 따라 뜻이 바뀐다
+  function range(a, b, dash, unit) {
+    if (a && b) return `${a}~${b}${unit}`;
+    if (a && dash) return `${a}${unit} 이상`;
+    if (b) return `${b}${unit} 이하`;
+    return null;
+  }
+  function readTerm(raw) {
+    const t = raw.trim(); if (!t) return null;
+    let neg = false, s = t;
+    if (s.startsWith("!")) { neg = true; s = s.slice(1).trim(); }
+    const low = s.toLowerCase();
+    let m, what = null, known = true, note = null;
+    if (KW[s] !== undefined) what = KW[s];
+    else if (UNVERIFIED[s] !== undefined) { what = UNVERIFIED[s]; note = "unverified"; }
+    else if (Object.prototype.hasOwnProperty.call(TYPO, s)) { what = TYPO[s] ? `(${TYPO[s]} 오타)` : "(없는 검색어)"; note = "typo"; }
+    else if (/^#.+/.test(s)) what = `'${s.slice(1)}' 태그`;
+    else if ((m = s.match(/^([0-4])\*$/))) what = STAR[m[1]];
+    else if ((m = low.match(/^([0-4])(?:-([0-4]))?(공격|방어|hp|체력)$/))) what = `${STAT[m[3]]} 개체값 ${m[2] ? `${BUCKET[m[1]].split("~")[0]}~${BUCKET[m[2]].split("~").pop()}` : BUCKET[m[1]]}`;
+    else if ((m = low.match(/^cp(\d*)(-?)(\d*)$/)) && (m[1] || m[3])) what = `CP ${range(m[1], m[3], m[2], "") || m[1]}${m[1] && !m[2] && !m[3] ? " 딱" : ""}`;
+    else if ((m = s.match(/^거리\s?(\d*)(-?)(\d*)$/)) && (m[1] || m[3])) {
+      if (m[1] && !m[2]) what = `지금 위치에서 ${m[1]}km 안에서 잡은 것`;
+      else what = `지금 위치에서 ${range(m[1], m[3], m[2], "km")} 떨어진 곳에서 잡은 것`;
+    }
+    else if ((m = s.match(/^일수(\d*)(-?)(\d*)$/)) && (m[1] || m[3])) {
+      if (m[1] === "0" && !m[2]) what = "오늘(24시간 안) 잡은 것";
+      else if (m[1] && !m[2]) what = `${m[1]}일 전에 잡은 것`;
+      else what = `잡은 지 ${range(m[1], m[3], m[2], "일")}`;
+    }
+    else if ((m = s.match(/^연도(\d*)(-?)(\d*)$/)) && (m[1] || m[3])) {
+      if (m[1] && !m[2]) what = `${m[1]}년에 잡은 것`;
+      else if (!m[1] && m[3]) what = `${m[3]}년까지 잡은 것`;
+      else what = `${range(m[1], m[3], m[2], "년")}에 잡은 것`;
+    }
+    else if ((m = s.match(/^파트너 포켓몬([0-5])$/))) what = ["파트너 해본 적 없는 것", "파트너 1단계", "좋은 파트너", "그레이트 파트너", "울트라 파트너", "베스트 파트너"][+m[1]];
+    else if ((m = s.match(/^@([123])?(.+)$/)) && TYPES.includes(m[2])) what = `${m[2]} 타입 ${ {"1": "노말 기술", "2": "스페셜 기술", "3": "두 번째 스페셜 기술"}[m[1]] || "기술" } 가진 것`;
+    else if (/^\+.+/.test(s)) what = `${s.slice(1)} 진화 계보 전부`;
+    else if (/^\d+$/.test(s)) { what = `도감번호 ${s}번`; note = "star"; }
+    else if (TYPES.includes(s)) what = `${s} 타입`;
+    else { what = `이름이 '${s}'로 시작하는 포켓몬`; known = false; }
+    return { raw: t, neg, what, known, core: s, note };
   }
 
-  $("favs").innerHTML = FAVS.map((f, i) => `<div class="fav" data-tone="${f.tone}">
-      <div class="name">${esc(f.name)}<small>${esc(f.note)}</small></div>
-      <button class="copy" type="button" data-i="${i}">복사</button>
-      <code>${esc(f.q)}</code></div>`).join("");
-  $("favs").addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-i]"); if (!b) return;
-    const f = FAVS[+b.dataset.i]; copy(f.q, b); if (f.set) applySet(f.set);
+  function analyze(input) {
+    const issues = [];
+    const text = input.replace(/\s*&\s*/g, "&").trim();
+    if (!text) return { issues: [{ lvl: "warn", title: "검색어를 붙여넣어 보세요", body: "예시 버튼을 눌러도 돼요." }], groups: [], fixed: "" };
+    if (/[()]/.test(text)) issues.push({ lvl: "bad", title: "괄호는 안 먹혀요", body: "게임 검색창은 괄호를 무시해요. 쉼표가 &보다 먼저 묶이는 규칙으로 순서를 짜야 합니다." });
+    const groups = text.split("&").map((g) => g.split(/[,;:]/).map(readTerm).filter(Boolean)).filter((g) => g.length);
+    const fixedGroups = [];
+    for (const g of groups) {
+      // 함정 ①: 느낌표 붙은 게 쉼표로 묶여 있다
+      const negs = g.filter((t) => t.neg);
+      if (g.length > 1 && negs.length) {
+        const plain = g.filter((t) => !t.neg);
+        issues.push({ lvl: "bad", title: "느낌표는 바로 뒤 한 단어에만 붙어요",
+          body: `<code>${esc(g.map((t) => t.raw).join(","))}</code> 은 "${negs.map((t) => t.what + " 아님").join(" 또는 ")}${plain.length ? " 또는 " + plain.map((t) => t.what).join(" 또는 ") : ""}" 으로 읽혀서, 빼려던 게 도로 들어와요. 빼는 건 하나씩 &! 로 이으세요. (아래 고친 줄은 전부 빼는 뜻으로 바꿨어요)` });
+        for (const t of g) fixedGroups.push(["!" + t.core]);
+        continue;
+      }
+      fixedGroups.push(g.map((t) => (t.neg ? "!" : "") + t.core));
+    }
+    // 단어별 검사
+    for (const g of groups) for (const t of g) {
+      if (Object.prototype.hasOwnProperty.call(TYPO, t.core)) {
+        const to = TYPO[t.core];
+        issues.push(to ? { lvl: "bad", title: `'${t.core}' 는 0마리`, body: `한국어판에선 <code>${esc(to)}</code> 로 써야 나와요.` }
+                       : { lvl: "bad", title: `'${t.core}' 는 없는 검색어`, body: "레거시 기술은 <code>@기술</code> 입니다." });
+        for (const fg of fixedGroups) for (let i = 0; i < fg.length; i++) { const bare = fg[i].replace(/^!/, ""); if (bare === t.core) fg[i] = fg[i].startsWith("!") ? "!" + (to || "@기술") : (to || "@기술"); }
+      }
+      if (t.note === "unverified") issues.push({ lvl: "warn", title: `'${t.core}' 는 아직 직접 확인 전`, body: "공식 도움말엔 있는 검색어지만, 한국어판에서 결과를 아직 확인하지 못했어요." });
+      if (t.note === "star") issues.push({ lvl: "warn", title: `'${t.core}' 는 도감번호로 검색돼요`, body: `별 개수라면 별표까지: <code>${esc(t.core)}*</code>` });
+      if (/^거리\s?\d+$/.test(t.core)) issues.push({ lvl: "warn", title: "대시가 없으면 '이내'예요", body: `<code>${esc(t.core)}</code> 는 ${t.core.replace(/\D/g, "")}km 이내. 멀리서 잡은 걸 찾는 거면 <code>${esc(t.core.replace(/\s/g, ""))}-</code>` });
+      if (/^거리/.test(t.core) && !t.neg) issues.push({ lvl: "warn", title: "리모트 레이드는 체육관 위치로 잽니다", body: "멀리서 잡은 걸 찾으면 리모트 레이드 전설이 잔뜩 섞여요. 교환용이면 <code>&amp;!전설의 포켓몬</code> 을 붙이세요." });
+    }
+    // 교환진화&교환 = 0마리 (실측)
+    const cores = groups.map((g) => g.map((t) => (t.neg ? "!" : "") + t.core).join(","));
+    if (cores.includes("교환진화") && cores.includes("교환")) issues.push({ lvl: "bad", title: "교환진화 & 교환 은 0마리", body: "한국어판에서 직접 쳐보니 0마리였어요. <code>교환진화</code> 만 쓰세요." });
+    const unknown = groups.flat().filter((t) => !t.known);
+    if (unknown.length) issues.push({ lvl: "warn", title: "모르는 말은 이름 검색으로 읽혀요", body: unknown.map((t) => `<code>${esc(t.core)}</code>`).join(" ") + " — 포켓몬 이름·별명이 아니라면 오타일 수 있어요." });
+    const fixed = fixedGroups.map((g) => g.join(",")).join("&");
+    if (!issues.some((i) => i.lvl === "bad")) issues.unshift({ lvl: "ok", title: "문법은 맞아요", body: "아래처럼 읽힙니다." });
+    return { issues, groups, fixed: fixed !== text ? fixed : "" };
+  }
+
+  function renderChecker() {
+    const { issues, groups, fixed } = analyze($("q").value);
+    $("verdict").innerHTML = issues.map((i) => `<div class="issue ${i.lvl}"><b>${esc(i.title)}</b><div>${i.body}</div></div>`).join("")
+      + (fixed ? `<div class="fixed"><code>${esc(fixed)}</code><button class="btn" type="button" data-copy="${esc(fixed)}">고쳐서 복사</button></div>` : "");
+    $("rows").innerHTML = groups.map((g) => {
+      const allNeg = g.every((t) => t.neg), anyNeg = g.some((t) => t.neg);
+      const cls = !anyNeg ? "show" : (allNeg && g.length === 1 ? "hide" : "unk");
+      const tag = !anyNeg ? "이것만" : (allNeg && g.length === 1 ? "빼고" : "섞임 ⚠");
+      const what = g.map((t) => `${esc(t.neg ? t.what + " 아님" : t.what)}<code>${esc(t.raw)}</code>`).join('<span class="or">또는</span>');
+      return `<div class="row"><span class="tag ${cls}">${tag}</span><span class="what">${what}</span></div>`;
+    }).join("") || `<div class="row"><span class="tag unk">—</span><span class="what">아직 없음</span></div>`;
+  }
+  $("q").addEventListener("input", renderChecker);
+  document.querySelectorAll(".samples button").forEach((b) => b.addEventListener("click", () => { $("q").value = b.dataset.s; renderChecker(); }));
+  renderChecker();
+
+  /* ───────── 2. 상황별 레시피 ───────── */
+  const ONELINE = "0*,1*,2*&!색이 다른&!전설의 포켓몬&!환상&!울트라비스트&!반짝반짝&!그림자&!특별&!배경&!즐겨찾기&!@기술&!#";
+  const RECIPES = [
+    { id: "cd", label: "커뮤니티 데이 끝남", steps: [
+      ["진화부터", "진화시키면 도감이 새로 채워지는 것. 정리하기 전에 먼저.", "진화&미등록", "새도감"],
+      ["전용 기술 확인", "레거시 기술 가진 것 — 개체값 낮아도 보내지 말고 교환용으로.", "@기술", "레거시"],
+      ["오늘 잡은 것 정리", "오늘 잡은 것 중 별 0~2개, 이로치·반짝반짝·코스튬·배경은 뺀 것.", "일수0&0*,1*,2*&!색이 다른&!반짝반짝&!특별&!배경", "오늘정리"],
+    ]},
+    { id: "full", label: "박스 꽉 참", steps: [
+      ["진화부터", "보내기 전에 도감 채울 것부터 진화.", "진화&미등록", "새도감"],
+      ["보낼 후보", "별 0~2개만 보이고, 귀한 건 전부 빠진 목록. 그래도 한 번 훑어보고 보내세요.", ONELINE, "보낼후보"],
+      ["지킬 것 확인", "보내기 전에 남겨야 할 것만 한눈에.", "4*,색이 다른,반짝반짝,전설의 포켓몬,환상,그림자,특별,배경,#", "지킬것"],
+    ]},
+    { id: "trade", label: "교환하러 가기 전", steps: [
+      ["반짝반짝 확정", "2020년까지 잡은 포켓몬은 교환하면 반짝반짝 확정(1인당 45번). 개체값 최소 12, 강화 별의모래 절반.", "연도-2020", "반짝확정"],
+      ["교환 사탕 3개", "100km 넘게 떨어져 잡은 것. 리모트 레이드 전설은 빼 둡니다.", "거리100-&!전설의 포켓몬", "사탕3개"],
+      ["사탕 없이 진화", "교환하면 진화 사탕이 줄거나 없는 것.", "교환진화", "교환진화"],
+      ["레거시 기술", "교환하면 기술은 그대로, 개체값만 새로 뽑혀요. 대단한 기술머신 1개 아끼는 셈.", "@기술", "레거시"],
+    ]},
+    { id: "pvp", label: "배틀리그 시즌", steps: [
+      ["엄격하게", "공격은 가장 낮은 구간, 방어·체력은 15.", "0-1공격&4방어&4HP", "리그엄격"],
+      ["넓게", "방어·체력을 11~15까지.", "0-1공격&3-4방어&3-4HP", "리그넓게"],
+    ]},
+    { id: "raid", label: "레이드 가기 전", steps: [
+      ["날씨 부스트", "오늘 날씨에 강해지는 기술을 가진 포켓몬.", "@날씨", "날씨"],
+      ["기술 두 개가 같은 타입", "노말 기술과 스페셜 기술이 둘 다 그 타입인 딜러.", "TYPE", "딜러"],
+    ]},
+  ];
+  let curType = "얼음";
+  const typeQ = (t) => `@1${t}&@2${t},@3${t}`;
+  function renderRecipe(id) {
+    const r = RECIPES.find((x) => x.id === id);
+    document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.id === id)));
+    $("recipe").innerHTML = r.steps.map(([t, why, q, fav], i) => {
+      const qq = q === "TYPE" ? typeQ(curType) : q;
+      const pick = q === "TYPE" ? `<div class="typepick"><label for="tp" style="font-size:13px;color:var(--dim)">타입</label><select id="tp">${TYPES.map((x) => `<option ${x === curType ? "selected" : ""}>${x}</option>`).join("")}</select></div>` : "";
+      return `<div class="step"><span class="n">${i + 1}</span><div class="body"><div class="t">${esc(t)}</div><div class="why">${esc(why)}</div>${pick}
+        <div class="q"><code>${esc(qq)}</code><button class="btn" type="button" data-copy="${esc(qq)}">복사</button></div>
+        <div class="fav">즐겨찾기 이름 추천: <b>${esc(fav)}</b></div></div></div>`;
+    }).join("");
+    const tp = $("tp"); if (tp) tp.addEventListener("change", () => { curType = tp.value; renderRecipe(id); });
+  }
+  $("tabs").innerHTML = RECIPES.map((r) => `<button type="button" role="tab" data-id="${r.id}">${esc(r.label)}</button>`).join("");
+  $("tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) renderRecipe(b.dataset.id); });
+  renderRecipe("cd");
+
+  /* ───────── 3. 평가 막대 ───────── */
+  const SEG = [["0", "0"], ["1", "1~5"], ["2", "6~10"], ["3", "11~14"], ["4", "15"]];
+  const sel = { "공격": [0, 1], "방어": [4, 4], "HP": [4, 4] };
+  function renderAppraisal() {
+    document.querySelectorAll(".stat").forEach((st) => {
+      const k = st.dataset.stat, [a, b] = sel[k];
+      st.querySelector(".segs").innerHTML = SEG.map(([n, r], i) =>
+        `<button type="button" class="seg ${i >= a && i <= b ? "on" : ""} ${i === 4 && i >= a && i <= b ? "full" : ""}" data-i="${i}" aria-pressed="${i >= a && i <= b}" aria-label="${k} ${r}">${n}<small>${r}</small></button>`).join("");
+      st.querySelector(".lab em").textContent = a === b ? SEG[a][1] : `${SEG[a][1].split("~")[0]}~${SEG[b][1].split("~").pop()}`;
+    });
+    const part = (k, word) => { const [a, b] = sel[k]; return a === 0 && b === 4 ? "" : `${a === b ? a : `${a}-${b}`}${word}`; };
+    const q = [part("공격", "공격"), part("방어", "방어"), part("HP", "HP")].filter(Boolean).join("&") || "(칸을 눌러 구간을 고르세요)";
+    $("apq").textContent = q; $("apcopy").dataset.copy = q;
+  }
+  document.querySelector(".appraisal").addEventListener("click", (e) => {
+    const s = e.target.closest(".seg"); const p = e.target.closest("button[data-p]");
+    if (s) { // 누른 칸을 끝으로 하는 연속 구간: 이미 한 칸만 켜져 있으면 거기까지 늘리고, 아니면 그 칸만
+      const k = s.closest(".stat").dataset.stat, i = +s.dataset.i, [a, b] = sel[k];
+      sel[k] = a === b && i !== a ? [Math.min(a, i), Math.max(a, i)] : [i, i];
+      renderAppraisal();
+    }
+    if (p) { const v = p.dataset.p.split(","); ["공격", "방어", "HP"].forEach((k, j) => { const [a, b = a] = v[j].split("-").map(Number); sel[k] = [a, b]; }); renderAppraisal(); }
   });
-  $("copyResult").addEventListener("click", (e) => copy($("result").value, e.currentTarget));
-  build();
+  renderAppraisal();
 </script>
 
 </body>

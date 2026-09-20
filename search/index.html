@@ -59,6 +59,11 @@
   header { display: grid; gap: 2px; }
   header + section { margin-top: -26px; }
   .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .home:hover { border-color: currentColor; }
+  .brand .here { color: var(--faint); }
   .brand b { color: var(--gold); }
   h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
   .about { display: grid; gap: 10px; }
@@ -202,7 +207,7 @@
 
 <div class="wrap">
   <header>
-    <div class="brand"><a href="../" style="color:inherit;text-decoration:none">포켓몬고 <b>이로치 수집가</b></a> · 박스 검색어</div>
+    <div class="brand"><a class="home" href="../">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">박스 검색어</span></div>
     <h1>검색어 검사기</h1>
   </header>
 
@@ -322,7 +327,7 @@
 
   <footer>
     <div class="who">포켓몬고 <b>이로치 수집가</b></div>
-    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../showcase/">쇼케이스 점수 계산기</a></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
     <div>한국어판에서 직접 확인 (2026.9.19). 결합 규칙 Pokémon GO Wiki · 교환 사탕 Bulbapedia·Pokétory · 반짝반짝 확정 Pokétory·pogoalley. 게임 업데이트로 검색어가 바뀔 수 있어요.</div>
   </footer>
 </div>

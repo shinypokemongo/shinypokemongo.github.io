@@ -147,6 +147,7 @@
       <div class="rows" id="rows"></div>
       <div class="q"><i>3</i>코인은 어디서 샀나요 <span class="hint">원화 환산용</span></div>
       <select id="src" aria-label="코인 산 곳"></select>
+      <div class="presets"><button class="chip" id="toCustom" type="button">✎ 낸 돈·받은 코인 직접 입력</button></div>
       <div class="custom" id="custom" hidden>
         <label class="price"><input id="cWon" type="number" inputmode="numeric" min="0" placeholder="낸 돈" aria-label="낸 돈(원)"><span class="unit">원에</span></label>
         <label class="price"><img src="ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="받은 코인" aria-label="받은 코인"><span class="unit">코인</span></label>
@@ -264,12 +265,13 @@
     const w = parseFloat($("cWon").value), c = parseFloat($("cCoin").value);
     return w > 0 && c > 0 ? w / c : null;
   };
-  const syncCustom = () => { $("custom").hidden = $("src").value !== "custom"; };
+  const syncCustom = () => { const on = $("src").value === "custom"; $("custom").hidden = !on; $("toCustom").textContent = on ? "↩ 목록에서 고르기" : "✎ 낸 돈·받은 코인 직접 입력"; };
   ["cWon", "cCoin"].forEach((id) => $(id).oninput = () => { try { localStorage.setItem("shopcalc-" + id, $(id).value); } catch (e) {} calc(); });
   try { ["cWon", "cCoin"].forEach((id) => { const v = localStorage.getItem("shopcalc-" + id); if (v) $(id).value = v; }); } catch (e) {}
   try { const s = localStorage.getItem("shopcalc-src"); if (s) $("src").value = s; } catch (e) {}
   $("src").onchange = () => { try { localStorage.setItem("shopcalc-src", $("src").value); } catch (e) {} syncCustom(); calc(); };
   syncCustom();
+  $("toCustom").onclick = () => { $("src").value = $("src").value === "custom" ? "0" : "custom"; $("src").onchange(); if ($("src").value === "custom") $("cWon").focus(); };
   $("price").oninput = calc;
   document.querySelectorAll("[data-preset]").forEach((b) => b.onclick = () => {
     for (const k in cnt) delete cnt[k];

@@ -114,7 +114,7 @@
   .about h2 em { font-style: normal; color: var(--coin); }
   .about p { margin: 0; color: var(--dim); }
   .links { display: flex; flex-wrap: wrap; gap: 8px; }
-  .links a { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-weight: 700; font-size: 14px; color: var(--text); }
+  .links a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-weight: 700; font-size: 14px; color: var(--text); }
   footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
   footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
   footer .who b { color: var(--coin); }
@@ -137,6 +137,7 @@
         <span class="hint" style="align-self:center">예시</span>
         <button class="chip" data-preset="outing">나들이 박스 2,825</button>
         <button class="chip" data-preset="hyper">하이퍼 레이드박스 5,425</button>
+        <button class="chip" data-preset="remotebox">리모트 레이드 박스 500</button>
         <button class="chip" data-preset="cday">커뮤니티 데이 박스 1,350</button>
         <button class="chip" data-preset="clear">비우기</button>
       </div>
@@ -164,12 +165,7 @@
         <div class="tile save"><span class="k">아끼는 코인</span><span class="v" id="save">–</span><span class="s" id="saveSub"></span></div>
         <div class="tile"><span class="k">박스를 원으로</span><span class="v" id="won">–</span><span class="s" id="wonSub"></span></div>
       </div>
-      <div class="raid" id="raid" hidden>
-        <span class="k">레이드 한 판(프리미엄 배틀패스 1장)</span>
-        <span class="v" id="raidV">–</span>
-        <span class="verdict" id="raidVerdict"></span>
-        <span class="s" id="raidSub"></span>
-      </div>
+      <div id="raids" style="display:grid;gap:10px"></div>
       <div style="overflow-x:auto">
         <table id="tbl"><thead><tr><th>아이템</th><th>이 박스에선 1개당</th><th>정가 1개당</th><th>역대 최저</th></tr></thead><tbody></tbody></table>
       </div>
@@ -182,7 +178,10 @@
     <h2 id="ab-h">상점의 "46% OFF", <em>진짜</em>일까</h2>
     <p>상점이 줄 그어 보여주는 원래 가격은 안에 든 아이템을 <b>하나씩</b> 샀을 때 값이에요. 그런데 배틀패스는 3장 묶음이면 1장에 83코인이라, 묶음으로 따지면 진짜 할인은 더 작아요. 박스 가격과 구성만 넣으면 진짜 할인율, 레이드 한 판 가격, 지금까지 가장 쌌던 때와 비교해 드려요.</p>
     <p>정가는 2026년 10월 10일 게임 상점·Web Store 화면에서 직접 확인했어요. 역대 최저가는 날짜가 남아 있는 실제 화면 캡처와 이벤트 기록만 모았어요.</p>
-    <div class="links"><a href="https://www.youtube.com/@ShinyPokemongo">영상으로 보기</a><a href="https://blog.naver.com/shinypokemongo">블로그</a></div>
+    <div class="links">
+      <a href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1" target="_blank" rel="noopener"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><rect width="26" height="18" rx="5" fill="#FF0033"/><path d="M10.5 5v8l7-4z" fill="#fff"/></svg>유튜브로 가기</a>
+      <a href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="5" fill="#03C75A"/><path d="M6 5h2.6l3 4.6V5H14v10h-2.6l-3-4.6V15H6z" fill="#fff"/></svg>블로그로 가기</a>
+    </div>
   </section>
 
   <footer>
@@ -242,6 +241,7 @@
   const PRESETS = {
     outing: [2825, { pass: 40, starpiece: 5, incubator: 5 }],
     hyper: [5425, { pass: 99, starpiece: 2, tm_fast: 2, tm_charged: 2 }],
+    remotebox: [500, { remote: 3, luckyegg: 1 }],
     cday: [1350, { ultraball: 50, super: 5, elite_charged: 1, luckyegg: 5 }],
   };
   const BY = Object.fromEntries(ITEMS.map((it) => [it.k, it]));
@@ -322,15 +322,18 @@
     $("won").textContent = wpc ? "약 " + fmt(Math.round(price * wpc / 10) * 10) + "원" : "–";
     $("wonSub").textContent = wpc ? `1코인 ${fmt(wpc, 2)}원 기준` : "낸 돈과 받은 코인을 넣어 주세요";
 
-    const raid = $("raid");
-    if (cnt.pass) {
-      const rest = bund - cnt.pass * unit(BY.pass);
-      const per = (price - rest) / cnt.pass, base = unit(BY.pass);
-      raid.hidden = false; raid.classList.toggle("bad", per >= base);
-      $("raidV").textContent = wpc ? `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원` : `${fmt(per, 1)}코인`;
-      $("raidVerdict").textContent = per < base ? `3장 묶음(1장 ${fmt(base, 1)}코인)보다 싸요 → 이득` : `3장 묶음(1장 ${fmt(base, 1)}코인)보다 비싸요 → 묶음이 나아요`;
-      $("raidSub").textContent = rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산. 다른 아이템을 안 쓴다면 ${fmt(price / cnt.pass, 1)}코인.` : "";
-    } else raid.hidden = true;
+    const RAID = { pass: ["레이드 한 판", "프리미엄 배틀패스 1장"], remote: ["리모트 레이드 한 판", "리모트 레이드패스 1장"] };
+    const raids = $("raids"); raids.innerHTML = "";
+    ["pass", "remote"].filter((k) => cnt[k]).forEach((k) => {
+      const base = unit(BY[k]), rest = bund - cnt[k] * base, per = (price - rest) / cnt[k];
+      const d = document.createElement("div");
+      d.className = "raid" + (per >= base ? " bad" : "");
+      d.innerHTML = `<span class="k">${RAID[k][0]}(${RAID[k][1]})</span>
+        <span class="v">${wpc ? `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원` : `${fmt(per, 1)}코인`}</span>
+        <span class="verdict">${per < base ? `3장 묶음(1장 ${fmt(base, 1)}코인)보다 싸요 → 이득` : `3장 묶음(1장 ${fmt(base, 1)}코인)보다 비싸요 → 묶음이 나아요`}</span>
+        <span class="s">${rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산. 다른 아이템을 안 쓴다면 ${fmt(price / cnt[k], 1)}코인.` : ""}</span>`;
+      raids.appendChild(d);
+    });
 
     const tb = $("tbl").tBodies[0]; tb.innerHTML = "";
     keys.forEach((k) => {

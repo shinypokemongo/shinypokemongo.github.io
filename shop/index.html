@@ -81,6 +81,9 @@
   .step input { width: 64px; border: 0; text-align: center; background: var(--ink); font-family: var(--mono); font-weight: 700; font-size: 16px; }
   .x { border: 0; background: none; color: var(--faint); font-size: 20px; cursor: pointer; padding: 0 4px; }
   .empty { font-size: 13px; color: var(--faint); padding: 10px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
+  .custom { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .custom .price input { font-size: 20px; }
+  .unit { font-size: 14px; font-weight: 700; color: var(--dim); white-space: nowrap; }
   select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 700; }
 
   .result { display: grid; gap: 14px; padding: 18px 16px; border-radius: 18px; background: linear-gradient(180deg, var(--coin-deep), var(--surface)); border: 1px solid var(--line); }
@@ -144,6 +147,10 @@
       <div class="rows" id="rows"></div>
       <div class="q"><i>3</i>코인은 어디서 샀나요 <span class="hint">원화 환산용</span></div>
       <select id="src" aria-label="코인 산 곳"></select>
+      <div class="custom" id="custom" hidden>
+        <label class="price"><input id="cWon" type="number" inputmode="numeric" min="0" placeholder="낸 돈" aria-label="낸 돈(원)"><span class="unit">원에</span></label>
+        <label class="price"><img src="ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="받은 코인" aria-label="받은 코인"><span class="unit">코인</span></label>
+      </div>
     </div>
   </section>
 
@@ -251,8 +258,18 @@
     pal.appendChild(b);
   });
   SRC.forEach(([l], i) => { const o = document.createElement("option"); o.value = i; o.textContent = l; $("src").appendChild(o); });
+  { const o = document.createElement("option"); o.value = "custom"; o.textContent = "직접 입력 (세일·보너스 등 실제로 낸 돈과 받은 코인)"; $("src").appendChild(o); }
+  const wpcNow = () => {
+    if ($("src").value !== "custom") return SRC[+$("src").value][1];
+    const w = parseFloat($("cWon").value), c = parseFloat($("cCoin").value);
+    return w > 0 && c > 0 ? w / c : null;
+  };
+  const syncCustom = () => { $("custom").hidden = $("src").value !== "custom"; };
+  ["cWon", "cCoin"].forEach((id) => $(id).oninput = () => { try { localStorage.setItem("shopcalc-" + id, $(id).value); } catch (e) {} calc(); });
+  try { ["cWon", "cCoin"].forEach((id) => { const v = localStorage.getItem("shopcalc-" + id); if (v) $(id).value = v; }); } catch (e) {}
   try { const s = localStorage.getItem("shopcalc-src"); if (s) $("src").value = s; } catch (e) {}
-  $("src").onchange = () => { try { localStorage.setItem("shopcalc-src", $("src").value); } catch (e) {} calc(); };
+  $("src").onchange = () => { try { localStorage.setItem("shopcalc-src", $("src").value); } catch (e) {} syncCustom(); calc(); };
+  syncCustom();
   $("price").oninput = calc;
   document.querySelectorAll("[data-preset]").forEach((b) => b.onclick = () => {
     for (const k in cnt) delete cnt[k];
@@ -288,7 +305,7 @@
     const out = $("out");
     if (!(price > 0) || !keys.length) { out.hidden = true; return; }
     out.hidden = false;
-    const wpc = SRC[+$("src").value][1];
+    const wpc = wpcNow();
     let list = 0, bund = 0; const zeros = [];
     keys.forEach((k) => { const it = BY[k]; list += cnt[k] * it.single; bund += cnt[k] * unit(it); if (!it.single) zeros.push(it.ko); });
     const gOff = list > 0 ? 1 - price / list : null, rOff = bund > 0 ? 1 - price / bund : null;
@@ -300,15 +317,15 @@
     $("save").textContent = (save >= 0 ? "" : "−") + fmt(Math.abs(save)) + "코인";
     $("save").style.color = save >= 0 ? "" : "var(--rose)";
     $("saveSub").textContent = save >= 0 ? "묶음으로 따로 사는 것보다" : "묶음으로 따로 사는 게 더 쌈";
-    $("won").textContent = "약 " + fmt(Math.round(price * wpc / 10) * 10) + "원";
-    $("wonSub").textContent = `1코인 ${fmt(wpc, 2)}원 기준`;
+    $("won").textContent = wpc ? "약 " + fmt(Math.round(price * wpc / 10) * 10) + "원" : "–";
+    $("wonSub").textContent = wpc ? `1코인 ${fmt(wpc, 2)}원 기준` : "낸 돈과 받은 코인을 넣어 주세요";
 
     const raid = $("raid");
     if (cnt.pass) {
       const rest = bund - cnt.pass * unit(BY.pass);
       const per = (price - rest) / cnt.pass, base = unit(BY.pass);
       raid.hidden = false; raid.classList.toggle("bad", per >= base);
-      $("raidV").textContent = `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원`;
+      $("raidV").textContent = wpc ? `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원` : `${fmt(per, 1)}코인`;
       $("raidVerdict").textContent = per < base ? `3장 묶음(1장 ${fmt(base, 1)}코인)보다 싸요 → 이득` : `3장 묶음(1장 ${fmt(base, 1)}코인)보다 비싸요 → 묶음이 나아요`;
       $("raidSub").textContent = rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산. 다른 아이템을 안 쓴다면 ${fmt(price / cnt.pass, 1)}코인.` : "";
     } else raid.hidden = true;

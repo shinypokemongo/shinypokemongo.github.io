@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="상점 박스 가격과 구성만 넣으면 묶음 기준 진짜 할인율, 레이드 한 판 가격, 역대 최저가를 계산해 주는 포켓몬고 팬 도구">
+<link rel="canonical" href="https://shinypokemongo.github.io/shop/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 상점 박스 계산기">
+<meta property="og:description" content="상점 박스 가격과 구성만 넣으면 묶음 기준 진짜 할인율, 레이드 한 판 가격, 역대 최저가를 계산해 주는 포켓몬고 팬 도구">
+<meta property="og:url" content="https://shinypokemongo.github.io/shop/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/shop.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 상점 박스 계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 상점 = 코인 금색 + 상점 민트. 강화(분홍)·쇼케이스(금)·검색어(초록)와 한 집안 */
+  :root {
+    --ink: #0E1220; --surface: #161C30; --surface-2: #1F2742; --line: #2E3A5E;
+    --text: #F1F4FB; --dim: #A2ABC8; --faint: #6C7699;
+    --coin: #FFC94D; --coin-deep: #3A2D0C; --mint: #4FE0B0; --mint-deep: #0F3A2E; --rose: #FF6B85; --rose-deep: #3D1520; --sky: #6EB6FF;
+    --on-accent: #1A1200; --track: rgba(255,255,255,.06);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F5F7FB; --surface: #FFFFFF; --surface-2: #EEF2F9; --line: #D5DCEB;
+      --text: #141A2E; --dim: #55607E; --faint: #8F98B3;
+      --coin: #A87400; --coin-deep: #FFF2D1; --mint: #0E9E74; --mint-deep: #DDF7EE; --rose: #D62F52; --rose-deep: #FFE3E9; --sky: #1F75C9;
+      --on-accent: #FFFFFF; --track: rgba(20,30,60,.06);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 60px; display: grid; gap: 36px; }
+  a { color: var(--sky); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--coin); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -22px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: inherit; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--coin); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  .card { display: grid; gap: 18px; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .q { display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .q i { font-style: normal; font-family: var(--mono); font-size: 13px; color: var(--coin); }
+  .hint { font-size: 13px; color: var(--dim); margin: 0; }
+  .price { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  .price img { width: 30px; height: 30px; }
+  .price input { flex: 1; min-width: 0; border: 0; background: none; font-family: var(--mono); font-weight: 700; font-size: 24px; padding: 4px 0; }
+  .price input:focus { outline: none; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .chip:hover { border-color: var(--coin); color: var(--text); }
+  .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .pick { display: grid; justify-items: center; gap: 2px; padding: 8px 4px 6px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; font-size: 11.5px; font-weight: 700; color: var(--dim); line-height: 1.25; text-align: center; }
+  .pick img { width: 40px; height: 40px; }
+  .pick[aria-pressed="true"] { border-color: var(--coin); background: var(--coin-deep); color: var(--text); }
+  .rows { display: grid; gap: 8px; }
+  .row { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .row img { width: 40px; height: 40px; }
+  .row .nm { font-weight: 700; font-size: 14px; line-height: 1.3; }
+  .row .nm small { display: block; color: var(--faint); font-weight: 600; font-size: 11.5px; }
+  .step { display: inline-grid; grid-template-columns: 34px 64px 34px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .step button { border: 0; background: var(--surface); font-weight: 800; cursor: pointer; }
+  .step input { width: 64px; border: 0; text-align: center; background: var(--ink); font-family: var(--mono); font-weight: 700; font-size: 16px; }
+  .x { border: 0; background: none; color: var(--faint); font-size: 20px; cursor: pointer; padding: 0 4px; }
+  .empty { font-size: 13px; color: var(--faint); padding: 10px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
+  select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 700; }
+
+  .result { display: grid; gap: 14px; padding: 18px 16px; border-radius: 18px; background: linear-gradient(180deg, var(--coin-deep), var(--surface)); border: 1px solid var(--line); }
+  .big { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .tile { padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 2px; }
+  .tile .k { font-size: 12.5px; color: var(--dim); font-weight: 700; }
+  .tile .v { font-family: var(--mono); font-weight: 700; font-size: 26px; line-height: 1.2; }
+  .tile .s { font-size: 12px; color: var(--faint); }
+  .tile.real .v { color: var(--mint); }
+  .tile.game .v { color: var(--dim); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .tile.save .v { color: var(--coin); }
+  .raid { padding: 14px; border-radius: 14px; border: 2px solid var(--mint); background: var(--mint-deep); display: grid; gap: 4px; }
+  .raid.bad { border-color: var(--rose); background: var(--rose-deep); }
+  .raid .v { font-family: var(--mono); font-weight: 700; font-size: 30px; }
+  .raid .k { font-weight: 800; font-size: 14px; }
+  .raid .s { font-size: 13px; color: var(--dim); }
+  .verdict { font-family: var(--display); font-weight: 900; font-size: 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: middle; }
+  th { font-size: 11.5px; color: var(--dim); font-weight: 700; }
+  th:first-child, td:first-child { text-align: left; }
+  td { font-family: var(--mono); font-weight: 600; }
+  td .lo { display: block; font-family: var(--body); font-size: 11px; color: var(--faint); font-weight: 600; }
+  td.good { color: var(--mint); } td.bad { color: var(--rose); }
+  .note { font-size: 12.5px; color: var(--faint); margin: 0; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(22px, 6vw, 28px); line-height: 1.25; letter-spacing: -.03em; }
+  .about h2 em { font-style: normal; color: var(--coin); }
+  .about p { margin: 0; color: var(--dim); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .links a { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-weight: 700; font-size: 14px; color: var(--text); }
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--coin); }
+  @media (max-width: 420px) { .row { grid-template-columns: 36px 1fr auto; } .row .x { grid-column: 3; grid-row: 1; justify-self: end; } .row .step { grid-column: 1 / -1; justify-self: end; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="../">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">상점</span></div>
+    <h1>상점 박스 계산기</h1>
+  </header>
+
+  <section aria-labelledby="in-h">
+    <h2 id="in-h" class="vh">박스 입력</h2>
+    <div class="card">
+      <div class="presets" aria-label="예시 불러오기">
+        <span class="hint" style="align-self:center">예시</span>
+        <button class="chip" data-preset="outing">나들이 박스 2,825</button>
+        <button class="chip" data-preset="hyper">하이퍼 레이드박스 5,425</button>
+        <button class="chip" data-preset="cday">커뮤니티 데이 박스 1,350</button>
+        <button class="chip" data-preset="clear">비우기</button>
+      </div>
+      <div class="q"><i>1</i>박스 가격</div>
+      <label class="price"><img src="ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="코인" aria-label="박스 가격(코인)"></label>
+      <div class="q"><i>2</i>들어 있는 것 <span class="hint">눌러서 넣고 개수 입력</span></div>
+      <div class="palette" id="palette"></div>
+      <div class="rows" id="rows"></div>
+      <div class="q"><i>3</i>코인은 어디서 샀나요 <span class="hint">원화 환산용</span></div>
+      <select id="src" aria-label="코인 산 곳"></select>
+    </div>
+  </section>
+
+  <section aria-labelledby="out-h" id="out" hidden>
+    <h2 id="out-h" class="vh">결과</h2>
+    <div class="result">
+      <div class="big">
+        <div class="tile game"><span class="k">상점이 보여주는 할인</span><span class="v" id="gOff">–</span><span class="s" id="gSub"></span></div>
+        <div class="tile real"><span class="k">묶음으로 따진 진짜 할인</span><span class="v" id="rOff">–</span><span class="s" id="rSub"></span></div>
+        <div class="tile save"><span class="k">아끼는 코인</span><span class="v" id="save">–</span><span class="s" id="saveSub"></span></div>
+        <div class="tile"><span class="k">박스를 원으로</span><span class="v" id="won">–</span><span class="s" id="wonSub"></span></div>
+      </div>
+      <div class="raid" id="raid" hidden>
+        <span class="k">레이드 한 판(프리미엄 배틀패스 1장)</span>
+        <span class="v" id="raidV">–</span>
+        <span class="verdict" id="raidVerdict"></span>
+        <span class="s" id="raidSub"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="tbl"><thead><tr><th>아이템</th><th>이 박스에선 1개당</th><th>정가 1개당</th><th>역대 최저</th></tr></thead><tbody></tbody></table>
+      </div>
+      <p class="note" id="zeroNote" hidden></p>
+      <p class="note">이 박스에선 1개당 = 박스 할인을 아이템 값 비율대로 나눈 값. 정가 1개당 = 상점 단품·묶음 중 가장 싼 값. 역대 최저 = 2023년 4월(리모트 레이드패스 가격 인상) 이후 상점 박스 중 박스 가격 ÷ 그 아이템 개수가 가장 낮았던 값(같이 든 아이템은 덤)과 실제 화면 캡처 날짜. 지역 한정이 의심되는 박스는 뺐어요.</p>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">상점의 "46% OFF", <em>진짜</em>일까</h2>
+    <p>상점이 줄 그어 보여주는 원래 가격은 안에 든 아이템을 <b>하나씩</b> 샀을 때 값이에요. 그런데 배틀패스는 3장 묶음이면 1장에 83코인이라, 묶음으로 따지면 진짜 할인은 더 작아요. 박스 가격과 구성만 넣으면 진짜 할인율, 레이드 한 판 가격, 지금까지 가장 쌌던 때와 비교해 드려요.</p>
+    <p>정가는 2026년 10월 10일 게임 상점·Web Store 화면에서 직접 확인했어요. 역대 최저가는 날짜가 남아 있는 실제 화면 캡처와 이벤트 기록만 모았어요.</p>
+    <div class="links"><a href="https://www.youtube.com/@ShinyPokemongo">영상으로 보기</a><a href="https://blog.naver.com/shinypokemongo">블로그</a></div>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>정가·코인 가격: 게임 상점·Pokémon GO Web Store 화면(한국, 2026.10.10). 상점 박스는 계정·날짜마다 다르게 뜰 수 있어요. 하이퍼볼·기술머신처럼 상점에서 단품으로 안 파는 아이템은 0코인으로 계산합니다. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  // 정가: 게임 상점 화면 2026-10-10 (단품, [개수, 코인] 묶음). single 0 = 상점 단품 없음
+  const ITEMS = [
+    { k: "pass", ko: "프리미엄 배틀패스", single: 100, b: [[3, 250]] },
+    { k: "remote", ko: "리모트 레이드패스", single: 195, b: [[3, 525]] },
+    { k: "incubator", ko: "부화장치", single: 150, b: [] },
+    { k: "super", ko: "슈퍼 부화장치", single: 200, b: [] },
+    { k: "luckyegg", ko: "행복의알", single: 80, b: [[8, 500]] },
+    { k: "starpiece", ko: "별의조각", single: 100, b: [[8, 640]] },
+    { k: "incense", ko: "향로", single: 40, b: [[8, 250]] },
+    { k: "lure", ko: "루어모듈", single: 100, b: [[8, 680]] },
+    { k: "lure_glacial", ko: "스페셜 루어모듈", sub: "아이스·허브·마그네틱·레이니", single: 180, b: [] },
+    { k: "mushroom", ko: "다이버섯", single: 400, b: [[3, 1000]] },
+    { k: "mppack", ko: "맥스 파티클 팩", single: 150, b: [[3, 425]] },
+    { k: "maxrevive", ko: "기력의덩어리", single: 30, b: [], sub: "6개 180" },
+    { k: "maxpotion", ko: "풀회복약", single: 20, b: [], sub: "10개 200" },
+    { k: "pokeball", ko: "몬스터볼", single: 5, b: [[100, 460], [200, 800]], sub: "20개 100" },
+    { k: "ultraball", ko: "하이퍼볼", single: 0, b: [] },
+    { k: "poffin", ko: "포핀", single: 100, b: [] },
+    { k: "radar", ko: "로켓레이더", single: 200, b: [] },
+    { k: "bagup", ko: "가방 업그레이드", single: 200, b: [] },
+    { k: "boxup", ko: "포켓몬 박스 업그레이드", single: 200, b: [] },
+    { k: "tm_fast", ko: "기술머신노말", single: 0, b: [] },
+    { k: "tm_charged", ko: "기술머신스페셜", single: 0, b: [] },
+    { k: "elite_fast", ko: "대단한 기술머신노말", single: 0, b: [] },
+    { k: "elite_charged", ko: "대단한 기술머신스페셜", single: 0, b: [] },
+  ];
+  // 역대 1개당 최저 (2023-04 리모트 인상 이후, 날짜 있는 근거만) — 역대최저가_근거.json 에서 채움
+  const LOWEST = {
+    pass: { v: 54.8, when: "2024.4~2026.8" }, remote: { v: 150, when: "2023.5~2026.7" }, incubator: { v: 87.5, when: "2023.11" },
+    super: { v: 79.8, when: "2024.9~12" }, luckyegg: { v: 65, when: "2026.7" }, starpiece: { v: 75, when: "2023.6~2025.11" },
+    incense: { v: 65, when: "2024.3" }, lure: { v: 120, when: "2023.8" }, mushroom: { v: 325, when: "2026.7" },
+    mppack: { v: 275, when: "2026.8" }, maxrevive: { v: 43.3, when: "2023.8" }, maxpotion: { v: 43.3, when: "2023.8" },
+    pokeball: { v: 5, when: "2023.8" }, ultraball: { v: 5.5, when: "2024.4~8" }, poffin: { v: 75, when: "2023.6" },
+    radar: { v: 231.7, when: "2023.5" }, bagup: { v: 399, when: "2024.9~12" }, boxup: { v: 399, when: "2024.9~12" },
+    tm_fast: { v: 220, when: "2023.8~11" }, tm_charged: { v: 220, when: "2023.8~11" },
+    elite_fast: { v: 1075, when: "2024.8~2025.5" }, elite_charged: { v: 1075, when: "2024.8~2025.5" },
+  };
+  // 코인 산 곳: 화면 확인 2026-10-10
+  const SRC = [
+    ["Web Store 111,000원 → 15,500코인", 111000 / 15500], ["Web Store 45,000원 → 5,600코인", 45000 / 5600],
+    ["Web Store 22,000원 → 2,700코인", 22000 / 2700], ["Web Store 11,000원 → 1,300코인", 11000 / 1300],
+    ["Web Store 5,500원 → 600코인", 5500 / 600], ["Web Store 1,100원 → 110코인", 1100 / 110],
+    ["게임 숍 111,000원 → 14,500코인", 111000 / 14500], ["게임 숍 45,000원 → 5,200코인", 45000 / 5200],
+    ["게임 숍 22,000원 → 2,500코인", 22000 / 2500], ["게임 숍 11,000원 → 1,200코인", 11000 / 1200],
+    ["게임 숍 5,500원 → 500코인", 5500 / 500], ["게임 숍 1,100원 → 100코인", 1100 / 100],
+  ];
+  const PRESETS = {
+    outing: [2825, { pass: 40, starpiece: 5, incubator: 5 }],
+    hyper: [5425, { pass: 99, starpiece: 2, tm_fast: 2, tm_charged: 2 }],
+    cday: [1350, { ultraball: 50, super: 5, elite_charged: 1, luckyegg: 5 }],
+  };
+  const BY = Object.fromEntries(ITEMS.map((it) => [it.k, it]));
+  const unit = (it) => it.single === 0 ? 0 : Math.min(it.single, ...it.b.map(([n, c]) => c / n));
+  const fmt = (v, d = 0) => v.toLocaleString("ko-KR", { maximumFractionDigits: d, minimumFractionDigits: d });
+  const cnt = {};
+  const $ = (id) => document.getElementById(id);
+
+  const pal = $("palette");
+  ITEMS.forEach((it) => {
+    const b = document.createElement("button");
+    b.className = "pick"; b.dataset.k = it.k; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `<img src="ic/${it.k}.webp" alt="">${it.ko}`;
+    b.onclick = () => { if (cnt[it.k]) delete cnt[it.k]; else cnt[it.k] = 1; draw(); if (cnt[it.k]) { const i = document.querySelector(`#rows [data-k="${it.k}"] input`); i && i.select(); } };
+    pal.appendChild(b);
+  });
+  SRC.forEach(([l], i) => { const o = document.createElement("option"); o.value = i; o.textContent = l; $("src").appendChild(o); });
+  try { const s = localStorage.getItem("shopcalc-src"); if (s) $("src").value = s; } catch (e) {}
+  $("src").onchange = () => { try { localStorage.setItem("shopcalc-src", $("src").value); } catch (e) {} calc(); };
+  $("price").oninput = calc;
+  document.querySelectorAll("[data-preset]").forEach((b) => b.onclick = () => {
+    for (const k in cnt) delete cnt[k];
+    if (b.dataset.preset === "clear") { $("price").value = ""; }
+    else { const [p, c] = PRESETS[b.dataset.preset]; $("price").value = p; Object.assign(cnt, c); }
+    draw();
+  });
+
+  function draw() {
+    pal.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", cnt[b.dataset.k] ? "true" : "false"));
+    const rows = $("rows"); rows.innerHTML = "";
+    const keys = ITEMS.map((i) => i.k).filter((k) => cnt[k]);
+    if (!keys.length) rows.innerHTML = '<div class="empty">위에서 박스에 든 아이템을 눌러 주세요</div>';
+    keys.forEach((k) => {
+      const it = BY[k], r = document.createElement("div");
+      r.className = "row"; r.dataset.k = k;
+      r.innerHTML = `<img src="ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "정가 1개당 " + fmt(unit(it), 1).replace(/\.0$/, "") + "코인" : "상점 단품 없음 · 0으로 계산"}</small></div>
+        <div class="step"><button aria-label="하나 빼기">−</button><input type="number" inputmode="numeric" min="1" value="${cnt[k]}" aria-label="${it.ko} 개수"><button aria-label="하나 더">+</button></div>
+        <button class="x" aria-label="${it.ko} 빼기">×</button>`;
+      const [m, inp, p] = r.querySelectorAll(".step > *");
+      m.onclick = () => { cnt[k] = Math.max(1, (cnt[k] || 1) - 1); inp.value = cnt[k]; calc(); };
+      p.onclick = () => { cnt[k] = (cnt[k] || 0) + 1; inp.value = cnt[k]; calc(); };
+      inp.oninput = () => { const v = parseInt(inp.value, 10); if (v > 0) { cnt[k] = v; calc(); } };
+      r.querySelector(".x").onclick = () => { delete cnt[k]; draw(); };
+      rows.appendChild(r);
+    });
+    calc();
+  }
+
+  function calc() {
+    const price = parseFloat($("price").value);
+    const keys = ITEMS.map((i) => i.k).filter((k) => cnt[k]);
+    const out = $("out");
+    if (!(price > 0) || !keys.length) { out.hidden = true; return; }
+    out.hidden = false;
+    const wpc = SRC[+$("src").value][1];
+    let list = 0, bund = 0; const zeros = [];
+    keys.forEach((k) => { const it = BY[k]; list += cnt[k] * it.single; bund += cnt[k] * unit(it); if (!it.single) zeros.push(it.ko); });
+    const gOff = list > 0 ? 1 - price / list : null, rOff = bund > 0 ? 1 - price / bund : null;
+    $("gOff").textContent = gOff == null ? "–" : fmt(gOff * 100) + "%";
+    $("gSub").textContent = list > 0 ? `낱개 합계 ${fmt(list)}코인` : "";
+    $("rOff").textContent = rOff == null ? "–" : fmt(rOff * 100) + "%";
+    $("rSub").textContent = bund > 0 ? `묶음 합계 ${fmt(bund)}코인` : "";
+    const save = bund - price;
+    $("save").textContent = (save >= 0 ? "" : "−") + fmt(Math.abs(save)) + "코인";
+    $("save").style.color = save >= 0 ? "" : "var(--rose)";
+    $("saveSub").textContent = save >= 0 ? "묶음으로 따로 사는 것보다" : "묶음으로 따로 사는 게 더 쌈";
+    $("won").textContent = "약 " + fmt(Math.round(price * wpc / 10) * 10) + "원";
+    $("wonSub").textContent = `1코인 ${fmt(wpc, 2)}원 기준`;
+
+    const raid = $("raid");
+    if (cnt.pass) {
+      const rest = bund - cnt.pass * unit(BY.pass);
+      const per = (price - rest) / cnt.pass, base = unit(BY.pass);
+      raid.hidden = false; raid.classList.toggle("bad", per >= base);
+      $("raidV").textContent = `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원`;
+      $("raidVerdict").textContent = per < base ? `3장 묶음(1장 ${fmt(base, 1)}코인)보다 싸요 → 이득` : `3장 묶음(1장 ${fmt(base, 1)}코인)보다 비싸요 → 묶음이 나아요`;
+      $("raidSub").textContent = rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산. 다른 아이템을 안 쓴다면 ${fmt(price / cnt.pass, 1)}코인.` : "";
+    } else raid.hidden = true;
+
+    const tb = $("tbl").tBodies[0]; tb.innerHTML = "";
+    keys.forEach((k) => {
+      const it = BY[k], u = unit(it), here = bund > 0 && u > 0 ? u * price / bund : null, lo = LOWEST[k];
+      const tr = document.createElement("tr");
+      const cls = here != null ? (here < u ? "good" : "bad") : "";
+      tr.innerHTML = `<td style="font-family:var(--body);font-weight:700">${it.ko} ×${fmt(cnt[k])}</td>
+        <td class="${cls}">${here == null ? "덤" : fmt(here, 1)}${lo && price / cnt[k] < lo.v - 0.05 ? "<span class=lo>역대 최저보다 쌈!</span>" : lo && Math.abs(price / cnt[k] - lo.v) <= 0.05 ? "<span class=lo>역대 최저와 같음</span>" : ""}</td><td>${u > 0 ? fmt(u, 1) : "–"}</td>
+        <td>${lo ? fmt(lo.v, 1) + `<span class="lo">${lo.when}${u > 0 && lo.v >= u ? " · 정가가 더 쌈" : ""}</span>` : "–"}</td>`;
+      tb.appendChild(tr);
+    });
+    const zn = $("zeroNote");
+    zn.hidden = !zeros.length;
+    zn.textContent = zeros.length ? `${zeros.join(" · ")}: 상점에서 단품으로 안 팔아서 0코인으로 계산했어요(덤).` : "";
+  }
+  draw();
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

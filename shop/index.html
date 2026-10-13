@@ -161,7 +161,7 @@
       <div class="q"><i>2</i>들어 있는 것 <span class="hint">눌러서 넣고 개수 입력</span></div>
       <div class="palette" id="palette"></div>
       <div class="rows" id="rows"></div>
-      <label class="only" id="onlyWrap" hidden><input type="checkbox" id="only"><span><b>레이드패스만 계산하기</b><small>배틀패스만 쓰고 부화장치·별의조각 같은 나머지는 안 쓴다면 체크하세요. 나머지는 0코인(덤)으로 치고 계산해요.</small></span></label>
+      <label class="only" id="onlyWrap" hidden><input type="checkbox" id="extra"><span><b>같이 든 아이템도 값으로 치기</b><small>기본은 레이드패스만 계산하고 부화장치·별의조각 같은 나머지는 0코인(덤)으로 쳐요. 나머지도 꼭 쓴다면 체크하세요.</small></span></label>
       <div class="q"><i>3</i>코인은 어디서 샀나요 <span class="hint">원화 환산용</span></div>
       <div class="mode" role="radiogroup" aria-label="원화 계산 방법">
         <div class="opt" data-mode="list" role="radio" tabindex="0">
@@ -312,7 +312,7 @@
   $("src").onchange = () => { try { localStorage.setItem("shopcalc-src", $("src").value); } catch (e) {} calc(); };
   let startMode = "list"; try { if (localStorage.getItem("shopcalc-mode") === "custom") startMode = "custom"; } catch (e) {}
   $("price").oninput = calc;
-  $("only").onchange = calc;
+  $("extra").onchange = calc;
   document.querySelectorAll("[data-preset]").forEach((b) => b.onclick = () => {
     for (const k in cnt) delete cnt[k];
     if (b.dataset.preset === "clear") { $("price").value = ""; }
@@ -348,10 +348,10 @@
     if (!(price > 0) || !keys.length) { out.hidden = true; return; }
     out.hidden = false;
     const wpc = wpcNow();
-    // 레이드패스만 계산: 배틀패스·리모트 말고는 안 쓰는 걸로 보고 0코인(덤)으로 친다
+    // 기본은 레이드패스만 계산: 배틀패스·리모트 말고는 0코인(덤). 「같이 든 아이템도 값으로 치기」를 체크해야 나머지도 셈
     const isRaid = (k) => k === "pass" || k === "remote";
     $("onlyWrap").hidden = !(keys.some(isRaid) && keys.some((k) => !isRaid(k)));
-    const only = !$("onlyWrap").hidden && $("only").checked;
+    const only = !$("onlyWrap").hidden && !$("extra").checked;
     const used = (k) => !only || isRaid(k);
     let list = 0, bund = 0; const zeros = [];
     keys.forEach((k) => { const it = BY[k]; list += cnt[k] * it.single; if (used(k)) bund += cnt[k] * unit(it); if (!it.single) zeros.push(it.ko); });
@@ -376,7 +376,7 @@
       d.innerHTML = `<span class="k">${RAID[k][0]}(${RAID[k][1]})</span>
         <span class="v">${wpc ? `${fmt(per, 1)}코인 · 약 ${fmt(Math.round(per * wpc))}원` : `${fmt(per, 1)}코인`}</span>
         <span class="verdict">${per < base ? `3장 묶음(1장 ${fmt(base, 1)}코인)보다 싸요 → 이득` : `3장 묶음(1장 ${fmt(base, 1)}코인)보다 비싸요 → 묶음이 나아요`}</span>
-        <span class="s">${only ? "같이 든 아이템은 안 쓰는 걸로 보고 0코인(덤)으로 계산했어요." : rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산했어요. 그 아이템을 안 쓴다면 위의 「레이드패스만 계산하기」를 체크하세요.` : ""}</span>`;
+        <span class="s">${only ? "같이 든 아이템은 0코인(덤)으로 치고 레이드패스만 계산했어요. 나머지도 쓴다면 위의 「같이 든 아이템도 값으로 치기」를 체크하세요." : rest > 0 ? `같이 든 아이템 값(${fmt(rest)}코인, 묶음 기준)을 빼고 계산했어요. 체크를 끄면 레이드패스만으로 계산해요.` : ""}</span>`;
       raids.appendChild(d);
     });
 
@@ -386,7 +386,7 @@
       const tr = document.createElement("tr");
       const cls = here != null ? (here < u ? "good" : "bad") : "";
       tr.innerHTML = `<td style="font-family:var(--body);font-weight:700">${it.ko} ×${fmt(cnt[k])}</td>
-        <td class="${cls}">${here == null ? (used(k) ? "덤" : "덤(안 씀)") : fmt(here, 1)}${lo && price / cnt[k] < lo.v - 0.05 ? "<span class=lo>역대 최저보다 쌈!</span>" : lo && Math.abs(price / cnt[k] - lo.v) <= 0.05 ? "<span class=lo>역대 최저와 같음</span>" : ""}</td><td>${u > 0 ? fmt(u, 1) : "–"}</td>
+        <td class="${cls}">${here == null ? "덤" : fmt(here, 1)}${lo && price / cnt[k] < lo.v - 0.05 ? "<span class=lo>역대 최저보다 쌈!</span>" : lo && Math.abs(price / cnt[k] - lo.v) <= 0.05 ? "<span class=lo>역대 최저와 같음</span>" : ""}</td><td>${u > 0 ? fmt(u, 1) : "–"}</td>
         <td>${lo ? fmt(lo.v, 1) + `<span class="lo">${lo.when}${u > 0 && lo.v >= u ? " · 정가가 더 쌈" : ""}</span>` : "–"}</td>`;
       tb.appendChild(tr);
     });

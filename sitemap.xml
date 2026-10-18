@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://shinypokemongo.github.io/</loc></url>
+  <url><loc>https://shinypokemongo.github.io/</loc><lastmod>2026-10-18</lastmod></url>
   <url><loc>https://shinypokemongo.github.io/search/</loc></url>
   <url><loc>https://shinypokemongo.github.io/showcase/</loc></url>
-  <url><loc>https://shinypokemongo.github.io/pick/</loc></url>
+  <url><loc>https://shinypokemongo.github.io/pick/</loc><lastmod>2026-10-18</lastmod></url>
   <url><loc>https://shinypokemongo.github.io/powerup/</loc></url>
   <url><loc>https://shinypokemongo.github.io/circle/</loc></url>
   <url><loc>https://shinypokemongo.github.io/shop/</loc></url>

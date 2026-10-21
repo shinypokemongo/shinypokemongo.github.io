@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="검색어를 붙여넣으면 뜻을 풀어주고 틀린 곳을 고쳐 주는 포켓몬고 검색어 검사기. 상황별 레시피와 평가 막대 고르기까지, 한국어판에서 직접 확인했습니다.">
 <link rel="canonical" href="https://shinypokemongo.github.io/search/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/search/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/search/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/search/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/search/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="이로치수집가 도구함">
 <meta property="og:locale" content="ko_KR">
@@ -65,6 +69,10 @@
   .brand .home:hover { border-color: currentColor; }
   .brand .here { color: var(--faint); }
   .brand b { color: var(--gold); }
+  /* 언어 버튼: 언어마다 주소가 따로라 검색엔진이 각각 색인한다 */
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--gold); }
   h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
   .about { display: grid; gap: 10px; }
   .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
@@ -207,7 +215,7 @@
 
 <div class="wrap">
   <header>
-    <div class="brand"><a class="home" href="../">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">박스 검색어</span></div>
+    <div class="brand"><a class="home" href="../">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">박스 검색어</span><nav class="lang" aria-label="Language"><a href="/search/" hreflang="ko" lang="ko" aria-current="page">한국어</a><a href="/en/search/" hreflang="en" lang="en">English</a><a href="/ja/search/" hreflang="ja" lang="ja">日本語</a></nav></div>
     <h1>검색어 검사기</h1>
   </header>
 

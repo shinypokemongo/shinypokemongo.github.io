@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<base href="/shop/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Pokémon GO shop box calculator: the real discount against bundles, the cost of one raid, and all-time lows for each item.">
 <link rel="canonical" href="https://shinypokemongo.github.io/en/shop/">
@@ -148,7 +149,7 @@
 
 <div class="wrap">
   <header>
-    <div class="brand"><a class="home" href="/">Pokémon GO <b>Shiny Collector</b> Tools</a><span class="here">Shop</span><nav class="lang" aria-label="Language"><a href="/shop/" hreflang="ko" lang="ko">한국어</a><a href="/en/shop/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ja/shop/" hreflang="ja" lang="ja">日本語</a></nav></div>
+    <div class="brand"><a class="home" href="/en/">Pokémon GO <b>Shiny Collector</b> Tools</a><span class="here">Shop</span><nav class="lang" aria-label="Language"><a href="/shop/" hreflang="ko" lang="ko">한국어</a><a href="/en/shop/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ja/shop/" hreflang="ja" lang="ja">日本語</a></nav></div>
     <h1>Shop Box Calculator</h1>
   </header>
 
@@ -164,7 +165,7 @@
         <button class="chip" data-preset="clear">Clear</button>
       </div>
       <div class="q"><i>1</i>Box price</div>
-      <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="coins" aria-label="Box price (coins)"></label>
+      <label class="price"><img src="ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="coins" aria-label="Box price (coins)"></label>
       <div class="q"><i>2</i>What's inside <span class="hint">tap to add, then set the count</span></div>
       <div class="palette" id="palette"></div>
       <div class="rows" id="rows"></div>
@@ -181,7 +182,7 @@
           <span class="od">The money you actually paid and the coins you got (sales and bonuses included)</span>
           <span class="custom">
             <label class="price"><input id="cWon" type="number" inputmode="numeric" min="0" placeholder="paid" aria-label="Amount paid"><span class="unit">paid</span></label>
-            <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="coins" aria-label="Coins received"><span class="unit">coins</span></label>
+            <label class="price"><img src="ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="coins" aria-label="Coins received"><span class="unit">coins</span></label>
           </span>
         </div>
       </div>
@@ -283,7 +284,7 @@
   ITEMS.forEach((it) => {
     const b = document.createElement("button");
     b.className = "pick"; b.dataset.k = it.k; b.setAttribute("aria-pressed", "false");
-    b.innerHTML = `<img src="/shop/ic/${it.k}.webp" alt="">${it.ko}`;
+    b.innerHTML = `<img src="ic/${it.k}.webp" alt="">${it.ko}`;
     b.onclick = () => { if (cnt[it.k]) delete cnt[it.k]; else cnt[it.k] = 1; draw(); if (cnt[it.k]) { const i = document.querySelector(`#rows [data-k="${it.k}"] input`); i && i.select(); } };
     pal.appendChild(b);
   });
@@ -332,7 +333,7 @@
     keys.forEach((k) => {
       const it = BY[k], r = document.createElement("div");
       r.className = "row"; r.dataset.k = k;
-      r.innerHTML = `<img src="/shop/ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "Regular " + fmt(unit(it), 1).replace(/\.0$/, "") + " coins each" : "Not sold alone · counted as 0"}</small></div>
+      r.innerHTML = `<img src="ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "Regular " + fmt(unit(it), 1).replace(/\.0$/, "") + " coins each" : "Not sold alone · counted as 0"}</small></div>
         <div class="step"><button aria-label="One less">−</button><input type="number" inputmode="numeric" min="1" value="${cnt[k]}" aria-label="${it.ko} count"><button aria-label="One more">+</button></div>
         <button class="x" aria-label="Remove ${it.ko}">×</button>`;
       const [m, inp, p] = r.querySelectorAll(".step > *");

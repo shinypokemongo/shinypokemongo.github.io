@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/damage/">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pokémon GO raid damage multiplier stacker: type, same-type bonus, weather, Shadow, Mega and friendship — see what really multiplies and what is a trap.">
+<link rel="canonical" href="https://shinypokemongo.github.io/en/damage/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/damage/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/damage/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/damage/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/damage/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shiny Collector Tools">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Damage Multiplier Stacker · Shiny Collector Tools">
+<meta property="og:description" content="Pokémon GO raid damage multiplier stacker: type, same-type bonus, weather, Shadow, Mega and friendship — see what really multiplies and what is a trap.">
+<meta property="og:url" content="https://shinypokemongo.github.io/en/damage/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/damage.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>Damage Multiplier Stacker · Shiny Collector Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  :root {
+    --ink: #0A1020; --surface: #121A30; --surface-2: #1A2442; --line: #2B3A63;
+    --text: #EEF2FB; --dim: #98A6C6; --faint: #63719A;
+    --hit: #5CC8FF; --hit-deep: #10304A; --warn: #FFC94D; --warn-deep: #3A2F12; --warn-line: #6A5A26;
+    --on-accent: #04202F; --result-top: #123A57; --result-line: #2D6A91; --tip-text: #CFEFFF; --track: rgba(255,255,255,.07);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F3F7FC; --surface: #FFFFFF; --surface-2: #E9F0F9; --line: #D2DDEC;
+      --text: #111B2E; --dim: #536482; --faint: #8B9AB5;
+      --hit: #0B78B8; --hit-deep: #DDF0FB; --warn: #8F6200; --warn-deep: #FBF0CF; --warn-line: #E6CF8A;
+      --on-accent: #FFFFFF; --result-top: #D3ECFA; --result-line: #A9D3EC; --tip-text: #0B4A70; --track: rgba(20,40,80,.08);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--hit); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--hit); outline-offset: 2px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .home:hover { border-color: currentColor; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--hit); }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--hit); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--hit); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+
+  .result { position: sticky; top: 8px; z-index: 3; display: grid; gap: 10px; padding: 16px 18px; border-radius: 18px; background: radial-gradient(120% 120% at 50% 0%, var(--result-top) 0%, var(--surface) 75%); border: 1px solid var(--result-line); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .total .n { font-family: var(--display); font-weight: 900; font-size: clamp(44px, 12vw, 62px); line-height: 1; color: var(--hit); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .total .n small { font-size: .4em; color: var(--dim); margin-left: 4px; letter-spacing: 0; }
+  .total .eg { font-size: 14px; color: var(--dim); text-align: right; }
+  .total .eg b { font-family: var(--mono); color: var(--text); }
+  .chain { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--dim); min-height: 1.6em; }
+  .chain span { padding: 1px 7px; border-radius: 6px; background: var(--track); color: var(--text); white-space: nowrap; }
+  .chain span small { font-family: var(--body); font-weight: 600; color: var(--dim); margin-right: 4px; }
+  .bars { display: grid; gap: 5px; }
+  .bar { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; font-size: 12px; font-weight: 700; color: var(--dim); }
+  .bar div { height: 12px; border-radius: 6px; background: var(--track); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 6px; background: var(--faint); }
+  .bar.now i { background: var(--hit); }
+  .maybe { font-size: 13px; padding: 8px 10px; border-radius: 10px; background: var(--warn-deep); border: 1px solid var(--warn-line); color: var(--text); }
+  .maybe b { font-family: var(--mono); color: var(--warn); }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets button { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .presets button:hover { border-color: var(--hit); color: var(--hit); }
+
+  .stack { display: grid; gap: 10px; }
+  .item { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .item.on { border-color: var(--hit); }
+  .item.extra.on { border-color: var(--warn); }
+  .item .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .item .name { font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .item .name small { font-family: var(--body); font-weight: 600; font-size: 12px; color: var(--warn); margin-left: 6px; }
+  .item .mul { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .item.on .mul { color: var(--hit); } .item.extra.on .mul { color: var(--warn); }
+  .item p { margin: 0; font-size: 13px; color: var(--dim); }
+  .item p b { color: var(--text); }
+  .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opts button { padding: 7px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .opts button b { font-family: var(--mono); margin-left: 4px; color: var(--faint); }
+  .opts button[aria-pressed="true"] { background: var(--hit); border-color: var(--hit); color: var(--on-accent); }
+  .opts button[aria-pressed="true"] b { color: var(--on-accent); }
+  .extra .opts button[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); }
+  .divider { display: grid; gap: 2px; margin-top: 8px; }
+  .divider b { font-family: var(--display); font-weight: 800; color: var(--warn); }
+  .divider span { font-size: 13px; color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .rule b.big { font-family: var(--mono); font-size: 20px; line-height: 1.2; color: var(--hit); }
+  .rule b.big small { display: block; font-family: var(--body); font-size: 12px; color: var(--dim); font-weight: 600; }
+
+  details { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  summary { padding: 14px 16px; font-family: var(--display); font-weight: 800; cursor: pointer; }
+  .tablewrap { overflow-x: auto; padding: 0 12px 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; color: var(--dim); font-weight: 700; }
+  td:first-child { font-weight: 700; white-space: nowrap; }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--hit); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .rule { grid-template-columns: 60px 1fr; } .total .eg { text-align: left; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/en/">Pokémon GO <b>Shiny Collector</b> Tools</a><span class="here">Raid damage</span><nav class="lang" aria-label="Language"><a href="/damage/" hreflang="ko" lang="ko">한국어</a><a href="/en/damage/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ja/damage/" hreflang="ja" lang="ja">日本語</a></nav></div>
+    <h1>Damage Multiplier Stacker</h1>
+  </header>
+
+  <section aria-labelledby="calc-h" style="display:grid;gap:14px">
+    <h2 id="calc-h" class="vh">Multiplier calculator</h2>
+
+    <div class="result" aria-live="polite" aria-label="Current multiplier">
+      <div class="total">
+        <div class="n" id="tot">×1.00</div>
+        <div class="eg" id="eg"></div>
+      </div>
+      <div class="chain" id="chain"></div>
+      <div class="bars" aria-hidden="true">
+        <div class="bar"><span>Base</span><div><i id="bar0"></i></div></div>
+        <div class="bar now"><span>Now</span><div><i id="bar1"></i></div></div>
+      </div>
+      <div class="maybe" id="maybe" hidden></div>
+    </div>
+
+    <div class="presets" id="presets" aria-label="Quick presets">
+      <button type="button" data-p="none">All off</button>
+      <button type="button" data-p="solo">Solo, weakness only</button>
+      <button type="button" data-p="video">The 5.3× combo from the video</button>
+      <button type="button" data-p="shadow">Add a Shadow Pokémon</button>
+    </div>
+
+    <div class="stack" id="stack"></div>
+  </section>
+
+  <nav class="go" aria-label="More">
+    <a class="yt" href="https://youtube.com/shorts/oXAEctTHU3A" target="_blank" rel="noopener"><b>6 ways to raise damage (video, Korean)</b><span>No. 1 lasts one hit, No. 2 goes to someone else</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>One-page summary (blog, Korean)</b><span>Save it from the blog</span></a>
+  </nav>
+
+  <details>
+    <summary>Boosted types for the 7 weathers</summary>
+    <div class="tablewrap"><table>
+      <tr><th>Weather</th><th>Move types that get +20% power</th></tr>
+      <tr><td>☀️ Sunny</td><td>Ground · Fire · Grass</td></tr>
+      <tr><td>🌤️ Partly Cloudy</td><td>Normal · Rock</td></tr>
+      <tr><td>☁️ Cloudy</td><td>Fighting · Poison · Fairy</td></tr>
+      <tr><td>🌧️ Rain</td><td>Bug · Water · Electric</td></tr>
+      <tr><td>❄️ Snow</td><td>Steel · Ice</td></tr>
+      <tr><td>💨 Windy</td><td>Flying · Psychic · Dragon</td></tr>
+      <tr><td>🌫️ Fog</td><td>Ghost · Dark</td></tr>
+    </table>
+    <p class="sub" style="margin:10px 4px 0">Partly Cloudy and Cloudy are the two people mix up most.</p></div>
+  </details>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">What to know before you stack</h2>
+    <p class="sub">Each one has a catch beyond its size.</p>
+    <div class="rules">
+      <div class="rule"><b class="big">×2<small>Party Power</small></b><div>The biggest, but it applies only to <b>your next Charged Attack</b>. It doesn't trigger by itself: fill the gauge with Fast Attacks, then tap the blue circle at the bottom left.</div></div>
+      <div class="rule"><b class="big">+30%<small>Mega</small></b><div>The biggest always-on bonus, but it goes to <b>the other Trainers fighting with you, not you</b>. Even moves of a different type than the Mega get +10%. If several people bring one, only the highest applies.</div></div>
+      <div class="rule"><b class="big">+20%<small>Weather</small></b><div>Free, but <b>it boosts the boss's moves too.</b> If the weather boosts the boss's move type, you faint faster.</div></div>
+      <div class="rule"><b class="big">2.56<small>Double weakness</small></b><div>In Pokémon GO a weakness is 1.6×, not 2×, and a double weakness is 2.56×, not 4×. There is no 0× either: the least effective case is 0.244×.</div></div>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">Same move, <em>1.6× or 5.3×</em></h2>
+    <p class="lede">Hitting a weakness alone gives 1.6×; stack same-type bonus, weather, friends and Mega and the same move lands at 5.3×. Turn the switches on one by one to see what is big and what is a trap. Only multipliers checked against sources for the video are included.</p>
+  </section>
+
+  <footer>
+    <div class="who">Pokémon GO <b>Shiny Collector</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a> · <a href="../">Tools (Korean)</a></div>
+    <div>Type, same-type, weather and Mega multipliers: three sources agree (Pokétory raid damage table, PoGoMate Korean edition, Pokémon GO Wiki). Shadow 1.2: game data. Friendship bonus % is a community estimate, since the official numbers are only small/medium/large. Party Power 2×: official Korean announcement. Behemoth Blade: official pokemongo.com. A fan-made tool, not affiliated with Nintendo or Niantic.</div>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const ITEMS = [
+    { id: "type", name: "Type matchup", note: "Pokémon GO has no 0×. The least effective case is 0.244×.",
+      opts: [["Double weak", 2.56], ["Weak", 1.6], ["Neutral", 1], ["Resisted", 0.625], ["Double resisted", 0.390625], ["Least effective", 0.244140625]], def: 2 },
+    { id: "stab", name: "Same-type bonus", note: "When the move's type matches your Pokémon's type.", opts: [["None", 1], ["Same type", 1.2]], def: 0 },
+    { id: "weather", name: "Weather Boost", note: "<b>It boosts the boss's moves too.</b> Not in GO Battle League.", opts: [["None", 1], ["Boosted", 1.2]], def: 0 },
+    { id: "shadow", name: "Shadow Pokémon", note: "Attack is 1.2×, but <b>damage taken is 1.2× too</b>.", opts: [["Normal", 1], ["Shadow", 1.2]], def: 0 },
+    { id: "mega", name: "Mega Evolution (a teammate's)", note: "<b>Other Trainers get it, not you.</b> If several bring one, only the highest counts.",
+      opts: [["None", 1], ["Different type", 1.1], ["Same type", 1.3]], def: 0 },
+    { id: "friend", name: "With a friend", tag: "estimate", note: "Officially only small/medium/large. Forever Friend takes at least 180 days.",
+      opts: [["None", 1], ["Good", 1.03], ["Great", 1.05], ["Ultra", 1.07], ["Best", 1.1], ["Forever", 1.12]], def: 0 },
+    { id: "zacian", extra: true, name: "Zacian Behemoth Blade", note: "6 minutes for 5,000 Stardust + 5 Zacian Candy. Only <b>one adventure effect at a time</b>.", opts: [["None", 1], ["On", 1.1]], def: 0 },
+    { id: "party", extra: true, name: "Party Power", note: "<b>Only your next Charged Attack.</b> Fill the gauge and tap the blue circle at the bottom left.", opts: [["None", 1], ["Active", 2]], def: 0 },
+  ];
+  const PRESETS = {
+    none: { type: 2 }, solo: { type: 1, stab: 1 },
+    video: { type: 0, stab: 1, weather: 1, mega: 2, friend: 4 },
+    shadow: { type: 0, stab: 1, weather: 1, mega: 2, friend: 4, shadow: 1 },
+  };
+  const S = Object.fromEntries(ITEMS.map((it) => [it.id, it.def]));
+  const fx = (v) => (v >= 1 ? `×${+v.toFixed(2)}` : `×${+v.toFixed(3)}`);
+  const pct = (v) => (v === 1 ? "—" : v === 2 || v < 1 || v > 1.4 ? fx(v) : `+${Math.round((v - 1) * 100)}%`);
+
+  function build() {
+    let html = "";
+    ITEMS.forEach((it, idx) => {
+      if (it.extra && !ITEMS[idx - 1].extra) html += `<div class="divider"><b>Shown separately</b><span>Nobody has confirmed that the two below multiply the same way as the ones above. So they are left out of the big number and shown on their own.</span></div>`;
+      html += `<div class="item${it.extra ? " extra" : ""}" id="it-${it.id}"><div class="top"><span class="name">${it.name}${it.tag ? `<small>${it.tag}</small>` : ""}</span><span class="mul"></span></div>
+        <div class="opts" role="group" aria-label="${it.name}">${it.opts.map((o, i) => `<button type="button" data-id="${it.id}" data-i="${i}">${o[0]}${o[1] !== 1 || it.id === "type" ? `<b>${it.id === "type" ? fx(o[1]) : pct(o[1])}</b>` : ""}</button>`).join("")}</div>
+        <p>${it.note}</p></div>`;
+    });
+    $("stack").innerHTML = html;
+  }
+
+  function render() {
+    let sure = 1, all = 1; const chain = [];
+    ITEMS.forEach((it) => {
+      const [label, v] = it.opts[S[it.id]];
+      const el = $("it-" + it.id), on = v !== 1;
+      el.classList.toggle("on", on);
+      el.querySelector(".mul").textContent = on ? fx(v) : "×1";
+      el.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === S[it.id])));
+      all *= v; if (!it.extra) { sure *= v; if (on) chain.push(`<span><small>${it.id === "type" ? label : ({ stab: "Same type", weather: "Weather", shadow: "Shadow", mega: "Mega", friend: "Friend" }[it.id])}</small>${+v.toFixed(3)}</span>`); }
+    });
+    $("tot").innerHTML = `${fx(sure)}`;
+    $("eg").innerHTML = `A move that did <b>100</b><br>now does <b>${Math.round(sure * 100).toLocaleString("en-US")}</b>`;
+    $("chain").innerHTML = chain.length ? chain.join(" × ") : "Turn things on below, one by one";
+    const scale = Math.max(6, sure);
+    $("bar0").style.width = `${100 / scale}%`; $("bar1").style.width = `${Math.max(1.5, sure / scale * 100)}%`;
+    const extraOn = all !== sure;
+    $("maybe").hidden = !extraOn;
+    if (extraOn) {
+      const names = ITEMS.filter((it) => it.extra && it.opts[S[it.id]][1] !== 1).map((it) => it.name);
+      $("maybe").innerHTML = `If ${names.join(" and ")} multiplied the same way: <b>about ${fx(all)}</b>. ${S.party ? "Party Power only for that one hit." : "This calculation has never been confirmed."}`;
+    }
+  }
+
+  build();
+  $("stack").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    const it = ITEMS.find((x) => x.id === b.dataset.id), i = +b.dataset.i;
+    S[it.id] = it.opts.length === 2 && S[it.id] === i && i === 1 ? 0 : i;
+    render();
+  });
+  $("presets").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    ITEMS.forEach((it) => (S[it.id] = it.def)); Object.assign(S, PRESETS[b.dataset.p]); render();
+  });
+  render();
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

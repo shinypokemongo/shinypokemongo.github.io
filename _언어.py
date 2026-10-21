@@ -1,9 +1,12 @@
 # 언어판 공통: _감싸기.py(한국어판)와 _언어판.py(영어·일본어판)가 같이 쓴다
 # 한국어판은 /<폴더>/, 번역판은 /<언어>/<폴더>/ — 주소가 따로라 검색엔진이 언어마다 색인한다
-I18N = {'shop': ['en', 'ja']}
+# '' = 도구함 첫 화면
+I18N = {f: ['en', 'ja'] for f in ['', 'shop', 'search', 'showcase', 'legacy', 'circle', 'trade', 'pick', 'powerup', 'damage']}
 NAMES = {'ko': '한국어', 'en': 'English', 'ja': '日本語'}
 
 def url_path(lang, folder):
+    if folder == '':
+        return '/' if lang == 'ko' else f'/{lang}/'
     return f'/{folder}/' if lang == 'ko' else f'/{lang}/{folder}/'
 
 def alternates(folder, site):

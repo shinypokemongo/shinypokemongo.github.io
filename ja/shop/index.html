@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<base href="/shop/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="ポケモンGOのショップボックス計算機。まとめ買いと比べた本当の割引率、レイド1回あたりの値段、アイテムごとの過去最安がわかります。">
 <link rel="canonical" href="https://shinypokemongo.github.io/ja/shop/">
@@ -148,7 +149,7 @@
 
 <div class="wrap">
   <header>
-    <div class="brand"><a class="home" href="/">ポケモンGO <b>色違いコレクター</b> ツール</a><span class="here">ショップ</span><nav class="lang" aria-label="Language"><a href="/shop/" hreflang="ko" lang="ko">한국어</a><a href="/en/shop/" hreflang="en" lang="en">English</a><a href="/ja/shop/" hreflang="ja" lang="ja" aria-current="page">日本語</a></nav></div>
+    <div class="brand"><a class="home" href="/ja/">ポケモンGO <b>色違いコレクター</b> ツール</a><span class="here">ショップ</span><nav class="lang" aria-label="Language"><a href="/shop/" hreflang="ko" lang="ko">한국어</a><a href="/en/shop/" hreflang="en" lang="en">English</a><a href="/ja/shop/" hreflang="ja" lang="ja" aria-current="page">日本語</a></nav></div>
     <h1>ショップボックス計算機</h1>
   </header>
 
@@ -164,7 +165,7 @@
         <button class="chip" data-preset="clear">クリア</button>
       </div>
       <div class="q"><i>1</i>ボックスの価格</div>
-      <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="ボックスの価格（コイン）"></label>
+      <label class="price"><img src="ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="ボックスの価格（コイン）"></label>
       <div class="q"><i>2</i>中身 <span class="hint">タップして追加し、個数を入力</span></div>
       <div class="palette" id="palette"></div>
       <div class="rows" id="rows"></div>
@@ -181,7 +182,7 @@
           <span class="od">実際に払った金額ともらったコイン（セール・ボーナス込み）</span>
           <span class="custom">
             <label class="price"><input id="cWon" type="number" inputmode="numeric" min="0" placeholder="金額" aria-label="払った金額"><span class="unit">で</span></label>
-            <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="もらったコイン"><span class="unit">コイン</span></label>
+            <label class="price"><img src="ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="もらったコイン"><span class="unit">コイン</span></label>
           </span>
         </div>
       </div>
@@ -283,7 +284,7 @@
   ITEMS.forEach((it) => {
     const b = document.createElement("button");
     b.className = "pick"; b.dataset.k = it.k; b.setAttribute("aria-pressed", "false");
-    b.innerHTML = `<img src="/shop/ic/${it.k}.webp" alt="">${it.ko}`;
+    b.innerHTML = `<img src="ic/${it.k}.webp" alt="">${it.ko}`;
     b.onclick = () => { if (cnt[it.k]) delete cnt[it.k]; else cnt[it.k] = 1; draw(); if (cnt[it.k]) { const i = document.querySelector(`#rows [data-k="${it.k}"] input`); i && i.select(); } };
     pal.appendChild(b);
   });
@@ -332,7 +333,7 @@
     keys.forEach((k) => {
       const it = BY[k], r = document.createElement("div");
       r.className = "row"; r.dataset.k = k;
-      r.innerHTML = `<img src="/shop/ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "通常 1個 " + fmt(unit(it), 1).replace(/\.0$/, "") + "コイン" : "単品販売なし · 0で計算"}</small></div>
+      r.innerHTML = `<img src="ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "通常 1個 " + fmt(unit(it), 1).replace(/\.0$/, "") + "コイン" : "単品販売なし · 0で計算"}</small></div>
         <div class="step"><button aria-label="1つ減らす">−</button><input type="number" inputmode="numeric" min="1" value="${cnt[k]}" aria-label="${it.ko}の個数"><button aria-label="1つ増やす">+</button></div>
         <button class="x" aria-label="${it.ko}を外す">×</button>`;
       const [m, inp, p] = r.querySelectorAll(".step > *");

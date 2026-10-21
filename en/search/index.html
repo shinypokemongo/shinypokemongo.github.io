@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/search/">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pokémon GO search string checker: paste a search string to see what it means, catch mistakes, and build strings for storage cleanup, trades and GO Battle League.">
+<link rel="canonical" href="https://shinypokemongo.github.io/en/search/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/search/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/search/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/search/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/search/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shiny Collector Tools">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Search String Checker · Shiny Collector Tools">
+<meta property="og:description" content="Pokémon GO search string checker: paste a search string to see what it means, catch mistakes, and build strings for storage cleanup, trades and GO Battle League.">
+<meta property="og:url" content="https://shinypokemongo.github.io/en/search/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/search.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>Search String Checker · Shiny Collector Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  :root {
+    --ink: #0F0D1C; --surface: #1A1830; --surface-2: #221F3D; --line: #34305A;
+    --text: #F1EEFA; --dim: #A29DBE; --faint: #6C6790;
+    --green: #6BF2A6; --green-deep: #0E3B27;
+    --red: #FF7A87; --red-deep: #3A1A26;
+    --gold: #FFD166; --gold-deep: #3A331A;
+    --lilac: #C6A8FF; --lilac-deep: #2A2248;
+    --sky: #86CBFF; --sky-deep: #152D45;
+    --bar: #F5A04A; --bar-full: #F2555A;    --on-green: #07140D; --on-gold: #1E1400; --red-line: #6A2C3A; --gold-line: #6A5A26; --green-line: #1F6A47; --game-line: transparent;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F6F4FB; --surface: #FFFFFF; --surface-2: #EFECF7; --line: #D9D3EA;
+      --text: #1B1730; --dim: #5C567A; --faint: #918BAE;
+      --green: #0B8A50; --green-deep: #E0F5EA; --red: #D03A4C; --red-deep: #FCE4E7;
+      --gold: #9A6B00; --gold-deep: #FBF0CF; --lilac: #7446C8; --lilac-deep: #EDE4FB; --sky: #1670B8; --sky-deep: #E0EFFA;
+      --on-green: #FFFFFF; --on-gold: #FFFFFF; --red-line: #F1B5BD; --gold-line: #E6CF8A; --green-line: #A9DFC2; --game-line: #D9D3EA;
+      color-scheme: light;
+    }
+  }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 44px; }
+  a { color: var(--sky); }
+  button, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  code, .mono { font-family: var(--mono); font-weight: 700; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .home:hover { border-color: currentColor; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--gold); }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--gold); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--red); text-decoration: line-through; text-decoration-thickness: 3px; }
+  .about h2 strong { color: var(--green); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 23px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 16px; color: var(--dim); font-size: 14px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--green); }
+
+  .btn { border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 14px; background: var(--green); color: var(--on-green); white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.done { background: var(--gold); color: var(--on-gold); }
+
+  .checker { display: grid; gap: 14px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .checker textarea { width: 100%; min-height: 84px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-family: var(--mono); font-weight: 700; font-size: 16px; line-height: 1.45; }
+  .samples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--dim); }
+  .samples button { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 10px; font-size: 13px; color: var(--dim); }
+  .verdict { display: grid; gap: 10px; }
+  .issue { display: grid; gap: 4px; padding: 12px 14px; border-radius: 12px; font-size: 14px; }
+  .issue.bad { background: var(--red-deep); border: 1px solid var(--red-line); }
+  .issue.warn { background: var(--gold-deep); border: 1px solid var(--gold-line); }
+  .issue.ok { background: var(--green-deep); border: 1px solid var(--green-line); }
+  .issue b { font-family: var(--display); font-weight: 800; }
+  .issue.bad b { color: var(--red); } .issue.warn b { color: var(--gold); } .issue.ok b { color: var(--green); }
+  .reading { display: grid; gap: 8px; }
+  .reading h3 { margin: 0; font-size: 13px; letter-spacing: .08em; color: var(--dim); font-weight: 700; }
+  .rows { display: grid; gap: 6px; }
+  .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: start; }
+  .tag { justify-self: start; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  .tag.show { background: var(--green-deep); color: var(--green); }
+  .tag.hide { background: var(--red-deep); color: var(--red); }
+  .tag.unk { background: var(--surface-2); color: var(--faint); }
+  .row .what { font-size: 15px; }
+  .row .what .or { color: var(--dim); font-size: 13px; margin: 0 4px; }
+  .row .what code { font-size: 12px; color: var(--faint); margin-left: 6px; }
+  .fixed { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green-deep); }
+  .fixed code { color: var(--green); font-size: 14px; word-break: break-all; line-height: 1.45; }
+
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .tabs button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 14px; color: var(--dim); }
+  .tabs button[aria-selected="true"] { background: var(--text); color: var(--ink); border-color: var(--text); }
+  .recipe { display: grid; gap: 10px; }
+  .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .step .n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 900; background: var(--surface-2); color: var(--gold); }
+  .step .body { display: grid; gap: 8px; min-width: 0; }
+  .step .t { font-family: var(--display); font-weight: 800; }
+  .step .why { font-size: 14px; color: var(--dim); }
+  .step .q { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--green-deep); }
+  .step .q code { color: var(--green); font-size: 14px; word-break: break-all; }
+  .step .fav { font-size: 12px; color: var(--faint); }
+  .step .fav b { color: var(--dim); }
+  .typepick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .typepick select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
+
+
+  .builder { display: grid; gap: 22px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+  fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+  legend { padding: 0; margin-bottom: 8px; font-family: var(--display); font-weight: 800; font-size: 15px; }
+  legend span { font-family: var(--body); font-weight: 500; color: var(--dim); font-size: 13px; margin-left: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--dim); cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .chip label code { font-size: 12px; opacity: .8; }
+  .chip input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .show .chip input:checked + label { background: var(--green-deep); border-color: var(--green); color: var(--green); }
+  .hide .chip input:checked + label { background: var(--red-deep); border-color: var(--red); color: var(--red); }
+  .hide .chip input:checked + label::before { content: "!"; font-family: var(--mono); font-weight: 700; }
+  .and .chip input:checked + label { background: var(--gold-deep); border-color: var(--gold); color: var(--gold); }
+  .pick .chip input:checked + label { background: var(--lilac-deep); border-color: var(--lilac); color: var(--lilac); }
+  .nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .num { display: grid; gap: 4px; }
+  .num label { font-size: 13px; font-weight: 600; color: var(--dim); }
+  .num input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-weight: 700; font-size: 16px; }
+  .num input::placeholder { color: var(--faint); font-weight: 600; }
+  .hint { margin: 0; font-size: 13px; color: var(--dim); }
+  .reset-row { display: flex; justify-content: flex-end; margin-top: -12px; }
+
+  .appraisal { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: #F4F1EC; color: #3A3A48; border: 1px solid var(--game-line); }
+  .appraisal .ahead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .appraisal .ahead b { font-family: var(--display); font-weight: 800; font-size: 15px; }
+  .appraisal .ahead span { font-size: 12px; color: #7A7788; }
+  .stat { display: grid; gap: 6px; }
+  .stat .lab { font-size: 13px; font-weight: 700; color: #5A5868; display: flex; justify-content: space-between; }
+  .stat .lab em { font-style: normal; font-family: var(--mono); color: #2F7D55; }
+  .segs { display: grid; grid-template-columns: 0.6fr 1fr 1fr 0.8fr 0.6fr; gap: 4px; margin-bottom: 18px; }
+  .seg { height: 34px; border: 0; border-radius: 4px; background: #D9D5CE; position: relative; font-size: 11px; font-weight: 700; color: #8A8698; padding: 0; }
+  .seg.on { background: var(--bar); color: #3A1D00; }
+  .seg.on.full { background: var(--bar-full); color: #fff; }
+  .seg small { position: absolute; left: 0; right: 0; bottom: -18px; font-size: 11px; color: #8A8698; font-weight: 600; }
+  .appraisal .note { font-size: 12px; color: #7A7788; margin: 10px 0 0; }
+  .appraisal .fixed { background: #E3F5EA; }
+  .appraisal .fixed code { color: #1D6B45; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets button { border: 1px solid #CFCAC2; background: #fff; border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 700; color: #4A4858; }
+
+  .event { display: grid; gap: 10px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .event .when { font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .event .when span { color: var(--gold); }
+  .pending { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--gold-deep); color: var(--gold); }
+
+  .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .rule { text-align: center; padding: 10px 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .rule b { display: block; font-family: var(--mono); font-size: 26px; color: var(--green); line-height: 1.1; }
+  .rule span { font-size: 13px; font-weight: 600; }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--gold); }
+
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(16px); opacity: 0; pointer-events: none; z-index: 6; padding: 10px 18px; border-radius: 999px; background: var(--gold); color: var(--on-gold); font-weight: 700; font-size: 14px; transition: opacity .2s, transform .2s; white-space: nowrap; }
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 440px) {
+    .rules { grid-template-columns: repeat(2, 1fr); }
+    .row { grid-template-columns: 64px 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/en/">Pokémon GO <b>Shiny Collector</b> Tools</a><span class="here">Storage search</span><nav class="lang" aria-label="Language"><a href="/search/" hreflang="ko" lang="ko">한국어</a><a href="/en/search/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ja/search/" hreflang="ja" lang="ja">日本語</a></nav></div>
+    <h1>Search String Checker</h1>
+  </header>
+
+  
+  <section aria-labelledby="chk-h">
+    <h2 id="chk-h" class="vh">Is my search string right?</h2>
+    <div class="checker">
+      <label for="q" class="sr" style="font-size:13px;color:var(--dim)">Search string</label>
+      <textarea id="q" spellcheck="false" autocomplete="off"></textarea>
+      <div class="samples">Examples:<span id="samples"></span></div>
+      <div class="issue warn"><b>Keywords from the game's English text — not yet tested on a phone</b><div>The symbol rules (&amp; , ! -) were tested in the Korean version. The English words come from the game's own text but haven't been typed into the English game yet.</div></div>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div class="reading">
+        <h3>How it reads</h3>
+        <div class="rows" id="rows"></div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="go" aria-label="More">
+    <a class="yt" href="https://youtube.com/shorts/sdcebb5ZICM" target="_blank" rel="noopener"><b>Watch the video (Korean)</b><span>How one line takes a 9,168-Pokémon storage down to 2,003</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>Search strings on one page (Korean)</b><span>Save it from the blog</span></a>
+  </nav>
+
+  
+  <section aria-labelledby="rc-h">
+    <div class="eyebrow">Recipes</div>
+    <h2 id="rc-h">What are you about to do?</h2>
+    <p class="sub">Copy them in order. Long-press a recent search to save it as a favorite, and next time is easier.</p>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="recipe" id="recipe" role="tabpanel"></div>
+  </section>
+
+  
+  <section aria-labelledby="bd-h">
+    <div class="eyebrow">Build your own</div>
+    <h2 id="bd-h">Tap to build</h2>
+    <p class="sub">Your search string appears right below as you choose. Commas, exclamation marks and dashes are handled for you.</p>
+    <div class="builder">
+      <fieldset class="show">
+        <legend>Appraisal to show<span>none chosen = all</span></legend>
+        <div class="chips" id="stars"></div>
+      </fieldset>
+      <fieldset class="hide">
+        <legend>Exclude<span>each gets its own exclamation mark</span></legend>
+        <div class="chips" id="excl"></div>
+      </fieldset>
+      <fieldset class="and">
+        <legend>Evolution conditions<span>all chosen must match</span></legend>
+        <div class="chips" id="cond"></div>
+      </fieldset>
+      <fieldset>
+        <legend>CP · days since caught<span>one side is enough</span></legend>
+        <div class="nums">
+          <div class="num"><label for="cpMin">Min CP</label><input id="cpMin" type="number" inputmode="numeric" min="0" placeholder="e.g. 1000"></div>
+          <div class="num"><label for="cpMax">Max CP</label><input id="cpMax" type="number" inputmode="numeric" min="0" placeholder="e.g. 1500"></div>
+          <div class="num"><label for="dayMin">Min days</label><input id="dayMin" type="number" inputmode="numeric" min="0" placeholder="e.g. 0"></div>
+          <div class="num"><label for="dayMax">Max days</label><input id="dayMax" type="number" inputmode="numeric" min="0" placeholder="e.g. 7"></div>
+        </div>
+        <p class="hint">Days 0 = today (within 24 hours). Max CP 1500 = Great League, 2500 = Ultra League.</p>
+      </fieldset>
+      <fieldset class="pick">
+        <legend>Year caught<span>one only</span></legend>
+        <div class="chips" id="year"></div>
+      </fieldset>
+      <fieldset class="pick">
+        <legend>Distance from where caught<span>dash after the number = or more</span></legend>
+        <div class="chips" id="dist"></div>
+      </fieldset>
+      <div class="fixed"><code id="bq"></code><button class="btn" type="button" id="bcopy">Copy</button></div>
+      <div class="reset-row"><button class="btn ghost" type="button" id="breset">↺ Reset</button></div>
+      <p class="hint">Pokémon caught in remote raids are measured from the raid Gym. For distance searches, also exclude <b>legendary</b> to make it easier.</p>
+    </div>
+  </section>
+
+  
+  <section aria-labelledby="ap-h">
+    <div class="eyebrow">GO Battle League</div>
+    <h2 id="ap-h">Pick with appraisal bars</h2>
+    <p class="sub">Tap the bars like the in-game appraisal. You get a search string that shows only Pokémon in the ranges you tapped.</p>
+    <div class="appraisal">
+      <div class="ahead"><b>IV ranges</b><span>0 · 1~5 · 6~10 · 11~14 · 15</span></div>
+      <div class="stat" data-stat="atk"><div class="lab">Attack <em></em></div><div class="segs"></div></div>
+      <div class="stat" data-stat="def"><div class="lab">Defense <em></em></div><div class="segs"></div></div>
+      <div class="stat" data-stat="hp"><div class="lab">HP <em></em></div><div class="segs"></div></div>
+      <div class="presets">
+        <button type="button" data-p="0-1,4,4">PvP strict</button>
+        <button type="button" data-p="0-1,3-4,3-4">PvP wide</button>
+        <button type="button" data-p="4,4,4">100% IV</button>
+        <button type="button" data-p="0,0,0">0% IV</button>
+      </div>
+      <div class="fixed"><code id="apq"></code><button class="btn" type="button" id="apcopy">Copy</button></div>
+      <p class="note" style="margin:0">The lower the Attack, the higher the level you can reach under a CP cap. For Great League, add cp-1500&amp; in front of the result.</p>
+    </div>
+  </section>
+
+
+  <section aria-labelledby="ru-h">
+    <h2 id="ru-h">Just four symbols</h2>
+    <p class="sub">Commas group before &amp;, and parentheses don't work.</p>
+    <div class="rules">
+      <div class="rule"><b>&amp;</b><span>and</span></div>
+      <div class="rule"><b>,</b><span>or</span></div>
+      <div class="rule"><b>!</b><span>exclude the next word</span></div>
+      <div class="rule"><b>-</b><span>after a number = or more</span></div>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">One symbol, and your <em>shiny legendaries</em> end up in the <strong>transfer list</strong></h2>
+    <p class="lede">Paste a search string from anywhere. It explains what it means in plain words, points out mistakes and gives you a fixed version to copy. The rules were tested by typing them into the Korean version of the game; the English keywords come from the game's text.</p>
+  </section>
+
+  <footer>
+    <div class="who">Pokémon GO <b>Shiny Collector</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>Rules checked in the Korean version (Sep 19, 2026); English keywords from the game's text, not yet tested on a phone. Combining rules: Pokémon GO Wiki · trade Candy: Bulbapedia, Pokétory · guaranteed lucky: Pokétory, pogoalley. Search keywords may change with game updates.</div>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const T = {"copied": "Copied · paste it into the in-game search", "blocked": "Auto-copy was blocked · long-press the text to copy", "copiedBtn": "Copied", "longPress": "Long-press to copy", "copy": "Copy", "star": {"0": "0 stars (appraisal 49% or less)", "1": "1 star (51–64%)", "2": "2 stars (67–80%)", "3": "3 stars (82–98%)", "4": "4 stars (100%)"}, "rAB": "{a}–{b}{u}", "rUp": "{a}{u} or more", "rDown": "{b}{u} or less", "not": "not {w}", "or": " or ", "tag": "tagged '{t}'", "iv": "{s} IV {r}", "cp": "CP {r}", "cpExact": " exactly", "distIn": "caught within {n} km of where you are now", "distR": "caught {r} away from where you are now", "km": " km", "age0": "caught today (within 24 hours)", "ageN": "caught {n} days ago", "ageR": "caught {r} ago", "days": " days", "yearN": "caught in {n}", "yearTo": "caught in or before {n}", "yearR": "caught in {r}", "move": "has a {t}-type {k}", "moveK": {"1": "Fast move", "2": "Charged move", "3": "second Charged move"}, "moveAny": "move", "family": "the whole {t} evolution family", "dex": "Pokédex No. {t}", "type": "{t} type", "name": "Pokémon whose name starts with '{t}'", "pasteT": "Paste a search string", "pasteB": "Or tap one of the examples.", "parenT": "Parentheses don't work", "parenB": "The in-game search ignores parentheses. Build the order with the rule that commas group before &.", "negT": "An exclamation mark only applies to the one word right after it", "negB": "{code} reads as \"{read}\", so what you wanted to exclude comes back in. Exclude things one at a time with &! . (The fixed line below excludes all of them.)", "starT": "'{t}' searches a Pokédex number", "starB": "For a star count, add the star: {code}", "dashT": "No dash means 'within'", "dashB": "{code} means within {n} km. To find ones caught far away, use {code2}", "remoteT": "Remote raids are measured from the Gym", "remoteB": "Searching for far-away catches pulls in lots of remote-raid legendaries. For trades, add {code}.", "unkT": "Unknown words are read as a name search", "unkB": "{codes} — if it isn't a Pokémon name or nickname, it may be a typo.", "okT": "The syntax looks right", "okB": "It reads like this:", "fixCopy": "Copy the fixed line", "only": "Only these", "excl": "Excluded", "mixed": "Mixed ⚠", "orSpan": "or", "none": "Nothing yet", "typeLabel": "Type", "fav": "Suggested favorite name:", "pickCond": "(choose some conditions)", "cleared": "All choices cleared", "pickSeg": "(tap the bars to choose ranges)", "statName": {"atk": "Attack", "def": "Defense", "hp": "HP"}}, K = {"terms": [["shiny", "shiny"], ["legendary", "legendary"], ["mythical", "mythical"], ["ultrabeast", "Ultra Beast"], ["lucky", "lucky"], ["shadow", "shadow"], ["costume", "costume (event)"], ["background", "has a background"], ["@special", "knows a legacy move"], ["evolvenew", "evolving adds a new Pokédex entry"], ["item", "evolves with an item"], ["evolvequest", "evolves with a condition"], ["tradeevolve", "evolves for fewer or no Candy if traded"], ["megaevolve", "can Mega Evolve now"], ["dynamax", "can Dynamax"], ["gigantamax", "can Gigantamax"], ["defender", "defending a Gym"], ["traded", "received in a trade"], ["hatched", "hatched from an Egg"], ["purified", "purified"], ["raid", "caught in a raid"], ["research", "caught from research"], ["rocket", "obtained from Team GO Rocket"], ["candyxl", "powered up with XL Candy"], ["eggsonly", "only hatches from Eggs"], ["locationbackground", "has a location background"], ["xxl", "XXL"], ["xxs", "XXS"]], "types": ["normal", "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "dark", "steel", "fairy"], "w": {"shiny": "shiny", "legend": "legendary", "myth": "mythical", "ub": "ultrabeast", "lucky": "lucky", "shadow": "shadow", "costume": "costume", "bg": "background", "legacy": "@special", "evolvenew": "evolvenew", "item": "item", "quest": "evolvequest", "tradeevo": "tradeevolve", "mega": "megaevolve", "dmax": "dynamax", "gmax": "gigantamax", "defender": "defender", "traded": "traded", "hatched": "hatched", "purified": "purified", "raid": "raid", "research": "research", "rocket": "rocket", "candyxl": "candyxl", "eggsonly": "eggsonly", "locbg": "locationbackground", "distance": "distance", "age": "age", "year": "year", "attack": "attack", "defense": "defense"}, "recipes": [{"id": "cd", "label": "After Community Day", "steps": [["Evolve first", "Ones that would add a new Pokédex entry if evolved. Do this before cleaning up.", "evolvenew", "NewDex"], ["Check exclusive moves", "Ones with a legacy move — keep them for trades even with low IVs.", "@special", "Legacy"], ["Clean up today's catches", "Today's 0–2 star catches, without shiny, lucky, costume or background ones.", "age0&0*,1*,2*&!shiny&!lucky&!costume&!background", "TodayClean"]]}, {"id": "full", "label": "Storage full", "steps": [["Evolve first", "Fill the Pokédex before transferring.", "evolvenew", "NewDex"], ["Transfer candidates", "Only 0–2 stars, with the valuable ones taken out. Still give it a quick look before transferring.", "0*,1*,2*&!shiny&!legendary&!mythical&!ultrabeast&!lucky&!shadow&!costume&!background&!@special&!#", "Transfer"], ["Check what to keep", "Everything you should keep, at a glance.", "4*,shiny,lucky,legendary,mythical,shadow,costume,background,#", "Keep"]]}, {"id": "trade", "label": "Before trading", "steps": [["Guaranteed lucky", "Pokémon caught in 2020 or earlier become guaranteed lucky when traded (45 per person). IVs at least 12, half the Stardust to power up.", "year-2020", "LuckyTrade"], ["3 Candy from a trade", "Caught more than 100 km apart. Remote-raid legendaries are taken out.", "distance100-&!legendary", "Candy3"], ["Evolve without Candy", "Evolve for fewer or no Candy if traded.", "tradeevolve", "TradeEvo"], ["Legacy moves", "Moves stay the same in a trade; only the IVs are rerolled. Saves an Elite TM.", "@special", "Legacy"]]}, {"id": "pvp", "label": "GO Battle League season", "steps": [["Strict", "Lowest Attack range, Defense and HP at 15.", "0-1attack&4defense&4hp", "PvPStrict"], ["Wider", "Defense and HP from 11 to 15.", "0-1attack&3-4defense&3-4hp", "PvPWide"]]}, {"id": "raid", "label": "Before a raid", "steps": [["Both moves the same type", "Attackers whose Fast and Charged moves are both that type.", "TYPE", "Attackers"]]}], "excl": [["shiny", "Shiny", "shiny", true], ["legend", "Legendary", "legendary", true], ["myth", "Mythical", "mythical", true], ["ub", "Ultra Beast", "ultrabeast", true], ["lucky", "Lucky", "lucky", true], ["shadow", "Shadow", "shadow", true], ["costume", "Costume", "costume", true], ["bg", "Background", "background", true], ["legacy", "Legacy move", "@special", true], ["tag", "Tagged", "#", true], ["dmax", "Dynamax", "dynamax", false]], "cond": [["newdex", "New Pokédex entry if evolved", "evolvenew"], ["item", "Evolves with an item", "item"], ["quest", "Evolves with a condition", "evolvequest"], ["trade", "Trade evolution", "tradeevolve"], ["mega", "Can Mega Evolve", "megaevolve"]], "stars": [["0*", "0 stars"], ["1*", "1 star"], ["2*", "2 stars"], ["3*", "3 stars"], ["4*", "4 stars (100)"]], "year": [["", "Any"], ["year-2020", "2020 or earlier (guaranteed lucky when traded)"], ["year2016", "2016 (the first year)"]], "dist": [["", "Any"], ["distance100-", "100 km or more (3 Candy from a trade)"], ["distance1000-", "1,000 km or more"]], "samples": [["Exclamation trap", "!shiny,legendary"], ["No dash", "distance100&!legendary"], ["Missing star", "dynamax&4"], ["Transfer candidates in one line", "0*,1*,2*&!shiny&!legendary&!mythical&!ultrabeast&!lucky&!shadow&!costume&!background&!@special&!#"]], "iceType": "ice", "stat": {"attack": "Attack", "defense": "Defense", "hp": "HP"}, "statKw": {"atk": "attack", "def": "defense", "hp": "HP"}, "default": "0*,1*,2*&!shiny,legendary&distance100"};
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  const fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k] ?? "");
+  const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  let toastT;
+  async function copy(text, btn) {
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+    if (!ok) {
+      const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select(); try { ok = document.execCommand("copy"); } catch (e) {} ta.remove();
+    }
+    const t = $("toast"); t.textContent = ok ? T.copied : T.blocked;
+    t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1800);
+    if (btn) { const o = btn.textContent; btn.textContent = ok ? T.copiedBtn : T.longPress; btn.classList.add("done"); setTimeout(() => { btn.textContent = o; btn.classList.remove("done"); }, 1500); }
+  }
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-copy]"); if (b) copy(b.dataset.copy, b); });
+
+  /* checker */
+  const KW = Object.fromEntries(K.terms.map(([k, d]) => [k.toLowerCase(), d]));
+  const TYPES = K.types, W = K.w;
+  const BUCKET = { "0": "0", "1": "1~5", "2": "6~10", "3": "11~14", "4": "15" };
+  const STAT_RE = new RegExp(`^([0-4])(?:-([0-4]))?(${Object.keys(K.stat).map(reEsc).join("|")})$`);
+  const kwRe = (k) => new RegExp(`^${reEsc(k)}\\s?(\\d*)(-?)(\\d*)$`, "i");
+  function range(a, b, dash, unit) {
+    if (a && b) return fill(T.rAB, { a, b, u: unit });
+    if (a && dash) return fill(T.rUp, { a, u: unit });
+    if (b) return fill(T.rDown, { b, u: unit });
+    return null;
+  }
+  function readTerm(raw) {
+    const t = raw.trim(); if (!t) return null;
+    let neg = false, s = t;
+    if (s.startsWith("!")) { neg = true; s = s.slice(1).trim(); }
+    const low = s.toLowerCase();
+    let m, what = null, known = true, note = null;
+    if (KW[low] !== undefined) what = KW[low];
+    else if (/^#.+/.test(s)) what = fill(T.tag, { t: s.slice(1) });
+    else if ((m = s.match(/^([0-4])\*$/))) what = T.star[m[1]];
+    else if ((m = low.match(STAT_RE))) what = fill(T.iv, { s: K.stat[m[3]], r: m[2] ? `${BUCKET[m[1]].split("~")[0]}~${BUCKET[m[2]].split("~").pop()}` : BUCKET[m[1]] });
+    else if ((m = low.match(/^cp(\d*)(-?)(\d*)$/)) && (m[1] || m[3])) what = fill(T.cp, { r: range(m[1], m[3], m[2], "") || m[1] }) + (m[1] && !m[2] && !m[3] ? T.cpExact : "");
+    else if ((m = s.match(kwRe(W.distance))) && (m[1] || m[3])) {
+      if (m[1] && !m[2]) what = fill(T.distIn, { n: m[1] });
+      else what = fill(T.distR, { r: range(m[1], m[3], m[2], T.km) });
+    }
+    else if ((m = s.match(kwRe(W.age))) && (m[1] || m[3])) {
+      if (m[1] === "0" && !m[2]) what = T.age0;
+      else if (m[1] && !m[2]) what = fill(T.ageN, { n: m[1] });
+      else what = fill(T.ageR, { r: range(m[1], m[3], m[2], T.days) });
+    }
+    else if ((m = s.match(kwRe(W.year))) && (m[1] || m[3])) {
+      if (m[1] && !m[2]) what = fill(T.yearN, { n: m[1] });
+      else if (!m[1] && m[3]) what = fill(T.yearTo, { n: m[3] });
+      else what = fill(T.yearR, { r: range(m[1], m[3], m[2], "") });
+    }
+    else if ((m = low.match(/^@([123])?(.+)$/)) && TYPES.includes(m[2])) what = fill(T.move, { t: m[2], k: T.moveK[m[1]] || T.moveAny });
+    else if (/^\+.+/.test(s)) what = fill(T.family, { t: s.slice(1) });
+    else if (/^\d+$/.test(s)) { what = fill(T.dex, { t: s }); note = "star"; }
+    else if (TYPES.includes(low)) what = fill(T.type, { t: s });
+    else { what = fill(T.name, { t: s }); known = false; }
+    return { raw: t, neg, what, known, core: s, note };
+  }
+
+  function analyze(input) {
+    const issues = [];
+    const text = input.replace(/\s*&\s*/g, "&").trim();
+    if (!text) return { issues: [{ lvl: "warn", title: T.pasteT, body: T.pasteB }], groups: [], fixed: "" };
+    if (/[()]/.test(text)) issues.push({ lvl: "bad", title: T.parenT, body: T.parenB });
+    const groups = text.split("&").map((g) => g.split(/[,;:]/).map(readTerm).filter(Boolean)).filter((g) => g.length);
+    const fixedGroups = [];
+    for (const g of groups) {
+      const negs = g.filter((t) => t.neg);
+      if (g.length > 1 && negs.length) {
+        const plain = g.filter((t) => !t.neg);
+        const read = negs.map((t) => fill(T.not, { w: t.what })).join(T.or) + (plain.length ? T.or + plain.map((t) => t.what).join(T.or) : "");
+        issues.push({ lvl: "bad", title: T.negT, body: fill(T.negB, { code: `<code>${esc(g.map((t) => t.raw).join(","))}</code>`, read: esc(read) }) });
+        for (const t of g) fixedGroups.push(["!" + t.core]);
+        continue;
+      }
+      fixedGroups.push(g.map((t) => (t.neg ? "!" : "") + t.core));
+    }
+    const distOnly = kwRe(W.distance);
+    for (const g of groups) for (const t of g) {
+      if (t.note === "star") issues.push({ lvl: "warn", title: fill(T.starT, { t: t.core }), body: fill(T.starB, { code: `<code>${esc(t.core)}*</code>` }) });
+      const dm = t.core.match(distOnly);
+      if (dm && dm[1] && !dm[2] && !dm[3]) issues.push({ lvl: "warn", title: T.dashT, body: fill(T.dashB, { code: `<code>${esc(t.core)}</code>`, n: dm[1], code2: `<code>${esc(t.core.replace(/\s/g, ""))}-</code>` }) });
+      if (dm && !t.neg) issues.push({ lvl: "warn", title: T.remoteT, body: fill(T.remoteB, { code: `<code>&amp;!${esc(W.legend)}</code>` }) });
+    }
+    const unknown = groups.flat().filter((t) => !t.known);
+    if (unknown.length) issues.push({ lvl: "warn", title: T.unkT, body: fill(T.unkB, { codes: unknown.map((t) => `<code>${esc(t.core)}</code>`).join(" ") }) });
+    const fixed = fixedGroups.map((g) => g.join(",")).join("&");
+    if (!issues.some((i) => i.lvl === "bad")) issues.unshift({ lvl: "ok", title: T.okT, body: T.okB });
+    return { issues, groups, fixed: fixed !== text ? fixed : "" };
+  }
+
+  function renderChecker() {
+    const { issues, groups, fixed } = analyze($("q").value);
+    $("verdict").innerHTML = issues.map((i) => `<div class="issue ${i.lvl}"><b>${esc(i.title)}</b><div>${i.body}</div></div>`).join("")
+      + (fixed ? `<div class="fixed"><code>${esc(fixed)}</code><button class="btn" type="button" data-copy="${esc(fixed)}">${T.fixCopy}</button></div>` : "");
+    $("rows").innerHTML = groups.map((g) => {
+      const allNeg = g.every((t) => t.neg), anyNeg = g.some((t) => t.neg);
+      const cls = !anyNeg ? "show" : (allNeg && g.length === 1 ? "hide" : "unk");
+      const tag = !anyNeg ? T.only : (allNeg && g.length === 1 ? T.excl : T.mixed);
+      const what = g.map((t) => `${esc(t.neg ? fill(T.not, { w: t.what }) : t.what)}<code>${esc(t.raw)}</code>`).join(`<span class="or">${T.orSpan}</span>`);
+      return `<div class="row"><span class="tag ${cls}">${tag}</span><span class="what">${what}</span></div>`;
+    }).join("") || `<div class="row"><span class="tag unk">—</span><span class="what">${T.none}</span></div>`;
+  }
+  $("q").value = K.default;
+  $(`samples`).innerHTML = K.samples.map(([l, s]) => `<button type="button" data-s="${esc(s)}">${esc(l)}</button>`).join("");
+  $("q").addEventListener("input", renderChecker);
+  document.querySelectorAll(".samples button").forEach((b) => b.addEventListener("click", () => { $("q").value = b.dataset.s; renderChecker(); }));
+  renderChecker();
+
+  /* recipes */
+  const RECIPES = K.recipes;
+  let curType = K.iceType;
+  const typeQ = (t) => `@1${t}&@2${t},@3${t}`;
+  function renderRecipe(id) {
+    const r = RECIPES.find((x) => x.id === id);
+    document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.id === id)));
+    $("recipe").innerHTML = r.steps.map(([t, why, q, fav], i) => {
+      const qq = q === "TYPE" ? typeQ(curType) : q;
+      const pick = q === "TYPE" ? `<div class="typepick"><label for="tp" style="font-size:13px;color:var(--dim)">${T.typeLabel}</label><select id="tp">${TYPES.map((x) => `<option ${x === curType ? "selected" : ""}>${x}</option>`).join("")}</select></div>` : "";
+      return `<div class="step"><span class="n">${i + 1}</span><div class="body"><div class="t">${esc(t)}</div><div class="why">${esc(why)}</div>${pick}
+        <div class="q"><code>${esc(qq)}</code><button class="btn" type="button" data-copy="${esc(qq)}">${T.copy}</button></div>
+        <div class="fav">${T.fav} <b>${esc(fav)}</b></div></div></div>`;
+    }).join("");
+    const tp = $("tp"); if (tp) tp.addEventListener("change", () => { curType = tp.value; renderRecipe(id); });
+  }
+  $("tabs").innerHTML = RECIPES.map((r) => `<button type="button" role="tab" data-id="${r.id}">${esc(r.label)}</button>`).join("");
+  $("tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) renderRecipe(b.dataset.id); });
+  renderRecipe("cd");
+
+  /* builder */
+  const B_EXCL = K.excl, B_COND = K.cond, B_STARS = K.stars, B_YEAR = K.year, B_DIST = K.dist;
+  let chipN = 0;
+  function chip(group, type, value, label, code, checked) {
+    const id = `${group}-${chipN++}`;
+    return `<div class="chip"><input type="${type}" id="${id}" name="${group}" value="${esc(value)}" ${checked ? "checked" : ""}><label for="${id}">${esc(label)}${code ? ` <code>${esc(code)}</code>` : ""}</label></div>`;
+  }
+  $("stars").innerHTML = B_STARS.map(([v, l]) => chip("stars", "checkbox", v, l, "", ["0*", "1*", "2*"].includes(v))).join("");
+  $("excl").innerHTML = B_EXCL.map(([k, l, term, on]) => chip("excl", "checkbox", k, l, term === "#" ? "#" : "", on)).join("");
+  $("cond").innerHTML = B_COND.map(([k, l, term]) => chip("cond", "checkbox", k, l, term, false)).join("");
+  $("year").innerHTML = B_YEAR.map(([v, l], i) => chip("year", "radio", v, l, v, i === 0)).join("");
+  $("dist").innerHTML = B_DIST.map(([v, l], i) => chip("dist", "radio", v, l, v, i === 0)).join("");
+  function bRange(prefix, a, b) {
+    const lo = $(a).value.trim(), hi = $(b).value.trim();
+    if (lo === "" && hi === "") return "";
+    if (lo !== "" && hi !== "") return lo === hi ? `${prefix}${lo}` : `${prefix}${lo}-${hi}`;
+    return lo !== "" ? `${prefix}${lo}-` : `${prefix}-${hi}`;
+  }
+  function build() {
+    const parts = [];
+    const onC = new Set([...document.querySelectorAll('input[name="cond"]:checked')].map((i) => i.value));
+    for (const [k, , term] of B_COND) if (onC.has(k)) parts.push(term);
+    const cp = bRange("cp", "cpMin", "cpMax"), days = bRange(W.age, "dayMin", "dayMax");
+    if (cp) parts.push(cp);
+    if (days) parts.push(days);
+    for (const g of ["year", "dist"]) { const v = document.querySelector(`input[name="${g}"]:checked`)?.value; if (v) parts.push(v); }
+    const stars = [...document.querySelectorAll('input[name="stars"]:checked')].map((i) => i.value);
+    if (stars.length && stars.length < B_STARS.length) parts.push(stars.join(","));
+    const onE = new Set([...document.querySelectorAll('input[name="excl"]:checked')].map((i) => i.value));
+    for (const [k, , term] of B_EXCL) if (onE.has(k)) parts.push("!" + term);
+    const q = parts.join("&") || T.pickCond;
+    $("bq").textContent = q; $("bcopy").dataset.copy = q;
+  }
+  document.querySelector(".builder").addEventListener("change", build);
+  $("breset").addEventListener("click", () => {
+    document.querySelectorAll('input[name="stars"], input[name="excl"], input[name="cond"]').forEach((i) => { i.checked = false; });
+    document.querySelectorAll('input[name="year"], input[name="dist"]').forEach((i) => { i.checked = i.value === ""; });
+    for (const id of ["cpMin", "cpMax", "dayMin", "dayMax"]) $(id).value = "";
+    build();
+    const t = $("toast"); t.textContent = T.cleared; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1400);
+  });
+  document.querySelector(".builder").addEventListener("input", (e) => { if (e.target.matches(".num input")) build(); });
+  build();
+
+  /* appraisal */
+  const SEG = [["0", "0"], ["1", "1~5"], ["2", "6~10"], ["3", "11~14"], ["4", "15"]];
+  const sel = { atk: [0, 1], def: [4, 4], hp: [4, 4] };
+  function renderAppraisal() {
+    document.querySelectorAll(".stat").forEach((st) => {
+      const k = st.dataset.stat, [a, b] = sel[k];
+      st.querySelector(".segs").innerHTML = SEG.map(([n, r], i) =>
+        `<button type="button" class="seg ${i >= a && i <= b ? "on" : ""} ${i === 4 && i >= a && i <= b ? "full" : ""}" data-i="${i}" aria-pressed="${i >= a && i <= b}" aria-label="${T.statName[k]} ${r}">${n}<small>${r}</small></button>`).join("");
+      st.querySelector(".lab em").textContent = a === b ? SEG[a][1] : `${SEG[a][1].split("~")[0]}~${SEG[b][1].split("~").pop()}`;
+    });
+    const part = (k) => { const [a, b] = sel[k]; return a === 0 && b === 4 ? "" : `${a === b ? a : `${a}-${b}`}${K.statKw[k]}`; };
+    const q = ["atk", "def", "hp"].map(part).filter(Boolean).join("&") || T.pickSeg;
+    $("apq").textContent = q; $("apcopy").dataset.copy = q;
+  }
+  document.querySelector(".appraisal").addEventListener("click", (e) => {
+    const s = e.target.closest(".seg"); const p = e.target.closest("button[data-p]");
+    if (s) {
+      const k = s.closest(".stat").dataset.stat, i = +s.dataset.i, [a, b] = sel[k];
+      sel[k] = a === b && i !== a ? [Math.min(a, i), Math.max(a, i)] : [i, i];
+      renderAppraisal();
+    }
+    if (p) { const v = p.dataset.p.split(","); ["atk", "def", "hp"].forEach((k, j) => { const [a, b = a] = v[j].split("-").map(Number); sel[k] = [a, b]; }); renderAppraisal(); }
+  });
+  renderAppraisal();
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

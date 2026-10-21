@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<base href="/circle/">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ポケモンGOのサークル固定スローをブラウザで練習。サークルを止めて、暴れるのを待ち、Nice・Great・Excellentを連続で決めましょう。">
+<link rel="canonical" href="https://shinypokemongo.github.io/ja/circle/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/circle/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/circle/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/circle/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/circle/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shiny Collector Tools">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="サークル固定スロー練習 · 色違いコレクター">
+<meta property="og:description" content="ポケモンGOのサークル固定スローをブラウザで練習。サークルを止めて、暴れるのを待ち、Nice・Great・Excellentを連続で決めましょう。">
+<meta property="og:url" content="https://shinypokemongo.github.io/ja/circle/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/circle.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>サークル固定スロー練習 · 色違いコレクター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  :root {
+    --ink: #0A131F; --surface: #111F30; --surface-2: #182B41; --line: #27425F;
+    --text: #EDF4FB; --dim: #94A9C2; --faint: #5E7690;
+    --ball: #FF7A59; --ball-deep: #3D1A10;
+    --nice: #7FE0A8; --great: #FFC94D; --exc: #FF7A59; --sky: #6BD6FF;
+    --on-ball: #2B0D05; --on-nice: #06281A; --on-great: #2B1F00;
+    --good-bg: #0F2A20; --good-line: #2F6B4B; --bad-line: #6B3A2F; --up-bg: #2C2408; --up-line: #6B5A1E;
+    --display: "Gothic A1", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    --body: "IBM Plex Sans KR", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F3F7FB; --surface: #FFFFFF; --surface-2: #E8EFF6; --line: #D0DCE8;
+      --text: #12202F; --dim: #52677F; --faint: #8A9DB2;
+      --ball: #D9471F; --ball-deep: #FDE7DF; --nice: #0B8A50; --great: #9A6A00; --exc: #D9471F; --sky: #1670B8;
+      --on-ball: #FFFFFF; --on-nice: #FFFFFF; --on-great: #FFFFFF;
+      --good-bg: #E0F5EA; --good-line: #A9DFC2; --bad-line: #F3BBA9; --up-bg: #FBF0CF; --up-line: #E6CF8A;
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: normal; line-break: strict; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--sky); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--ball); outline-offset: 2px; }
+
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); }
+  .brand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .home:hover { border-color: currentColor; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--ball); }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--ball); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--ball); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .sub { margin: 4px 0 14px; color: var(--dim); font-size: 14px; }
+
+  .game { display: grid; gap: 12px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+  .seg { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 3px; border-radius: 10px; background: var(--surface-2); }
+  .seg button { padding: 7px 12px; border-radius: 8px; border: 0; background: none; font-size: 14px; font-weight: 700; color: var(--dim); cursor: pointer; white-space: nowrap; }
+  .seg button[aria-pressed="true"] { background: var(--ball); color: var(--on-ball); }
+  .seg button[data-g="0"][aria-pressed="true"] { background: var(--nice); color: var(--on-nice); }
+  .seg button[data-g="1"][aria-pressed="true"] { background: var(--great); color: var(--on-great); }
+  .streak { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--dim); }
+  .streak i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); }
+  .streak i.on { background: var(--ball); border-color: var(--ball); }
+
+  .stage { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #0C1A2A; }
+  canvas { display: block; width: 100%; touch-action: pan-y; }
+  .pad { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .pad:active { cursor: grabbing; }
+
+  .say { min-height: 3.2em; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 15px; }
+  .say b { font-family: var(--display); font-weight: 800; margin-right: 6px; }
+  .say.good { border-color: var(--good-line); background: var(--good-bg); } .say.good b { color: var(--nice); }
+  .say.bad { border-color: var(--bad-line); background: var(--ball-deep); } .say.bad b { color: var(--ball); }
+  .say.up { border-color: var(--up-line); background: var(--up-bg); } .say.up b { color: var(--great); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; gap: 2px; padding: 9px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--faint); line-height: 1.35; }
+  .steps li::before { content: counter(s); font-family: var(--mono); font-size: 12px; }
+  .steps li[aria-current="step"] { border-color: var(--ball); background: var(--ball-deep); color: var(--text); }
+  .steps li[aria-current="step"]::before { color: var(--ball); }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .opts .lab { font-size: 13px; font-weight: 700; color: var(--dim); margin-right: 6px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+  .check input { width: 20px; height: 20px; accent-color: var(--ball); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .stats div { display: grid; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .stats span { font-size: 12px; font-weight: 700; color: var(--dim); }
+  .stats b { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+  .keys { font-size: 13px; color: var(--faint); margin: 0; }
+  .keys kbd { font-family: var(--mono); font-size: 12px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .rule > b { font-family: var(--mono); font-size: 22px; line-height: 1.2; color: var(--ball); }
+  .rule strong { font-family: var(--display); font-weight: 800; font-size: 15px; display: block; }
+
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--ball); }
+  @media (max-width: 520px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .go { grid-template-columns: 1fr; } }
+  @media (hover: none) { .keys { display: none; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/ja/">ポケモンGO <b>色違いコレクター</b> ツール</a><span class="here">サークル固定</span><nav class="lang" aria-label="Language"><a href="/circle/" hreflang="ko" lang="ko">한국어</a><a href="/en/circle/" hreflang="en" lang="en">English</a><a href="/ja/circle/" hreflang="ja" lang="ja" aria-current="page">日本語</a></nav></div>
+    <h1>サークル固定スロー練習</h1>
+  </header>
+
+  <section class="game" aria-labelledby="game-h">
+    <h2 id="game-h" class="vh">練習場</h2>
+    <div class="bar">
+      <div class="seg" id="grade" role="group" aria-label="練習の段階">
+        <button type="button" data-g="0" aria-pressed="true">Nice</button>
+        <button type="button" data-g="1" aria-pressed="false">Great</button>
+        <button type="button" data-g="2" aria-pressed="false">Excellent</button>
+      </div>
+      <div class="streak" id="streak" aria-label="連続成功"><span>連続</span><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <canvas id="cv" aria-hidden="true"></canvas>
+      <div class="pad" id="pad" tabindex="0" role="application" aria-label="ボール操作エリア。スペースを押し続けるとサークルが縮み、上矢印で投げます。"></div>
+    </div>
+
+    <div class="say" id="say" aria-live="polite"><b>スタート</b>下のボールを長押ししてみてください。回さなくても、押しているだけでサークルが縮みます。</div>
+
+    <ol class="steps" id="steps">
+      <li>ボールを長押ししてサークルを縮め、指を離す</li>
+      <li>暴れるまで待つ</li>
+      <li>暴れ始めたらボールをつかむ</li>
+      <li>終わる1秒前に投げる</li>
+    </ol>
+
+    <div class="opts">
+      <div><span class="lab">ポケモン</span>
+        <div class="seg" id="kind" role="group" aria-label="ポケモンの種類">
+          <button type="button" data-v="normal" aria-pressed="true">通常 · ときどき暴れる</button>
+          <button type="button" data-v="shadow" aria-pressed="false">シャドウ · よく暴れる</button>
+        </div>
+      </div>
+      <div><span class="lab">動きの長さ</span>
+        <div class="seg" id="motion" role="group" aria-label="ポケモンの動きの長さ">
+          <button type="button" data-v="short" aria-pressed="true">短い 0.8秒</button>
+          <button type="button" data-v="long" aria-pressed="false">長い 1.8秒</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="aid" checked> ヒントを表示（目安の線・タイミングの文字）</label>
+    </div>
+
+    <div class="stats">
+      <div><span>投げた回数</span><b id="st-n">0</b></div>
+      <div><span>成功</span><b id="st-ok">0</b></div>
+      <div><span>最高連続</span><b id="st-best">0</b></div>
+    </div>
+    <p class="keys">キーボード：<kbd>Space</kbd>長押し = ボールをつかむ · <kbd>↑</kbd> = 投げる</p>
+  </section>
+
+  <nav class="go" aria-label="もっと見る">
+    <a class="yt" href="https://youtube.com/shorts/XDm332KrOXU" target="_blank" rel="noopener"><b>サークル固定を動画で（韓国語）</b><span>実際の捕獲で2回連続Excellent</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>1枚でわかるまとめ（ブログ・韓国語）</b><span>ブログで保存して見る</span></a>
+  </nav>
+
+  <section aria-labelledby="how-h">
+    <h2 id="how-h">サークル固定の5ステップ</h2>
+    <p class="sub">サークルを好きな大きさで止めておき、ポケモンが暴れているすきに投げて、毎回同じ大きさに当てる方法です。</p>
+    <div class="rules">
+      <div class="rule"><b>1</b><div><strong>ボールを押してサークルを縮め、指を離す</strong>押しているだけでサークルが縮みます。回す必要はありません。好きな大きさで指を離すと、サークルは見えなくてもその大きさのまま残ります。</div></div>
+      <div class="rule"><b>2</b><div><strong>暴れるまで待つ</strong>じっとしているときに投げると、飛んでいる間に暴れ始めてはじかれることがあります。待つのが技術の半分です。</div></div>
+      <div class="rule"><b>3</b><div><strong>暴れ始めたらボールをつかむ</strong>暴れている間はサークルが縮みません。ただ、動きが終わってもつかんだままだと、また縮んでから大きなサークルに戻るので、つかんだらすぐ投げる準備をしてください。</div></div>
+      <div class="rule"><b>4</b><div><strong>終わる1秒前に投げる</strong>ボールが飛ぶのに1秒ほどかかります。動きが終わったのを見てから投げると遅れます。投げる瞬間ではなく、届く瞬間にポケモンがじっとしている必要があります。だから終わり方をよく見ておきましょう。</div></div>
+      <div class="rule"><b>5</b><div><strong>Nice → Great → Excellent</strong>最初から小さなサークルを狙うとタイミングが身につきません。大きなサークルでタイミングを覚えてから、サークルを縮めていきましょう。</div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="diff-h">
+    <h2 id="diff-h">実際のゲームとの違い</h2>
+    <p class="sub" style="margin-bottom:0">ポケモンごとに暴れる動きの長さと形が違います。シャドウポケモンはずっとよく暴れます。ここでは通常・シャドウ、短い動き・長い動きだけで練習するので、ゲームでは捕まえたいポケモンの動きがどう終わるかを先に1〜2回見てください。カーブボールは入れていません。まっすぐ投げるだけでもタイミングを覚えるには十分です。</p>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">サークル固定を<em>手が覚えるまで</em></h2>
+    <p class="lede">動画を見ても手がついてこない技なので、ここですぐ練習できるようにしました。Niceから始めて3回連続で成功すると次の段階に上がります。ボールがもったいないこともありません。</p>
+  </section>
+
+  <footer>
+    <div class="who">ポケモンGO <b>色違いコレクター</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>指を離してもサークルの大きさが残ること、ボールが飛ぶ時間は、自分で撮った捕獲動画2本を0.1秒単位で測って合わせました。練習用のポケモンはこのツールのために描いた絵です。任天堂・Nianticとは関係のないファン製ツールです。</div>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d"), pad = $("pad"), stageEl = $("stage");
+
+  const FLIGHT = 0.9;
+  const SHRINK = 2.4;
+  const RHO_MIN = 0.08;
+  const GRADES = [
+    { key: "nice", name: "Nice!", ko: "Nice", max: 1.0, zone: 0.95, color: "#7FE0A8" },
+    { key: "great", name: "Great!", ko: "Great", max: 0.7, zone: 0.7, color: "#FFC94D" },
+    { key: "exc", name: "Excellent!", ko: "Excellent", max: 0.3, zone: 0.3, color: "#FF7A59" },
+  ];
+  const gradeOf = (rho) => (rho <= 0.3 ? 2 : rho <= 0.7 ? 1 : 0);
+
+  const S = { stage: 0, long: false, shadow: false, aid: true, streak: 0, best: 0, n: 0, ok: 0 };
+  try { const o = JSON.parse(localStorage.getItem("circlelock-ja") || "{}"); if (o.best > 0) S.best = o.best; if (o.stage >= 0 && o.stage <= 2) S.stage = o.stage; } catch (e) {}
+  const save = () => { try { localStorage.setItem("circlelock-ja", JSON.stringify({ best: S.best, stage: S.stage })); } catch (e) {} };
+
+  let W = 0, H = 0;
+  const geo = () => ({ tx: W / 2, ty: H * 0.36, R0: Math.min(W * 0.17, H * 0.14, 80), hx: W / 2, hy: H * 0.85, br: Math.min(34, W * 0.085) });
+  function resize() {
+    W = stageEl.clientWidth;
+    H = Math.round(Math.max(380, Math.min(W * 1.2, 580, innerHeight * 0.74)));
+    const d = Math.min(devicePixelRatio || 1, 2);
+    cv.style.height = H + "px"; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+
+  const G = {
+    t: 0, rho: 1, holding: false, ball: "home", px: 0, py: 0, samples: [],
+    atk: { on: false, t0: 0, dur: 0.8, id: 0, endedAt: -9 }, nextAtk: 3,
+    fly: null, res: null, step: -1, cue: "",
+  };
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const gap = () => (S.shadow ? rand(1.0, 1.8) : rand(3.5, 6.0));
+
+  const pos = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  function grab(x, y) { if (G.ball !== "home") return false; G.holding = true; G.ball = "held"; G.px = x; G.py = y; G.samples = [{ x, y, t: performance.now() }]; return true; }
+  function letGo() { G.holding = false; if (G.ball === "held") G.ball = "home"; }
+  function throwBall(ox) {
+    const g = geo();
+    G.holding = false; G.ball = "fly";
+    G.fly = { t0: G.t, sx: G.px, sy: G.py, ox, atkId: G.atk.on ? G.atk.id : -1 };
+    S.n++; paintStats();
+  }
+  pad.addEventListener("pointerdown", (e) => {
+    const p = pos(e), g = geo();
+    if (Math.hypot(p.x - g.hx, p.y - g.hy) > g.br * 2.2) return;
+    if (grab(p.x, p.y)) { pad.setPointerCapture(e.pointerId); e.preventDefault(); }
+  });
+  pad.addEventListener("pointermove", (e) => {
+    if (G.ball !== "held" || !pad.hasPointerCapture(e.pointerId)) return;
+    const p = pos(e); G.px = p.x; G.py = Math.max(H * 0.5, p.y);
+    G.samples.push({ x: p.x, y: p.y, t: performance.now() });
+    if (G.samples.length > 12) G.samples.shift();
+  });
+  function pointerEnd(e) {
+    if (G.ball !== "held" || !pad.hasPointerCapture(e.pointerId)) return;
+    const now = performance.now(), recent = G.samples.filter((s) => now - s.t < 160);
+    const a = recent[0], b = recent[recent.length - 1];
+    if (a && b && b !== a) {
+      const dy = b.y - a.y, dx = b.x - a.x, dt = Math.max(1, b.t - a.t);
+      if (-dy > 26 && -dy / dt > 0.3) {
+        const g = geo(), slope = Math.max(-1.2, Math.min(1.2, dx / -dy));
+        return throwBall(slope * (g.hy - g.ty) * 0.45);
+      }
+    }
+    letGo();
+  }
+  pad.addEventListener("pointerup", pointerEnd);
+  pad.addEventListener("pointercancel", () => letGo());
+  pad.addEventListener("keydown", (e) => {
+    const g = geo();
+    if (e.code === "Space") { e.preventDefault(); if (!e.repeat) grab(g.hx, g.hy); }
+    if (e.code === "ArrowUp" || e.code === "Enter") { e.preventDefault(); if (G.ball === "held" || grab(g.hx, g.hy)) throwBall(0); }
+  });
+  pad.addEventListener("keyup", (e) => { if (e.code === "Space") { e.preventDefault(); letGo(); } });
+
+  function say(kind, head, text) { const el = $("say"); el.className = "say " + kind; el.innerHTML = `<b>${head}</b>${text}`; }
+  function land() {
+    const g = geo(), f = G.fly, need = GRADES[S.stage], off = Math.abs(f.ox), r = g.R0 * G.rho;
+    const locked = f.atkId === G.atk.id && f.atkId >= 0 && !G.atk.on;
+    let res, ok = false;
+    if (G.atk.on) {
+      res = { text: "はじかれた！", color: "#FF5A5A" };
+      if (f.atkId === G.atk.id) {
+        const early = G.atk.t0 + G.atk.dur - G.t;
+        say("bad", "早すぎました", `動きが終わる${early.toFixed(1)}秒前に届きました。ちょうどその分だけ遅く投げればOKです。`);
+      } else say("bad", "はじかれました", "投げたあとに暴れ始めました。だからサークル固定を使います。暴れるのを見てから投げればこうなりません。");
+    } else if (off > g.R0 + 14) {
+      res = { text: "はずれ", color: "#94A9C2" };
+      say("bad", "はずれました", "横にそれました。指をまっすぐ上にはじいてみてください。");
+    } else if (off > r + 9) {
+      res = { text: "サークル外", color: "#94A9C2" };
+      say("bad", "サークルの外に当たりました", "ポケモンには当たりましたがサークルの中ではないので判定の文字が出ません。サークルが小さいほどまっすぐ投げる必要があります。");
+    } else {
+      const gi = gradeOf(G.rho), gr = GRADES[gi];
+      res = { text: gr.name, color: gr.color };
+      const after = Math.max(0, G.t - G.atk.endedAt);
+      if (gi < S.stage) say("bad", `${gr.ko}`, `タイミングは合っていましたが、サークルがまだ大きいです。${need.ko}の大きさまで縮めてから指を離してください。`);
+      else if (!locked) say("up", `${gr.ko}、でも`, "じっとしているときに投げて当たったので運もありました。連続記録は暴れている間に投げたものだけ数えます。");
+      else { ok = true; say("good", `${gr.ko}!`, `動きが終わって${after.toFixed(1)}秒後に届きました。${after < 0.5 ? "ちょうどいいタイミングです。" : "当たりました。もう少し早く投げても大丈夫です。"}`); }
+    }
+    if (ok) {
+      S.ok++; S.streak++; S.best = Math.max(S.best, S.streak);
+      if (S.streak >= 3 && S.stage < 2) { S.stage++; S.streak = 0; say("up", "3回連続！", `${GRADES[S.stage].ko}の大きさに上がります。サークルをもっと縮めてから指を離してください。`); paintStage(); }
+      save();
+    } else S.streak = 0;
+    try { if (ok && navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+    G.res = { ...res, t0: G.t, x: g.tx + f.ox * 0.4, ok };
+    G.ball = "result"; G.fly = null; paintStats();
+  }
+
+  function update(dt) {
+    G.t += dt;
+    const A = G.atk;
+    if (!A.on && G.t >= G.nextAtk) { A.on = true; A.t0 = G.t; A.dur = S.long ? 1.8 : 0.8; A.id++; }
+    else if (A.on && G.t >= A.t0 + A.dur) { A.on = false; A.endedAt = G.t; G.nextAtk = G.t + gap(); }
+    if (G.ball === "held" && !A.on) { G.rho -= dt * ((1 - RHO_MIN) / SHRINK); if (G.rho < RHO_MIN) G.rho = 1; }
+    if (G.ball === "fly" && G.t - G.fly.t0 >= FLIGHT) land();
+    if (G.ball === "result" && G.t - G.res.t0 > 1.25) { G.ball = "home"; G.res = null; G.rho = 1; G.nextAtk = Math.max(G.nextAtk, G.t + (S.shadow ? 1.0 : 1.6)); }
+
+    const zone = G.rho < GRADES[S.stage].zone;
+    let step, cue;
+    if (G.ball === "fly" || G.ball === "result") { step = 3; cue = ""; }
+    else if (A.on) {
+      const left = A.t0 + A.dur - G.t;
+      if (!zone) { step = 0; cue = "まずサークルを縮めて"; }
+      else if (G.ball === "held") { step = 3; cue = left > FLIGHT + 0.12 ? "まだ…つかんだまま" : "今投げて!"; }
+      else { step = 2; cue = "今ボールをつかんで!"; }
+    } else if (G.ball === "held") { step = 0; cue = zone ? "今指を離して!" : "長押しのまま"; }
+    else { step = zone ? 1 : 0; cue = zone ? "暴れるまで待って…" : "ボールを長押し"; }
+    G.cue = cue;
+    if (step !== G.step) { G.step = step; [...$("steps").children].forEach((li, i) => (i === step ? li.setAttribute("aria-current", "step") : li.removeAttribute("aria-current"))); }
+  }
+
+  function drawMon(x, y, s, p) {
+    const atk = p >= 0;
+    let jump = 0, rot = 0, sq = 1 + Math.sin(G.t * 2.2) * 0.025;
+    if (atk) { jump = -Math.sin(Math.PI * p) * s * 1.0; rot = S.long ? p * Math.PI * 2 : Math.sin(p * Math.PI * 4) * 0.28; sq = 1; }
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.ellipse(x, y + s * 1.02, s * (0.95 + jump / (s * 4)), s * 0.2, 0, 0, 7); ctx.fill();
+    if (S.shadow) {
+      for (let i = 0; i < 7; i++) { const a = i * 0.9 + G.t * 1.6, r = s * (1.12 + 0.1 * Math.sin(G.t * 3 + i)); ctx.fillStyle = "rgba(150,70,230,.16)"; ctx.beginPath(); ctx.arc(x + Math.cos(a) * s * 0.3, y + jump + Math.sin(a) * s * 0.3 - s * 0.1, r, 0, 7); ctx.fill(); }
+    }
+    ctx.save(); ctx.translate(x, y + jump); ctx.rotate(rot); ctx.scale(1 / sq, sq);
+    const body = ctx.createLinearGradient(0, -s, 0, s); body.addColorStop(0, S.shadow ? "#8E7BD8" : "#5FE3D0"); body.addColorStop(1, S.shadow ? "#3B2A78" : "#1F8F97");
+    ctx.fillStyle = body;
+    for (const k of [-1, 1]) { ctx.beginPath(); ctx.moveTo(k * s * 0.38, -s * 0.7); ctx.quadraticCurveTo(k * s * 0.95, -s * 1.55, k * s * 0.8, -s * 0.35); ctx.closePath(); ctx.fill(); }
+    ctx.beginPath(); ctx.ellipse(0, 0, s, s * 0.93, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.22)"; ctx.beginPath(); ctx.ellipse(0, s * 0.32, s * 0.62, s * 0.5, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "rgba(255,120,120,.55)"; for (const k of [-1, 1]) { ctx.beginPath(); ctx.ellipse(k * s * 0.6, s * 0.08, s * 0.13, s * 0.09, 0, 0, 7); ctx.fill(); }
+    for (const k of [-1, 1]) {
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.ellipse(k * s * 0.34, -s * 0.2, s * 0.17, s * 0.2, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = S.shadow ? "#D81E3A" : "#10202E"; ctx.beginPath(); ctx.arc(k * s * 0.34, -s * 0.17, s * 0.09, 0, 7); ctx.fill();
+      if (atk) { ctx.strokeStyle = "#10202E"; ctx.lineWidth = s * 0.07; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(k * s * 0.14, -s * 0.36); ctx.lineTo(k * s * 0.54, -s * 0.52); ctx.stroke(); }
+    }
+    ctx.fillStyle = "#10202E"; ctx.beginPath();
+    if (atk) ctx.ellipse(0, s * 0.18, s * 0.16, s * 0.13, 0, 0, 7); else ctx.arc(0, s * 0.1, s * 0.12, 0.15 * Math.PI, 0.85 * Math.PI);
+    atk ? ctx.fill() : (ctx.strokeStyle = "#10202E", ctx.lineWidth = s * 0.05, ctx.lineCap = "round", ctx.stroke());
+    ctx.restore();
+    if (atk) {
+      ctx.save(); ctx.globalAlpha = 0.5 + 0.5 * Math.sin(G.t * 30); ctx.strokeStyle = "#FF5A5A"; ctx.lineWidth = 4; ctx.lineCap = "round";
+      for (let i = 0; i < 6; i++) { const a = i * 1.047 + G.t * 3, r1 = s * 1.35, r2 = s * 1.6; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r1, y + jump + Math.sin(a) * r1); ctx.lineTo(x + Math.cos(a) * r2, y + jump + Math.sin(a) * r2); ctx.stroke(); }
+      ctx.restore();
+    }
+  }
+  function drawBall(x, y, r, rot, glow) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+    if (glow) { ctx.shadowColor = "rgba(255,255,255,.7)"; ctx.shadowBlur = 22; }
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fillStyle = "#F4F4F8"; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(0, 0, r, Math.PI, 0); ctx.fillStyle = "#FF5A5A"; ctx.fill();
+    ctx.fillStyle = "#1B1B28"; ctx.fillRect(-r, -r * 0.09, r * 2, r * 0.18);
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.3, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.17, 0, 7); ctx.fillStyle = "#F4F4F8"; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.lineWidth = Math.max(1.5, r * 0.07); ctx.strokeStyle = "#1B1B28"; ctx.stroke();
+    ctx.restore();
+  }
+  function pill(text, x, y, color) {
+    ctx.font = `800 ${Math.min(19, W * 0.048)}px "Gothic A1", "Malgun Gothic", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const w = ctx.measureText(text).width + 28, h = 36;
+    ctx.fillStyle = "rgba(8,16,26,.82)"; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, y - h / 2, w, h, 18) : ctx.rect(x - w / 2, y - h / 2, w, h); ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = color; ctx.fillText(text, x, y + 1);
+  }
+  function draw() {
+    const g = geo(), A = G.atk;
+    const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, "#0B1830"); sky.addColorStop(0.55, "#12304A"); sky.addColorStop(0.56, "#123B33"); sky.addColorStop(1, "#0A211E");
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    for (let i = 0; i < 26; i++) { const sx = (i * 137.5) % W, sy = ((i * 89.3) % (H * 0.5)); ctx.globalAlpha = 0.25 + 0.35 * Math.abs(Math.sin(G.t * 0.8 + i)); ctx.fillRect(sx, sy, 2, 2); }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(255,255,255,.04)"; ctx.beginPath(); ctx.ellipse(g.tx, g.ty + g.R0 * 1.25, g.R0 * 2.3, g.R0 * 0.5, 0, 0, 7); ctx.fill();
+
+    const s = g.R0 * 0.92;
+    drawMon(g.tx, g.ty, s, A.on ? (G.t - A.t0) / A.dur : -1);
+
+    const showRing = !A.on && (G.ball === "held" || G.ball === "fly" || G.ball === "result");
+    if (showRing) {
+      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0, 0, 7); ctx.stroke();
+      if (S.aid && S.stage > 0 && G.ball === "held") { ctx.setLineDash([5, 6]); ctx.lineWidth = 2; ctx.strokeStyle = GRADES[S.stage].color; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * GRADES[S.stage].max, 0, 7); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+      ctx.lineWidth = 5; ctx.strokeStyle = S.aid ? GRADES[gradeOf(G.rho)].color : "#B6F26B"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * G.rho, 0, 7); ctx.stroke();
+    } else if (S.aid && !A.on && G.ball === "home" && G.rho < 1) {
+      ctx.setLineDash([3, 7]); ctx.lineWidth = 2; ctx.strokeStyle = "rgba(255,255,255,.28)"; ctx.beginPath(); ctx.arc(g.tx, g.ty, g.R0 * G.rho, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    if (G.ball === "home") drawBall(g.hx, g.hy + Math.sin(G.t * 2.4) * 3, g.br, 0, false);
+    else if (G.ball === "held") drawBall(G.px, G.py, g.br * 1.08, 0, true);
+    else if (G.ball === "fly") {
+      const f = G.fly, p = Math.min(1, (G.t - f.t0) / FLIGHT), e = 1 - Math.pow(1 - p, 1.6);
+      const x = f.sx + (g.tx + f.ox - f.sx) * e, y = f.sy + (g.ty - f.sy) * e - Math.sin(Math.PI * p) * H * 0.13;
+      drawBall(x, y, g.br * (1 - 0.64 * e), p * 14, false);
+    }
+
+    if (G.res) {
+      const q = Math.min(1, (G.t - G.res.t0) / 0.18), sc = 0.6 + 0.4 * (1 - Math.pow(1 - q, 3));
+      ctx.save(); ctx.translate(g.tx, g.ty - g.R0 * 1.75); ctx.scale(sc, sc); ctx.globalAlpha = Math.min(1, (1.25 - (G.t - G.res.t0)) / 0.25);
+      ctx.font = `900 ${Math.min(44, W * 0.105)}px "Gothic A1", "Malgun Gothic", sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.lineWidth = 8; ctx.strokeStyle = "rgba(6,12,20,.85)"; ctx.lineJoin = "round"; ctx.strokeText(G.res.text, 0, 0);
+      ctx.fillStyle = G.res.color; ctx.fillText(G.res.text, 0, 0); ctx.restore();
+    }
+    if (S.aid && G.cue) pill(G.cue, W / 2, H * 0.63, G.cue.endsWith("!") ? "#FF7A59" : "#94A9C2");
+  }
+
+  function paintStage() { $("grade").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.g === S.stage))); paintStats(); }
+  function paintStats() {
+    $("st-n").textContent = S.n; $("st-ok").textContent = S.ok; $("st-best").textContent = S.best;
+    $("streak").querySelectorAll("i").forEach((el, i) => el.classList.toggle("on", i < Math.min(3, S.streak)));
+    $("streak").firstElementChild.textContent = S.stage < 2 || S.streak <= 3 ? "連続" : `連続 ${S.streak}`;
+  }
+  $("grade").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.stage = +b.dataset.g; S.streak = 0; save(); paintStage(); say("", GRADES[S.stage].ko, S.stage === 0 ? "サークルは少し縮めるだけで指を離してもOK。暴れている間に投げて、終わったあとに届くタイミングから覚えましょう。" : `点線の内側までサークルが縮んだら指を離してください。3回連続で${S.stage === 1 ? "Excellentに上がります。" : "完成です。"}`); });
+  $("motion").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.long = b.dataset.v === "long"; $("motion").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); say("", S.long ? "長い動き" : "短い動き", S.long ? "ボールが飛ぶ時間より動きが長いです。始まってすぐ投げるとはじかれます。つかんで待ってから、終わる1秒前に投げてください。" : "動きが短いので、暴れ始めたのを見てすぐ投げれば当たります。"); });
+  $("kind").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.shadow = b.dataset.v === "shadow"; $("kind").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); G.nextAtk = G.t + gap(); say("", S.shadow ? "シャドウポケモン" : "通常のポケモン", S.shadow ? "休みなく暴れます。1回逃してもすぐまた暴れるので、サークルを縮めておけばチャンスは多いです。ただし、じっとしているときに投げるとほぼはじかれます。" : "ときどきしか暴れません。サークルを縮めて、のんびり待ちましょう。"); });
+  $("aid").addEventListener("change", (e) => { S.aid = e.target.checked; });
+
+  let last = 0;
+  function frame(ts) { const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts; update(dt); draw(); requestAnimationFrame(frame); }
+  addEventListener("resize", resize);
+  resize(); paintStage(); requestAnimationFrame(frame);
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

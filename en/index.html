@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pokémon GO tools by Shiny Collector — search string checker, showcase score calculator, IV pick helper, power-up cost calculator, legacy move list, trade list maker, damage multipliers, circle lock practice and shop box calculator. Built from game data.">
+<title>Shiny Collector Tools · Pokémon GO</title>
+<link rel="canonical" href="https://shinypokemongo.github.io/en/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shiny Collector Tools">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Shiny Collector Tools">
+<meta property="og:description" content="Pokémon GO search string checker, showcase score calculator, power-up cost calculator, legacy move list, trade list maker and more. Built from game data.">
+<meta property="og:url" content="https://shinypokemongo.github.io/en/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+  :root { --ink: #0E0D1C; --surface: #181730; --line: #312E58; --text: #F1EEFA; --dim: #A29DBE; --gold: #FFD166; --green: #6BF2A6; --sky: #6BD6FF;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color-scheme: dark; }
+  @media (prefers-color-scheme: light) { :root { --ink: #F6F4FB; --surface: #FFFFFF; --line: #D9D3EA; --text: #1B1730; --dim: #5C567A; --gold: #9A6B00; --green: #0B8A50; --sky: #1670B8; color-scheme: light; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 18px 60px; display: grid; gap: 24px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--gold); }
+  h1 { margin: 2px 0 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; }
+  .about h2 b { color: var(--gold); }
+  h1 b { color: var(--gold); }
+  p { margin: 0; color: var(--dim); }
+  .tools { display: grid; gap: 12px; }
+  .tool { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
+  .tool:hover, .tool:focus-visible { border-color: var(--gold); transform: translateY(-2px); outline: none; }
+  .tool .ic { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 20px; }
+  .tool b { display: block; color: var(--text); font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .tool span { font-size: 14px; color: var(--dim); }
+  .tool .arrow { color: var(--gold); font-weight: 700; }
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  footer { font-size: 13px; color: var(--dim); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .tool { grid-template-columns: 48px 1fr; } .tool .ic { width: 48px; height: 48px; font-size: 17px; } .tool .arrow { display: none; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+footer a { display: inline; padding: 0; border: 0; border-radius: 0; background: none; color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span>Pokémon GO Shiny Collector</span><nav class="lang" aria-label="Language"><a href="/" hreflang="ko" lang="ko">한국어</a><a href="/en/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ja/" hreflang="ja" lang="ja">日本語</a></nav></div>
+    <h1>Shiny Collector <b>Tools</b></h1>
+  </header>
+
+  <nav class="tools" aria-label="Tools">
+    <a class="tool" href="search/">
+      <span class="ic" style="background:#0E3B27;color:#6BF2A6">&amp;!</span>
+      <span><b>Search String Checker</b><span>Paste a search string to see what it means, fix mistakes and copy</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="showcase/">
+      <span class="ic" style="background:#3A2F12;color:#FFD166">1178</span>
+      <span><b>Showcase Score Calculator</b><span>Enter height, weight and IVs to see the score</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="pick/">
+      <span class="ic" style="background:#3B2A10;color:#FFCF3A">IV</span>
+      <span><b>Which one to power up?</b><span>Compare IVs of the same Pokémon — judged as the evolved form, search by type or move too</span></span>
+      <span class="arrow">→</span>
+    </a>    <a class="tool" href="powerup/">
+      <span class="ic" style="background:#3A1745;color:#F29BFF">Lv</span>
+      <span><b>Power Up Cost Calculator</b><span>Pick the number on the Power Up button to see how much Stardust it takes</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="legacy/">
+      <span class="ic" style="background:#0C3A33;color:#5FE3C8">TM</span>
+      <span><b>Legacy Moves List</b><span>Moves only learnable with an Elite TM, by evolution line</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="trade/">
+      <span class="ic" style="background:#3A2F12;color:#FFD86B">⇄</span>
+      <span><b>Pokémon Trade List Maker</b><span>Your “looking for” and “for trade” lists in one image, with shinies, costumes and backgrounds</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="damage/">
+      <span class="ic" style="background:#10304A;color:#5CC8FF">×5</span>
+      <span><b>Damage Multiplier Stacker</b><span>STAB, weather, Mega, friends — how much it all adds up to</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="circle/">
+      <span class="ic" style="background:#3D1A10;color:#FF7A59">◎</span>
+      <span><b>Circle-Lock Throw Practice</b><span>From Nice to Excellent — practice your throw timing</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="shop/">
+      <span class="ic" style="background:#3A2D0C"><img src="/shop/ic/coin.webp" alt="" width="36" height="36"></span>
+      <span><b>Shop Box Calculator</b><span>Enter a box price and contents for the real discount, cost per raid and all-time low</span></span>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <nav class="go" aria-label="Channels">
+    <a href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1" target="_blank" rel="noopener"><b>▶ YouTube</b><span>@ShinyPokemongo (Korean)</span></a>
+    <a href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>▤ Blog</b><span>One-page guides (Korean)</span></a>
+  </nav>
+
+  <section class="about">
+    <h2>Watch the video, <b>use it right here</b></h2>
+    <p>Tools made so you can put what the YouTube videos explain to use right away. Built from game data and results checked in the game.</p>
+  </section>
+
+  <footer>Questions or requests: <a href="mailto:back6845@gmail.com">back6845@gmail.com</a><br>A fan-made tool, not affiliated with Nintendo or Niantic.</footer>
+</div>
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

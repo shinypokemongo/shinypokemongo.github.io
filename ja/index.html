@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ポケモンGOの便利ツール集 — 検索ワードチェッカー、おひろめスコア計算機、どれを育てる？、強化コスト計算機、レガシーわざ一覧、交換リスト作成、ダメージ倍率、サークル固定スロー練習、ショップボックス計算機。ゲームデータをもとに作っています。">
+<title>色違いコレクター ツール · ポケモンGO</title>
+<link rel="canonical" href="https://shinypokemongo.github.io/ja/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="色違いコレクター ツール">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="色違いコレクター ツール">
+<meta property="og:description" content="ポケモンGOの検索ワードチェッカー、おひろめスコア計算機、強化コスト計算機、レガシーわざ一覧、交換リスト作成など。ゲームデータをもとに作っています。">
+<meta property="og:url" content="https://shinypokemongo.github.io/ja/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+  :root { --ink: #0E0D1C; --surface: #181730; --line: #312E58; --text: #F1EEFA; --dim: #A29DBE; --gold: #FFD166; --green: #6BF2A6; --sky: #6BD6FF;
+    --display: "Gothic A1", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; --body: "IBM Plex Sans KR", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; color-scheme: dark; }
+  @media (prefers-color-scheme: light) { :root { --ink: #F6F4FB; --surface: #FFFFFF; --line: #D9D3EA; --text: #1B1730; --dim: #5C567A; --gold: #9A6B00; --green: #0B8A50; --sky: #1670B8; color-scheme: light; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); line-height: 1.6; word-break: normal; line-break: strict; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 18px 60px; display: grid; gap: 24px; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--gold); }
+  h1 { margin: 2px 0 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  .about h2 { margin: 0 0 8px; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; }
+  .about h2 b { color: var(--gold); }
+  h1 b { color: var(--gold); }
+  p { margin: 0; color: var(--dim); }
+  .tools { display: grid; gap: 12px; }
+  .tool { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
+  .tool:hover, .tool:focus-visible { border-color: var(--gold); transform: translateY(-2px); outline: none; }
+  .tool .ic { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 20px; }
+  .tool b { display: block; color: var(--text); font-family: var(--display); font-weight: 800; font-size: 18px; }
+  .tool span { font-size: 14px; color: var(--dim); }
+  .tool .arrow { color: var(--gold); font-weight: 700; }
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  footer { font-size: 13px; color: var(--dim); }
+  @media (max-width: 440px) { .go { grid-template-columns: 1fr; } .tool { grid-template-columns: 48px 1fr; } .tool .ic { width: 48px; height: 48px; font-size: 17px; } .tool .arrow { display: none; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+footer a { display: inline; padding: 0; border: 0; border-radius: 0; background: none; color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span>ポケモンGO 色違いコレクター</span><nav class="lang" aria-label="Language"><a href="/" hreflang="ko" lang="ko">한국어</a><a href="/en/" hreflang="en" lang="en">English</a><a href="/ja/" hreflang="ja" lang="ja" aria-current="page">日本語</a></nav></div>
+    <h1>色違いコレクター <b>ツール</b></h1>
+  </header>
+
+  <nav class="tools" aria-label="ツール">
+    <a class="tool" href="search/">
+      <span class="ic" style="background:#0E3B27;color:#6BF2A6">&amp;!</span>
+      <span><b>検索ワードチェッカー</b><span>貼り付けると意味を解説し、間違いを直してコピー</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="showcase/">
+      <span class="ic" style="background:#3A2F12;color:#FFD166">1178</span>
+      <span><b>おひろめスコア計算機</b><span>高さ・重さ・個体値を入れると何点か</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="pick/">
+      <span class="ic" style="background:#3B2A10;color:#FFCF3A">IV</span>
+      <span><b>どれを育てる？</b><span>同じポケモンの個体値を比べてどれを育てるか — 進化後の姿で判定、タイプ・技でも検索</span></span>
+      <span class="arrow">→</span>
+    </a>    <a class="tool" href="powerup/">
+      <span class="ic" style="background:#3A1745;color:#F29BFF">Lv</span>
+      <span><b>強化コスト計算機</b><span>強化ボタンの数字を選ぶだけで、ほしのすながどれだけ必要か</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="legacy/">
+      <span class="ic" style="background:#0C3A33;color:#5FE3C8">TM</span>
+      <span><b>レガシーわざ一覧</b><span>すごいわざマシンでしか覚えない技を進化ごとに整理</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="trade/">
+      <span class="ic" style="background:#3A2F12;color:#FFD86B">⇄</span>
+      <span><b>ポケモン交換リストを作る</b><span>「求」「譲」を画像1枚に。色違い・コスチューム・背景まで</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="damage/">
+      <span class="ic" style="background:#10304A;color:#5CC8FF">×5</span>
+      <span><b>ダメージ倍率の積み上げ</b><span>タイプ一致・天候ブースト・メガ・フレンド、全部重ねると何倍か</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="circle/">
+      <span class="ic" style="background:#3D1A10;color:#FF7A59">◎</span>
+      <span><b>サークル固定スロー練習</b><span>NiceからExcellentまで、投げるタイミングを練習</span></span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="tool" href="shop/">
+      <span class="ic" style="background:#3A2D0C"><img src="/shop/ic/coin.webp" alt="" width="36" height="36"></span>
+      <span><b>ショップボックス計算機</b><span>ボックスの価格と中身を入れると本当の割引率、レイド1回の値段、過去最安</span></span>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <nav class="go" aria-label="チャンネル">
+    <a href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1" target="_blank" rel="noopener"><b>▶ YouTube</b><span>@ShinyPokemongo（韓国語）</span></a>
+    <a href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><b>▤ ブログ</b><span>1枚でわかるまとめ（韓国語）</span></a>
+  </nav>
+
+  <section class="about">
+    <h2>動画を見て、<b>ここですぐ</b>使う</h2>
+    <p>YouTubeで解説した内容をすぐ使えるように作ったツールです。ゲームデータと、ゲーム内で直接確かめた結果をもとにしています。</p>
+  </section>
+
+  <footer>お問い合わせ・ご要望：<a href="mailto:back6845@gmail.com">back6845@gmail.com</a><br>任天堂・Nianticとは関係のないファン製ツールです。</footer>
+</div>
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ポケモンGOのショップボックス計算機。まとめ買いと比べた本当の割引率、レイド1回あたりの値段、アイテムごとの過去最安がわかります。">
+<link rel="canonical" href="https://shinypokemongo.github.io/ja/shop/">
+<link rel="alternate" hreflang="ko" href="https://shinypokemongo.github.io/shop/">
+<link rel="alternate" hreflang="en" href="https://shinypokemongo.github.io/en/shop/">
+<link rel="alternate" hreflang="ja" href="https://shinypokemongo.github.io/ja/shop/">
+<link rel="alternate" hreflang="x-default" href="https://shinypokemongo.github.io/shop/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shiny Collector Tools">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="ショップボックス計算機 · 色違いコレクター">
+<meta property="og:description" content="ポケモンGOのショップボックス計算機。まとめ買いと比べた本当の割引率、レイド1回あたりの値段、アイテムごとの過去最安がわかります。">
+<meta property="og:url" content="https://shinypokemongo.github.io/ja/shop/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/shop.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>ショップボックス計算機 · 色違いコレクター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  :root {
+    --ink: #0E1220; --surface: #161C30; --surface-2: #1F2742; --line: #2E3A5E;
+    --text: #F1F4FB; --dim: #A2ABC8; --faint: #6C7699;
+    --coin: #FFC94D; --coin-deep: #3A2D0C; --mint: #4FE0B0; --mint-deep: #0F3A2E; --rose: #FF6B85; --rose-deep: #3D1520; --sky: #6EB6FF;
+    --on-accent: #1A1200; --track: rgba(255,255,255,.06);
+    --display: "Gothic A1", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    --body: "IBM Plex Sans KR", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F5F7FB; --surface: #FFFFFF; --surface-2: #EEF2F9; --line: #D5DCEB;
+      --text: #141A2E; --dim: #55607E; --faint: #8F98B3;
+      --coin: #A87400; --coin-deep: #FFF2D1; --mint: #0E9E74; --mint-deep: #DDF7EE; --rose: #D62F52; --rose-deep: #FFE3E9; --sky: #1F75C9;
+      --on-accent: #FFFFFF; --track: rgba(20,30,60,.06);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: normal; line-break: strict; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 60px; display: grid; gap: 36px; }
+  a { color: var(--sky); }
+  input, button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--coin); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -22px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: inherit; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--coin); }
+  .lang { margin-left: auto; display: flex; gap: 4px; letter-spacing: 0; }
+  .lang a { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--dim); font-size: 12px; }
+  .lang a[aria-current] { color: var(--text); border-color: var(--coin); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  .card { display: grid; gap: 18px; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .q { display: flex; align-items: baseline; gap: 8px; font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .q i { font-style: normal; font-family: var(--mono); font-size: 13px; color: var(--coin); }
+  .hint { font-size: 13px; color: var(--dim); margin: 0; }
+  .price { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  .price img { width: 30px; height: 30px; }
+  .price input { flex: 1; min-width: 0; width: 0; border: 0; background: none; font-family: var(--mono); font-weight: 700; font-size: 24px; padding: 4px 0; }
+  .price input:focus { outline: none; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .chip:hover { border-color: var(--coin); color: var(--text); }
+  .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+  .pick { display: grid; justify-items: center; gap: 2px; padding: 8px 4px 6px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; font-size: 11.5px; font-weight: 700; color: var(--dim); line-height: 1.25; text-align: center; }
+  .pick img { width: 40px; height: 40px; }
+  .pick[aria-pressed="true"] { border-color: var(--coin); background: var(--coin-deep); color: var(--text); }
+  .rows { display: grid; gap: 8px; }
+  .row { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .row img { width: 40px; height: 40px; }
+  .row .nm { font-weight: 700; font-size: 14px; line-height: 1.3; }
+  .row .nm small { display: block; color: var(--faint); font-weight: 600; font-size: 11.5px; }
+  .step { display: inline-grid; grid-template-columns: 34px 64px 34px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .step button { border: 0; background: var(--surface); font-weight: 800; cursor: pointer; }
+  .step input { width: 64px; border: 0; text-align: center; background: var(--ink); font-family: var(--mono); font-weight: 700; font-size: 16px; }
+  .x { border: 0; background: none; color: var(--faint); font-size: 20px; cursor: pointer; padding: 0 4px; }
+  .only { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); cursor: pointer; }
+  .only:has(input:checked) { border-color: var(--mint); background: var(--mint-deep); }
+  .only input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--mint); cursor: pointer; }
+  .only b { font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .only small { display: block; color: var(--dim); font-size: 12.5px; line-height: 1.45; }
+  .empty { font-size: 13px; color: var(--faint); padding: 10px; border: 1px dashed var(--line); border-radius: 12px; text-align: center; }
+  .mode { display: grid; gap: 10px; }
+  .opt { display: grid; gap: 8px; text-align: left; padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); cursor: pointer; transition: opacity .15s, border-color .15s; }
+  .opt .ot { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .opt .od { font-size: 12.5px; color: var(--dim); margin-top: -4px; }
+  .opt .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--faint); flex-shrink: 0; }
+  .opt[aria-checked="true"] { border-color: var(--coin); background: var(--coin-deep); }
+  .opt[aria-checked="true"] .dot { border-color: var(--coin); background: radial-gradient(circle, var(--coin) 45%, transparent 50%); }
+  .opt[aria-checked="false"] { opacity: .45; }
+  .opt[aria-checked="false"] select, .opt[aria-checked="false"] input { pointer-events: none; }
+  .opt select { cursor: pointer; }
+  .custom { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .custom .price input { font-size: 20px; }
+  .unit { font-size: 14px; font-weight: 700; color: var(--dim); white-space: nowrap; }
+  select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 700; }
+
+  .result { display: grid; gap: 14px; padding: 18px 16px; border-radius: 18px; background: linear-gradient(180deg, var(--coin-deep), var(--surface)); border: 1px solid var(--line); }
+  .big { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .tile { padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 2px; }
+  .tile .k { font-size: 12.5px; color: var(--dim); font-weight: 700; }
+  .tile .v { font-family: var(--mono); font-weight: 700; font-size: 26px; line-height: 1.2; }
+  .tile .s { font-size: 12px; color: var(--faint); }
+  .tile.real .v { color: var(--mint); }
+  .tile.game .v { color: var(--dim); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .tile.save .v { color: var(--coin); }
+  .raid { padding: 14px; border-radius: 14px; border: 2px solid var(--mint); background: var(--mint-deep); display: grid; gap: 4px; }
+  .raid.bad { border-color: var(--rose); background: var(--rose-deep); }
+  .raid .v { font-family: var(--mono); font-weight: 700; font-size: 30px; }
+  .raid .k { font-weight: 800; font-size: 14px; }
+  .raid .s { font-size: 13px; color: var(--dim); }
+  .verdict { font-family: var(--display); font-weight: 900; font-size: 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: middle; }
+  th { font-size: 11.5px; color: var(--dim); font-weight: 700; }
+  th:first-child, td:first-child { text-align: left; }
+  td { font-family: var(--mono); font-weight: 600; }
+  td .lo { display: block; font-family: var(--body); font-size: 11px; color: var(--faint); font-weight: 600; }
+  td.good { color: var(--mint); } td.bad { color: var(--rose); }
+  .note { font-size: 12.5px; color: var(--faint); margin: 0; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(22px, 6vw, 28px); line-height: 1.25; letter-spacing: -.03em; }
+  .about h2 em { font-style: normal; color: var(--coin); }
+  .about p { margin: 0; color: var(--dim); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .links a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-weight: 700; font-size: 14px; color: var(--text); }
+  footer { color: var(--dim); font-size: 13px; display: grid; gap: 6px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--text); font-size: 16px; }
+  footer .who b { color: var(--coin); }
+  @media (max-width: 420px) { .row { grid-template-columns: 36px 1fr auto; } .row .x { grid-column: 3; grid-row: 1; justify-self: end; } .row .step { grid-column: 1 / -1; justify-self: end; } }
+  .opt[data-mode="list"] { display: none; }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/">ポケモンGO <b>色違いコレクター</b> ツール</a><span class="here">ショップ</span><nav class="lang" aria-label="Language"><a href="/shop/" hreflang="ko" lang="ko">한국어</a><a href="/en/shop/" hreflang="en" lang="en">English</a><a href="/ja/shop/" hreflang="ja" lang="ja" aria-current="page">日本語</a></nav></div>
+    <h1>ショップボックス計算機</h1>
+  </header>
+
+  <section aria-labelledby="in-h">
+    <h2 id="in-h" class="vh">ボックス入力</h2>
+    <div class="card">
+      <div class="presets" aria-label="例を読み込む">
+        <span class="hint" style="align-self:center">例</span>
+        <button class="chip" data-preset="outing">散歩ボックス 2,825</button>
+        <button class="chip" data-preset="hyper">ハイパーレイドボックス 5,425</button>
+        <button class="chip" data-preset="remotebox">リモートレイドボックス 500</button>
+        <button class="chip" data-preset="cday">コミュニティデイボックス 1,350</button>
+        <button class="chip" data-preset="clear">クリア</button>
+      </div>
+      <div class="q"><i>1</i>ボックスの価格</div>
+      <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="price" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="ボックスの価格（コイン）"></label>
+      <div class="q"><i>2</i>中身 <span class="hint">タップして追加し、個数を入力</span></div>
+      <div class="palette" id="palette"></div>
+      <div class="rows" id="rows"></div>
+      <label class="only" id="onlyWrap" hidden><input type="checkbox" id="extra"><span><b>ほかのアイテムも価値に含める</b><small>初期設定ではレイドパスだけを計算し、ふかそうち・ほしのかけらなどほかのアイテムは0コイン（おまけ）として扱います。ほかのアイテムも必ず使うならチェックしてください。</small></span></label>
+      <div class="q"><i>3</i>コインの購入価格 <span class="hint">実際の金額に換算</span></div>
+      <div class="mode" role="radiogroup" aria-label="換算方法">
+        <div class="opt" data-mode="list" role="radio" tabindex="0">
+          <span class="ot"><span class="dot"></span>リストから選ぶ（韓国）</span>
+          <span class="od">Web Store・ゲーム内ショップのコイン（ウォン）</span>
+          <select id="src" aria-label="コインの購入先"></select>
+        </div>
+        <div class="opt" data-mode="custom" role="radio" tabindex="0">
+          <span class="ot"><span class="dot"></span>払った金額を入力</span>
+          <span class="od">実際に払った金額ともらったコイン（セール・ボーナス込み）</span>
+          <span class="custom">
+            <label class="price"><input id="cWon" type="number" inputmode="numeric" min="0" placeholder="金額" aria-label="払った金額"><span class="unit">で</span></label>
+            <label class="price"><img src="/shop/ic/coin.webp" alt=""><input id="cCoin" type="number" inputmode="numeric" min="0" placeholder="コイン" aria-label="もらったコイン"><span class="unit">コイン</span></label>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="out-h" id="out" hidden>
+    <h2 id="out-h" class="vh">結果</h2>
+    <div class="result">
+      <div class="big">
+        <div class="tile game"><span class="k">ショップ表示の割引</span><span class="v" id="gOff">–</span><span class="s" id="gSub"></span></div>
+        <div class="tile real"><span class="k">まとめ買いと比べた本当の割引</span><span class="v" id="rOff">–</span><span class="s" id="rSub"></span></div>
+        <div class="tile save"><span class="k">節約できるコイン</span><span class="v" id="save">–</span><span class="s" id="saveSub"></span></div>
+        <div class="tile"><span class="k">ボックスを金額で</span><span class="v" id="won">–</span><span class="s" id="wonSub"></span></div>
+      </div>
+      <div id="raids" style="display:grid;gap:10px"></div>
+      <div style="overflow-x:auto">
+        <table id="tbl"><thead><tr><th>アイテム</th><th>このボックスで1個あたり</th><th>通常価格1個あたり</th><th>過去最安</th></tr></thead><tbody></tbody></table>
+      </div>
+      <p class="note" id="zeroNote" hidden></p>
+      <p class="note">このボックスで1個あたり = ボックスの割引をアイテムの価値の比率で分けた値。通常価格1個あたり = ショップの単品・まとめ買いのうち最も安い値。過去最安 = 2023年4月（リモートレイドパス値上げ）以降のショップボックスで、ボックス価格 ÷ そのアイテムの個数が最も低かった値（ほかのアイテムはおまけ扱い）と、実際の画面キャプチャの日付。地域限定と思われるボックスは除いています。</p>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">ショップの「46% OFF」は<em>本当</em>？</h2>
+    <p>ショップで線を引いて表示される元の価格は、中身を<b>1個ずつ</b>買ったときの値段です。でもプレミアムバトルパスは3枚セットなら1枚83コインなので、まとめ買いと比べた本当の割引はもっと小さくなります。ボックスの価格と中身を入れるだけで、本当の割引率、レイド1回の値段、これまでで一番安かった時との比較がわかります。</p>
+    <p>通常価格は2026年10月10日に韓国のゲーム内ショップ・Web Storeの画面で直接確認しました。過去最安は日付の残っている実際の画面キャプチャとイベント記録だけを集めています。</p>
+    <div class="links">
+      <a href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1" target="_blank" rel="noopener"><svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><rect width="26" height="18" rx="5" fill="#FF0033"/><path d="M10.5 5v8l7-4z" fill="#fff"/></svg>YouTube（韓国語）</a>
+      <a href="https://blog.naver.com/shinypokemongo" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="5" fill="#03C75A"/><path d="M6 5h2.6l3 4.6V5H14v10h-2.6l-3-4.6V15H6z" fill="#fff"/></svg>ブログ（韓国語）</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="who">ポケモンGO <b>色違いコレクター</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>通常価格・コイン価格：ゲーム内ショップ・Pokémon GO Web Storeの画面（韓国、2026.10.10）。ショップのボックスはアカウント・日付・地域によって異なる場合があります。ハイパーボール・わざマシンのようにショップで単品販売されていないアイテムは0コインで計算します。任天堂・Nianticとは関係のないファン製ツールです。</div>
+  </footer>
+</div>
+
+<script>
+  const ITEMS = [
+    { k: "pass", ko: "プレミアムバトルパス", single: 100, b: [[3, 250]] },
+    { k: "remote", ko: "リモートレイドパス", single: 195, b: [[3, 525]] },
+    { k: "incubator", ko: "ふかそうち", single: 150, b: [] },
+    { k: "super", ko: "スーパーふかそうち", single: 200, b: [] },
+    { k: "luckyegg", ko: "しあわせタマゴ", single: 80, b: [[8, 500]] },
+    { k: "starpiece", ko: "ほしのかけら", single: 100, b: [[8, 640]] },
+    { k: "incense", ko: "おこう", single: 40, b: [[8, 250]] },
+    { k: "lure", ko: "ルアーモジュール", single: 100, b: [[8, 680]] },
+    { k: "lure_glacial", ko: "特殊ルアーモジュール", sub: "アイス・ハーブ・マグネット・レイニー", single: 180, b: [] },
+    { k: "mushroom", ko: "ダイキノコ", single: 400, b: [[3, 1000]] },
+    { k: "mppack", ko: "マックス粒子パック", single: 150, b: [[3, 425]] },
+    { k: "maxrevive", ko: "げんきのかたまり", single: 30, b: [], sub: "6個 180" },
+    { k: "maxpotion", ko: "まんたんのくすり", single: 20, b: [], sub: "10個 200" },
+    { k: "pokeball", ko: "モンスターボール", single: 5, b: [[100, 460], [200, 800]], sub: "20個 100" },
+    { k: "ultraball", ko: "ハイパーボール", single: 0, b: [] },
+    { k: "poffin", ko: "ポフィン", single: 100, b: [] },
+    { k: "radar", ko: "ロケットレーダー", single: 200, b: [] },
+    { k: "bagup", ko: "バッグ アップグレード", single: 200, b: [] },
+    { k: "boxup", ko: "ポケモンボックス アップグレード", single: 200, b: [] },
+    { k: "tm_fast", ko: "わざマシン ノーマル", single: 0, b: [] },
+    { k: "tm_charged", ko: "わざマシン スペシャル", single: 0, b: [] },
+    { k: "elite_fast", ko: "すごいわざマシン ノーマル", single: 0, b: [] },
+    { k: "elite_charged", ko: "すごいわざマシン スペシャル", single: 0, b: [] },
+  ];
+  const LOWEST = {
+    pass: { v: 54.8, when: "2024.4~2026.8" }, remote: { v: 150, when: "2023.5~2026.7" }, incubator: { v: 87.5, when: "2023.11" },
+    super: { v: 79.8, when: "2024.9~12" }, luckyegg: { v: 65, when: "2026.7" }, starpiece: { v: 75, when: "2023.6~2025.11" },
+    incense: { v: 65, when: "2024.3" }, lure: { v: 120, when: "2023.8" }, mushroom: { v: 325, when: "2026.7" },
+    mppack: { v: 275, when: "2026.8" }, maxrevive: { v: 43.3, when: "2023.8" }, maxpotion: { v: 43.3, when: "2023.8" },
+    pokeball: { v: 5, when: "2023.8" }, ultraball: { v: 5.5, when: "2024.4~8" }, poffin: { v: 75, when: "2023.6" },
+    radar: { v: 231.7, when: "2023.5" }, bagup: { v: 399, when: "2024.9~12" }, boxup: { v: 399, when: "2024.9~12" },
+    tm_fast: { v: 220, when: "2023.8~11" }, tm_charged: { v: 220, when: "2023.8~11" },
+    elite_fast: { v: 1075, when: "2024.8~2025.5" }, elite_charged: { v: 1075, when: "2024.8~2025.5" },
+  };
+  const SRC = [
+    ["Web Store 111,000ウォン → 15,500コイン", 111000 / 15500], ["Web Store 45,000ウォン → 5,600コイン", 45000 / 5600],
+    ["Web Store 22,000ウォン → 2,700コイン", 22000 / 2700], ["Web Store 11,000ウォン → 1,300コイン", 11000 / 1300],
+    ["Web Store 5,500ウォン → 600コイン", 5500 / 600], ["Web Store 1,100ウォン → 110コイン", 1100 / 110],
+    ["ゲーム内ショップ 111,000ウォン → 14,500コイン", 111000 / 14500], ["ゲーム内ショップ 45,000ウォン → 5,200コイン", 45000 / 5200],
+    ["ゲーム内ショップ 22,000ウォン → 2,500コイン", 22000 / 2500], ["ゲーム内ショップ 11,000ウォン → 1,200コイン", 11000 / 1200],
+    ["ゲーム内ショップ 5,500ウォン → 500コイン", 5500 / 500], ["ゲーム内ショップ 1,100ウォン → 100コイン", 1100 / 100],
+  ];
+  const PRESETS = {
+    outing: [2825, { pass: 40, starpiece: 5, incubator: 5 }],
+    hyper: [5425, { pass: 99, starpiece: 2, tm_fast: 2, tm_charged: 2 }],
+    remotebox: [500, { remote: 3, luckyegg: 1 }],
+    cday: [1350, { ultraball: 50, super: 5, elite_charged: 1, luckyegg: 5 }],
+  };
+  const BY = Object.fromEntries(ITEMS.map((it) => [it.k, it]));
+  const unit = (it) => it.single === 0 ? 0 : Math.min(it.single, ...it.b.map(([n, c]) => c / n));
+  const fmt = (v, d = 0) => v.toLocaleString("ja-JP", { maximumFractionDigits: d, minimumFractionDigits: d });
+  const cnt = {};
+  const $ = (id) => document.getElementById(id);
+
+  const pal = $("palette");
+  ITEMS.forEach((it) => {
+    const b = document.createElement("button");
+    b.className = "pick"; b.dataset.k = it.k; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `<img src="/shop/ic/${it.k}.webp" alt="">${it.ko}`;
+    b.onclick = () => { if (cnt[it.k]) delete cnt[it.k]; else cnt[it.k] = 1; draw(); if (cnt[it.k]) { const i = document.querySelector(`#rows [data-k="${it.k}"] input`); i && i.select(); } };
+    pal.appendChild(b);
+  });
+  SRC.forEach(([l], i) => { const o = document.createElement("option"); o.value = i; o.textContent = l; $("src").appendChild(o); });
+  let mode = "list";
+  const wpcNow = () => {
+    if (mode === "list") return SRC[+$("src").value][1];
+    const w = parseFloat($("cWon").value), c = parseFloat($("cCoin").value);
+    return w > 0 && c > 0 ? w / c : null;
+  };
+  const setMode = (m, focus) => {
+    mode = m;
+    document.querySelectorAll(".opt").forEach((b) => {
+      const on = b.dataset.mode === m;
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      b.querySelectorAll("select, input").forEach((x) => (x.disabled = !on));
+    });
+    try { localStorage.setItem("shopcalc-ja-mode", m); } catch (e) {}
+    if (focus && m === "custom") $("cWon").focus();
+    calc();
+  };
+  document.querySelectorAll(".opt").forEach((b) => {
+    b.addEventListener("click", () => { if (mode !== b.dataset.mode) setMode(b.dataset.mode, true); });
+    b.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target === b) { e.preventDefault(); setMode(b.dataset.mode, true); } });
+  });
+  document.querySelectorAll(".opt label, .opt select, .opt input").forEach((x) => x.addEventListener("click", (e) => e.stopPropagation()));
+  ["cWon", "cCoin"].forEach((id) => $(id).oninput = () => { try { localStorage.setItem("shopcalc-ja-" + id, $(id).value); } catch (e) {} calc(); });
+  try { ["cWon", "cCoin"].forEach((id) => { const v = localStorage.getItem("shopcalc-ja-" + id); if (v) $(id).value = v; }); } catch (e) {}
+  try { const s = localStorage.getItem("shopcalc-ja-src"); if (s && SRC[+s]) $("src").value = s; } catch (e) {}
+  $("src").onchange = () => { try { localStorage.setItem("shopcalc-ja-src", $("src").value); } catch (e) {} calc(); };
+  let startMode = "custom";
+  $("price").oninput = calc;
+  $("extra").onchange = calc;
+  document.querySelectorAll("[data-preset]").forEach((b) => b.onclick = () => {
+    for (const k in cnt) delete cnt[k];
+    if (b.dataset.preset === "clear") { $("price").value = ""; }
+    else { const [p, c] = PRESETS[b.dataset.preset]; $("price").value = p; Object.assign(cnt, c); }
+    draw();
+  });
+
+  function draw() {
+    pal.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", cnt[b.dataset.k] ? "true" : "false"));
+    const rows = $("rows"); rows.innerHTML = "";
+    const keys = ITEMS.map((i) => i.k).filter((k) => cnt[k]);
+    if (!keys.length) rows.innerHTML = '<div class="empty">上からボックスに入っているアイテムをタップしてください</div>';
+    keys.forEach((k) => {
+      const it = BY[k], r = document.createElement("div");
+      r.className = "row"; r.dataset.k = k;
+      r.innerHTML = `<img src="/shop/ic/${k}.webp" alt=""><div class="nm">${it.ko}<small>${it.single ? "通常 1個 " + fmt(unit(it), 1).replace(/\.0$/, "") + "コイン" : "単品販売なし · 0で計算"}</small></div>
+        <div class="step"><button aria-label="1つ減らす">−</button><input type="number" inputmode="numeric" min="1" value="${cnt[k]}" aria-label="${it.ko}の個数"><button aria-label="1つ増やす">+</button></div>
+        <button class="x" aria-label="${it.ko}を外す">×</button>`;
+      const [m, inp, p] = r.querySelectorAll(".step > *");
+      m.onclick = () => { cnt[k] = Math.max(1, (cnt[k] || 1) - 1); inp.value = cnt[k]; calc(); };
+      p.onclick = () => { cnt[k] = (cnt[k] || 0) + 1; inp.value = cnt[k]; calc(); };
+      inp.oninput = () => { const v = parseInt(inp.value, 10); if (v > 0) { cnt[k] = v; calc(); } };
+      r.querySelector(".x").onclick = () => { delete cnt[k]; draw(); };
+      rows.appendChild(r);
+    });
+    calc();
+  }
+
+  function calc() {
+    const price = parseFloat($("price").value);
+    const keys = ITEMS.map((i) => i.k).filter((k) => cnt[k]);
+    const out = $("out");
+    if (!(price > 0) || !keys.length) { out.hidden = true; return; }
+    out.hidden = false;
+    const wpc = wpcNow();
+    const isRaid = (k) => k === "pass" || k === "remote";
+    $("onlyWrap").hidden = !(keys.some(isRaid) && keys.some((k) => !isRaid(k)));
+    const only = !$("onlyWrap").hidden && !$("extra").checked;
+    const used = (k) => !only || isRaid(k);
+    let list = 0, bund = 0; const zeros = [];
+    keys.forEach((k) => { const it = BY[k]; list += cnt[k] * it.single; if (used(k)) bund += cnt[k] * unit(it); if (!it.single) zeros.push(it.ko); });
+    const gOff = list > 0 ? 1 - price / list : null, rOff = bund > 0 ? 1 - price / bund : null;
+    $("gOff").textContent = gOff == null ? "–" : fmt(gOff * 100) + "%";
+    $("gSub").textContent = list > 0 ? `単品の合計 ${fmt(list)}コイン` : "";
+    $("rOff").textContent = rOff == null ? "–" : fmt(rOff * 100) + "%";
+    $("rSub").textContent = bund > 0 ? `${only ? "レイドパスのみ · " : ""}まとめ買い合計 ${fmt(bund)}コイン` : "";
+    const save = bund - price;
+    $("save").textContent = (save >= 0 ? "" : "−") + fmt(Math.abs(save)) + "コイン";
+    $("save").style.color = save >= 0 ? "" : "var(--rose)";
+    $("saveSub").textContent = save >= 0 ? "まとめ買いで別々に買うより" : "まとめ買いで別々に買う方が安い";
+    $("won").textContent = wpc ? "約 " + fmt(price * wpc, wpc < 1 ? 2 : 0) : "–";
+    $("wonSub").textContent = wpc ? `1コイン ${fmt(wpc, 2)} で計算` : "払った金額ともらったコインを入力してください";
+
+    const RAID = { pass: ["レイド1回", "プレミアムバトルパス1枚"], remote: ["リモートレイド1回", "リモートレイドパス1枚"] };
+    const raids = $("raids"); raids.innerHTML = "";
+    ["pass", "remote"].filter((k) => cnt[k]).forEach((k) => {
+      const base = unit(BY[k]), rest = bund - cnt[k] * base, per = (price - rest) / cnt[k];
+      const d = document.createElement("div");
+      d.className = "raid" + (per >= base ? " bad" : "");
+      d.innerHTML = `<span class="k">${RAID[k][0]}（${RAID[k][1]}）</span>
+        <span class="v">${wpc ? `${fmt(per, 1)}コイン · 約 ${fmt(per * wpc, wpc < 1 ? 2 : 0)}` : `${fmt(per, 1)}コイン`}</span>
+        <span class="verdict">${per < base ? `3枚セット（1枚 ${fmt(base, 1)}コイン）より安い → お得` : `3枚セット（1枚 ${fmt(base, 1)}コイン）より高い → セットの方がお得`}</span>
+        <span class="s">${only ? "ほかのアイテムは0コイン（おまけ）として、レイドパスだけで計算しました。ほかも使うなら、上の「ほかのアイテムも価値に含める」にチェックしてください。" : rest > 0 ? `ほかのアイテムの価値（${fmt(rest)}コイン、まとめ買い基準）を引いて計算しました。チェックを外すとレイドパスだけで計算します。` : ""}</span>`;
+      raids.appendChild(d);
+    });
+
+    const tb = $("tbl").tBodies[0]; tb.innerHTML = "";
+    keys.forEach((k) => {
+      const it = BY[k], u = unit(it), here = bund > 0 && u > 0 && used(k) ? u * price / bund : null, lo = LOWEST[k];
+      const tr = document.createElement("tr");
+      const cls = here != null ? (here < u ? "good" : "bad") : "";
+      tr.innerHTML = `<td style="font-family:var(--body);font-weight:700">${it.ko} ×${fmt(cnt[k])}</td>
+        <td class="${cls}">${here == null ? "おまけ" : fmt(here, 1)}${lo && price / cnt[k] < lo.v - 0.05 ? "<span class=lo>過去最安より安い！</span>" : lo && Math.abs(price / cnt[k] - lo.v) <= 0.05 ? "<span class=lo>過去最安と同じ</span>" : ""}</td><td>${u > 0 ? fmt(u, 1) : "–"}</td>
+        <td>${lo ? fmt(lo.v, 1) + `<span class="lo">${lo.when}${u > 0 && lo.v >= u ? " · 通常価格の方が安い" : ""}</span>` : "–"}</td>`;
+      tb.appendChild(tr);
+    });
+    const zn = $("zeroNote");
+    zn.hidden = !zeros.length;
+    zn.textContent = zeros.length ? `${zeros.join(" · ")}：ショップで単品販売されていないので0コイン（おまけ）で計算しました。` : "";
+  }
+  setMode(startMode);
+  draw();
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

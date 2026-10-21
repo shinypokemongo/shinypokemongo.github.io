@@ -2,6 +2,8 @@
 # 사용: python _감싸기.py <원본 index.html> <폴더이름> ["<설명 한 줄>"]   ← 설명을 빼면 이미 올라가 있는 설명을 그대로 쓴다
 # 공유 미리보기(og) 이미지는 og/<폴더이름>.png — _og만들기.py가 만든다
 import sys, os, re
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _언어 import alternates, switcher
 SITE = 'https://shinypokemongo.github.io'
 # 방문 집계(GoatCounter, 쿠키 없음) — 통계는 https://shinypokemongo.goatcounter.com
 GC = '<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>'
@@ -12,14 +14,14 @@ if len(sys.argv) > 3:
 else:
     old = open(os.path.join(dest, 'index.html'), encoding='utf-8').read()
     desc = re.search(r'<meta name="description" content="([^"]*)"', old).group(1)
-src = open(src_path, encoding='utf-8').read()
+src = open(src_path, encoding='utf-8').read().replace('<!--lang-->', switcher('ko', folder))
 title = re.search(r'<title>(.*?)</title>', src).group(1)
 i = src.index('</style>') + len('</style>')
 url = f'{SITE}/{folder}/'
 head = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         f'<meta name="description" content="{desc}">\n'
-        f'<link rel="canonical" href="{url}">\n'
+        f'<link rel="canonical" href="{url}">\n' + alternates(folder, SITE) +
         '<meta property="og:type" content="website">\n<meta property="og:site_name" content="이로치수집가 도구함">\n<meta property="og:locale" content="ko_KR">\n'
         f'<meta property="og:title" content="{title}">\n<meta property="og:description" content="{desc}">\n<meta property="og:url" content="{url}">\n'
         f'<meta property="og:image" content="{SITE}/og/{folder}.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'

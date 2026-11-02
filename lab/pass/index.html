@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="무료·리모트·프리미엄 레이드 패스를 요일 칸에 놓고 그림으로 저장하는 이번 주 패스 계획표">
+<link rel="canonical" href="https://shinypokemongo.github.io/lab/pass/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 패스 플래너">
+<meta property="og:description" content="무료·리모트·프리미엄 레이드 패스를 요일 칸에 놓고 그림으로 저장하는 이번 주 패스 계획표">
+<meta property="og:url" content="https://shinypokemongo.github.io/lab/pass/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/lab/pass.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 패스 플래너</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 패스 카드를 요일 칸에 놓는 보드 — 데이터 없음, 사용자가 채우고 그림으로 저장(교환 리스트와 같은 방식) */
+  :root {
+    --ink: #0F1A14; --surface: #16261D; --surface-2: #1E3327; --line: #2E4A39;
+    --text: #EEF7F1; --dim: #A3BFAE; --faint: #6E8C7A;
+    --free: #FF9A3B; --remote: #5B9CFF; --prem: #C98BFF; --gold: #FFD43B;
+    --on-accent: #1B1F2A; --track: rgba(255,255,255,.06); --today: #3FD3A4;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F2F8F4; --surface: #FFFFFF; --surface-2: #E9F3EC; --line: #CFE0D5;
+      --text: #15271C; --dim: #4F6B59; --faint: #87A190;
+      --free: #E07A12; --remote: #2B6FE0; --prem: #8E44D6; --gold: #D4A100;
+      --on-accent: #FFFFFF; --track: rgba(30,80,50,.07); --today: #1FA87C;
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--remote); }
+  input, button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--gold); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--gold); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  .card { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .hint { font-size: 13px; color: var(--dim); margin: 0; }
+
+  /* 패스 트레이 */
+  .tray { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pass { display: grid; justify-items: center; gap: 6px; padding: 12px 8px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); text-align: center; }
+  .pass .pk { display: grid; justify-items: center; gap: 6px; width: 100%; padding: 4px 0; border: 0; background: none; cursor: pointer; border-radius: 10px; }
+  .pass img { width: 64px; height: 44px; object-fit: contain; }
+  .pass .pp { width: 64px; height: 44px; display: grid; place-items: center; border-radius: 10px; background: var(--prem); color: var(--on-accent); font-family: var(--display); font-weight: 900; font-size: 20px; }
+  .pass b { font-family: var(--display); font-weight: 800; font-size: 14px; }
+  .pass .cnt { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 14px; }
+  .pass .cnt button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+  .pass[data-on="true"] { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent); }
+  .pass.out { opacity: .45; }
+  .pick { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--track); color: var(--dim); }
+  .pick b { color: var(--gold); }
+
+  /* 요일 보드 */
+  .board { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .day { display: grid; grid-template-rows: auto 1fr auto; gap: 6px; min-height: 150px; padding: 8px 6px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); cursor: pointer; }
+  .day.today { border-color: var(--today); }
+  .day.can:hover { border-color: var(--gold); }
+  .day .dn { font-family: var(--display); font-weight: 900; font-size: 18px; text-align: center; }
+  .day.today .dn::after { content: "오늘"; display: block; font-size: 10px; color: var(--today); font-weight: 800; }
+  .day .slots { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; justify-content: center; }
+  .chip { width: 30px; height: 22px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; }
+  .chip img { width: 26px; height: 18px; object-fit: contain; }
+  .chip.prem { background: var(--prem); color: var(--on-accent); font-family: var(--display); font-weight: 900; font-size: 12px; }
+  .day input { width: 100%; padding: 5px 4px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 11px; text-align: center; }
+  .day input::placeholder { color: var(--faint); }
+
+  .sum { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sum span { padding: 6px 12px; border-radius: 999px; background: var(--track); font-size: 13px; font-weight: 700; }
+  .sum span b { font-family: var(--mono); margin-left: 4px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btns button { padding: 11px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 800; cursor: pointer; }
+  .btns button.main { background: var(--gold); color: var(--on-accent); border-color: var(--gold); }
+  .out { display: grid; gap: 8px; }
+  .out img { width: 100%; border-radius: 14px; border: 1px solid var(--line); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  footer { display: grid; gap: 8px; font-size: 13px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 18px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--dim); }
+  footer .who b { color: var(--gold); }
+  footer a { color: var(--dim); }
+  @media (max-width: 480px) { .day { min-height: 130px; } .day .dn { font-size: 16px; } .chip { width: 26px; height: 20px; } .chip img { width: 22px; height: 16px; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">패스</span></div>
+    <h1>패스 플래너</h1>
+  </header>
+
+  <section aria-labelledby="tray-h">
+    <h2 id="tray-h" class="vh">가진 패스</h2>
+    <div class="card">
+      <div class="tray" id="tray">
+        <div class="pass" data-k="free" data-on="false"><button type="button" class="pk" aria-label="무료 패스 들기"><img src="img/free.png" alt=""><b>무료 패스</b></button><span class="cnt">하루 1장</span></div>
+        <div class="pass" data-k="remote" data-on="false"><button type="button" class="pk" aria-label="리모트 패스 들기"><img src="img/remote.png" alt=""><b>리모트</b></button><span class="cnt"><button type="button" data-d="-1" aria-label="리모트 하나 빼기">−</button><span id="c-remote">2</span><button type="button" data-d="1" aria-label="리모트 하나 더하기">+</button></span></div>
+        <div class="pass" data-k="prem" data-on="false"><button type="button" class="pk" aria-label="프리미엄 패스 들기"><span class="pp">P</span><b>프리미엄</b></button><span class="cnt"><button type="button" data-d="-1" aria-label="프리미엄 하나 빼기">−</button><span id="c-prem">0</span><button type="button" data-d="1" aria-label="프리미엄 하나 더하기">+</button></span></div>
+      </div>
+      <div class="pick" id="pick">패스를 하나 고르고, 쓸 요일을 누르세요. 놓은 패스를 다시 누르면 빠져요.</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="board-h">
+    <h2 id="board-h">이번 주 어디에 쓸까</h2>
+    <div class="card">
+      <div class="board" id="board"></div>
+      <div class="sum" id="sum"></div>
+      <div class="btns">
+        <button type="button" class="main" id="save">그림으로 저장</button>
+        <button type="button" id="clear">전부 지우기</button>
+      </div>
+      <div class="out" id="out" hidden></div>
+      <p class="hint">계획은 이 기기 브라우저에만 저장돼요. 칸에 보스·이벤트 이름을 짧게 적어 두면 그림에 같이 나옵니다.</p>
+    </div>
+  </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1"><b>유튜브</b><span>이번 주 일정 영상</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo"><b>블로그</b><span>이달의 일정 한장정리</span></a>
+  </nav>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">패스는 몇 장 없으니 <em>어디에 쓸지</em> 먼저 정해요</h2>
+    <p class="lede">무료 패스는 하루 한 장, 리모트와 프리미엄은 사야 하죠. 이번 주 레이드 아워·전설 보스가 어느 요일인지 보고 카드를 미리 놓아 두면, 당일에 패스가 없어서 못 들어가는 일이 없어요. 다 놓으면 그림 한 장으로 저장해서 레이드 모임에 올리세요.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>무료 레이드 패스는 하루 1장(체육관에서 받음). 리모트·프리미엄 수는 직접 적어 주세요. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
+  const KIND = { free: { name: "무료", color: "#FF9A3B", img: "img/free.png" }, remote: { name: "리모트", color: "#5B9CFF", img: "img/remote.png" }, prem: { name: "프리미엄", color: "#C98BFF" } };
+  const $ = (id) => document.getElementById(id);
+  const KEY = "pass-planner-v1";
+  let S = { have: { remote: 2, prem: 0 }, days: DAYS.map(() => ({ memo: "", passes: [] })), pick: null };
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.days && s.days.length === 7) S = { ...S, ...s, pick: null }; } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ have: S.have, days: S.days })); } catch (e) {} };
+  const used = (k) => S.days.reduce((a, d) => a + d.passes.filter((p) => p === k).length, 0);
+  const todayIdx = (new Date().getDay() + 6) % 7;
+
+  function render() {
+    // 트레이
+    document.querySelectorAll(".pass").forEach((b) => {
+      const k = b.dataset.k;
+      b.dataset.on = String(S.pick === k);
+      b.querySelector(".pk").setAttribute("aria-pressed", String(S.pick === k));
+      const left = k === "free" ? 7 - used("free") : S.have[k] - used(k);
+      b.classList.toggle("out", left <= 0);
+      if (k !== "free") $("c-" + k).textContent = S.have[k];
+    });
+    $("pick").innerHTML = S.pick ? `<b>${KIND[S.pick].name}</b> 패스를 들고 있어요 — 쓸 요일을 누르세요.` : "패스를 하나 고르고, 쓸 요일을 누르세요. 놓은 패스를 다시 누르면 빠져요.";
+    // 보드
+    $("board").innerHTML = S.days.map((d, i) => `
+      <div class="day ${i === todayIdx ? "today" : ""} ${S.pick ? "can" : ""}" data-i="${i}">
+        <div class="dn">${DAYS[i]}</div>
+        <div class="slots">${d.passes.map((p, j) => p === "prem" ? `<span class="chip prem" data-j="${j}" title="빼기">P</span>` : `<span class="chip" data-j="${j}" title="빼기"><img src="${KIND[p].img}" alt="${KIND[p].name}"></span>`).join("")}</div>
+        <input type="text" maxlength="8" placeholder="메모" value="${d.memo.replace(/"/g, "&quot;")}" aria-label="${DAYS[i]}요일 메모">
+      </div>`).join("");
+    // 합계
+    $("sum").innerHTML = Object.keys(KIND).map((k) => `<span>${KIND[k].name}<b>${used(k)}${k === "free" ? "/7" : "/" + S.have[k]}</b></span>`).join("");
+  }
+
+  $("tray").addEventListener("click", (e) => {
+    const pm = e.target.closest("button[data-d]");
+    if (pm) { const k = pm.closest(".pass").dataset.k; S.have[k] = Math.max(0, Math.min(30, S.have[k] + +pm.dataset.d)); save(); render(); return; }
+    const pk = e.target.closest(".pk");
+    if (pk) { const k = pk.closest(".pass").dataset.k; S.pick = S.pick === k ? null : k; render(); }
+  });
+  $("board").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    const day = e.target.closest(".day");
+    if (!day) return;
+    const i = +day.dataset.i;
+    if (chip) { S.days[i].passes.splice(+chip.dataset.j, 1); save(); render(); return; }
+    if (e.target.tagName === "INPUT") return;
+    if (!S.pick) return;
+    const k = S.pick;
+    const left = k === "free" ? 7 - used("free") : S.have[k] - used(k);
+    if (left <= 0) { $("pick").innerHTML = `<b>${KIND[k].name}</b> 패스가 더 없어요. 위에서 수를 늘리거나 다른 칸에서 빼세요.`; return; }
+    if (k === "free" && S.days[i].passes.includes("free")) { $("pick").innerHTML = "무료 패스는 하루에 한 장만 받아요."; return; }
+    S.days[i].passes.push(k); save(); render();
+  });
+  $("board").addEventListener("input", (e) => { if (e.target.tagName === "INPUT") { S.days[+e.target.closest(".day").dataset.i].memo = e.target.value; save(); } });
+  $("clear").addEventListener("click", () => { S.days = DAYS.map(() => ({ memo: "", passes: [] })); S.pick = null; save(); render(); $("out").hidden = true; });
+
+  // 그림으로 저장 — 1080×1080 캔버스
+  const imgs = {};
+  const load = (src) => new Promise((ok) => { if (imgs[src]) return ok(imgs[src]); const im = new Image(); im.onload = () => { imgs[src] = im; ok(im); }; im.onerror = () => ok(null); im.src = src; });
+  async function draw() {
+    const W = 1080, H = 1080, c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d");
+    const grad = g.createLinearGradient(0, 0, 0, H); grad.addColorStop(0, "#1E3327"); grad.addColorStop(1, "#0F1A14");
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#FFD43B"; g.font = "900 64px 'Gothic A1', sans-serif"; g.textAlign = "center"; g.fillText("이번 주 패스 계획", W / 2, 110);
+    g.fillStyle = "#A3BFAE"; g.font = "700 26px 'IBM Plex Sans KR', sans-serif";
+    const d = new Date(); g.fillText(`${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} 기준`, W / 2, 156);
+    const free = await load(KIND.free.img), remote = await load(KIND.remote.img);
+    const colW = 140, x0 = (W - colW * 7 - 6 * 8) / 2, top = 220, colH = 640;
+    S.days.forEach((day, i) => {
+      const x = x0 + i * (colW + 8);
+      g.fillStyle = i === todayIdx ? "#24503A" : "#1E3327"; roundRect(g, x, top, colW, colH, 20); g.fill();
+      g.strokeStyle = i === todayIdx ? "#3FD3A4" : "#2E4A39"; g.lineWidth = 4; roundRect(g, x, top, colW, colH, 20); g.stroke();
+      g.fillStyle = "#EEF7F1"; g.font = "900 40px 'Gothic A1', sans-serif"; g.fillText(DAYS[i], x + colW / 2, top + 62);
+      day.passes.forEach((p, j) => {
+        const py = top + 100 + j * 70;
+        if (p === "prem") { g.fillStyle = "#C98BFF"; roundRect(g, x + 30, py, 80, 54, 12); g.fill(); g.fillStyle = "#1B1F2A"; g.font = "900 30px 'Gothic A1', sans-serif"; g.fillText("P", x + colW / 2, py + 39); }
+        else { const im = p === "free" ? free : remote; if (im) g.drawImage(im, x + 26, py, 88, 60); }
+      });
+      if (day.memo) { g.fillStyle = "#FFD43B"; g.font = "800 22px 'IBM Plex Sans KR', sans-serif"; wrapText(g, day.memo, x + colW / 2, top + colH - 40, colW - 16, 26); }
+    });
+    g.fillStyle = "#A3BFAE"; g.font = "700 24px 'IBM Plex Sans KR', sans-serif";
+    g.fillText(`무료 ${used("free")}장 · 리모트 ${used("remote")}장 · 프리미엄 ${used("prem")}장`, W / 2, 930);
+    g.fillStyle = "#6E8C7A"; g.font = "700 22px 'IBM Plex Sans KR', sans-serif"; g.fillText("포켓몬고 이로치 수집가 · shinypokemongo.github.io", W / 2, 1020);
+    return c;
+  }
+  function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function wrapText(g, t, cx, y, maxW, lh) { const lines = []; let cur = ""; for (const ch of t) { if (g.measureText(cur + ch).width > maxW) { lines.push(cur); cur = ch; } else cur += ch; } lines.push(cur); lines.slice(-2).forEach((l, i) => g.fillText(l, cx, y + i * lh)); }
+  $("save").addEventListener("click", async () => {
+    const c = await draw();
+    const url = c.toDataURL("image/png");
+    $("out").hidden = false;
+    $("out").innerHTML = `<img src="${url}" alt="이번 주 패스 계획"><a download="패스계획.png" href="${url}">그림 내려받기</a>`;
+  });
+  render();
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

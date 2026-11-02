@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="첫 포획·첫 포켓스톱·파트너 열매처럼 매일 하는 것만 체크하고 연속 일수를 세는 오늘의 퀘스트">
+<link rel="canonical" href="https://shinypokemongo.github.io/lab/quest/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 오늘의 퀘스트">
+<meta property="og:description" content="첫 포획·첫 포켓스톱·파트너 열매처럼 매일 하는 것만 체크하고 연속 일수를 세는 오늘의 퀘스트">
+<meta property="og:url" content="https://shinypokemongo.github.io/lab/quest/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/lab/quest.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 오늘의 퀘스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* RPG 퀘스트 창 — 매일 같은 할 일만(고정), 자정에 새로, 연속 일수. 데이터 없음 */
+  :root {
+    --ink: #14122A; --surface: #1E1B3C; --surface-2: #28244F; --line: #3C3772;
+    --text: #F3F1FF; --dim: #ABA6D6; --faint: #726DA8;
+    --ok: #3FD3A4; --gold: #FFD43B; --accent: #8E7BFF;
+    --on-accent: #1B1F2A; --track: rgba(255,255,255,.06);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F5F3FF; --surface: #FFFFFF; --surface-2: #EEEBFF; --line: #D8D3F3;
+      --text: #1B1838; --dim: #5B5685; --faint: #918CB8;
+      --ok: #1FA87C; --gold: #D4A100; --accent: #5B45E0;
+      --on-accent: #FFFFFF; --track: rgba(60,50,130,.07);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--accent); }
+  input, button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--gold); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--gold); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  .card { display: grid; gap: 16px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .hint { font-size: 13px; color: var(--dim); margin: 0; }
+
+  .top { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; }
+  .ring { position: relative; width: 150px; height: 150px; }
+  .ring svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+  .ring .n { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 40px; font-variant-numeric: tabular-nums; }
+  .ring .n small { font-size: 18px; color: var(--dim); }
+  .stat { display: grid; gap: 8px; }
+  .stat .d { font-family: var(--display); font-weight: 800; font-size: 15px; color: var(--dim); }
+  .stat .streak { font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.1; }
+  .stat .streak b { color: var(--gold); }
+  .stat .m { font-size: 14px; color: var(--dim); }
+
+  .quests { display: grid; gap: 8px; }
+  .q { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface-2); cursor: pointer; text-align: left; }
+  .q .box { width: 40px; height: 40px; border-radius: 10px; border: 3px solid var(--faint); display: grid; place-items: center; background: transparent; }
+  .q .box svg { width: 26px; height: 26px; }
+  .q .box path { stroke: #fff; stroke-width: 6; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+  .q .t b { display: block; font-family: var(--display); font-weight: 800; font-size: 16px; }
+  .q .t span { font-size: 13px; color: var(--dim); }
+  .q[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ok) 60%, transparent); background: color-mix(in srgb, var(--ok) 12%, var(--surface-2)); }
+  .q[aria-pressed="true"] .box { background: var(--ok); border-color: var(--ok); }
+  .q[aria-pressed="true"] .box path { stroke-dashoffset: 0; transition: stroke-dashoffset .35s ease-out; }
+  .q[aria-pressed="true"] .t b { color: var(--dim); text-decoration: line-through; }
+  .done { padding: 12px 16px; border-radius: 14px; border: 3px solid var(--gold); color: var(--gold); font-family: var(--display); font-weight: 900; font-size: 24px; text-align: center; transform: rotate(-2deg); }
+
+  details { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  details summary { padding: 12px 16px; font-weight: 800; cursor: pointer; }
+  .opts { display: grid; gap: 8px; padding: 0 16px 16px; }
+  .opts label { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .opts input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .hist { display: flex; gap: 6px; }
+  .hist i { flex: 1; height: 26px; border-radius: 6px; background: var(--track); display: grid; place-items: center; font-style: normal; font-size: 11px; color: var(--faint); }
+  .hist i.ok { background: var(--ok); color: var(--on-accent); font-weight: 800; }
+  .hist i.part { background: color-mix(in srgb, var(--ok) 35%, var(--track)); color: var(--text); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  footer { display: grid; gap: 8px; font-size: 13px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 18px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--dim); }
+  footer .who b { color: var(--gold); }
+  footer a { color: var(--dim); }
+  @media (max-width: 420px) { .top { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">퀘스트</span></div>
+    <h1>오늘의 퀘스트</h1>
+  </header>
+
+  <section aria-labelledby="q-h">
+    <h2 id="q-h" class="vh">오늘 할 일</h2>
+    <div class="card">
+      <div class="top">
+        <div class="ring">
+          <svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="62" fill="none" stroke="var(--track)" stroke-width="14"/><circle id="arc" cx="75" cy="75" r="62" fill="none" stroke="var(--ok)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 390"/></svg>
+          <div class="n" id="ringn"></div>
+        </div>
+        <div class="stat">
+          <div class="d" id="today"></div>
+          <div class="streak" id="streak"></div>
+          <div class="m" id="msg"></div>
+        </div>
+      </div>
+      <div class="quests" id="quests"></div>
+      <div class="done" id="done" hidden>오늘 할 일 완료!</div>
+      <div class="hist" id="hist" aria-label="최근 7일"></div>
+      <p class="hint">체크는 이 기기 브라우저에만 저장되고, 자정이 지나면 새 날로 시작해요. 연속 일수는 그날 할 일을 전부 마친 날이 이어진 수예요.</p>
+    </div>
+  </section>
+
+  <details>
+    <summary>어떤 걸 매일 할지 고르기</summary>
+    <div class="opts" id="opts"></div>
+  </details>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1"><b>유튜브</b><span>이번 주 일정 영상</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo"><b>블로그</b><span>이달의 일정 한장정리</span></a>
+  </nav>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">매일 <em>하는 것만</em> 체크하면 연속 일수가 쌓여요</h2>
+    <p class="lede">첫 포획과 첫 포켓스톱은 하루에 한 번 보너스가 붙고, 7일을 이으면 더 큰 보너스가 와요. 파트너 열매·레이드·배틀리그처럼 매일 반복하는 것만 모아 둔 체크리스트예요. 이벤트 할 일은 여기 없어요. 그건 주간 일정 영상에서.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>첫 포획·첫 포켓스톱의 하루 보너스와 7일 연속 보너스는 게임 규칙 그대로이고, 나머지 항목은 매일 할 만한 것을 골라 둔 것이라 자유롭게 켜고 끄세요. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  const QUESTS = [
+    { id: "catch", name: "첫 포켓몬 잡기", sub: "하루 보너스 · 7일 연속이면 더 크게", on: true },
+    { id: "spin", name: "첫 포켓스톱 돌리기", sub: "하루 보너스 · 7일 연속이면 더 크게", on: true },
+    { id: "buddy", name: "파트너에게 열매 주기", sub: "하트 쌓기", on: true },
+    { id: "raid", name: "레이드 1판", sub: "무료 패스 쓰기", on: true },
+    { id: "gbl", name: "배틀리그 1세트", sub: "보상 받기", on: false },
+    { id: "gift", name: "선물 보내기", sub: "친구 레벨 올리기", on: true },
+    { id: "egg", name: "부화 장치 채우기", sub: "빈 장치 없게", on: false },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const KEY = "daily-quest-v1";
+  const dkey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  let S = { on: Object.fromEntries(QUESTS.map((q) => [q.id, q.on])), days: {} };
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.on && s.days) S = s; } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+  const active = () => QUESTS.filter((q) => S.on[q.id]);
+  const today = () => dkey(new Date());
+  const doneOf = (k) => S.days[k] || {};
+  const fullDay = (k) => { const d = doneOf(k); const a = active(); return a.length > 0 && a.every((q) => d[q.id]); };
+  function streak() {
+    // 오늘 다 했으면 오늘부터, 아니면 어제부터 거꾸로 센다
+    let n = 0; const d = new Date();
+    if (!fullDay(dkey(d))) d.setDate(d.getDate() - 1);
+    while (fullDay(dkey(d))) { n++; d.setDate(d.getDate() - 1); if (n > 999) break; }
+    return n;
+  }
+  function render() {
+    const k = today(), d = doneOf(k), a = active();
+    const done = a.filter((q) => d[q.id]).length;
+    const now = new Date();
+    $("today").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${["일", "월", "화", "수", "목", "금", "토"][now.getDay()]}요일`;
+    $("ringn").innerHTML = `<span>${done}<small>/${a.length}</small></span>`;
+    $("arc").setAttribute("stroke-dasharray", `${(a.length ? done / a.length : 0) * 390} 390`);
+    const s = streak();
+    $("streak").innerHTML = s ? `<b>${s}일</b> 연속` : "연속 <b>0일</b>";
+    $("msg").textContent = done === a.length && a.length ? "오늘 몫은 끝! 내일도 이어 가요." : done ? `${a.length - done}개 남았어요.` : "하나씩 눌러서 체크하세요.";
+    $("quests").innerHTML = a.map((q) => `<button type="button" class="q" data-id="${q.id}" aria-pressed="${!!d[q.id]}"><span class="box"><svg viewBox="0 0 48 48"><path d="M8 26 L20 38 L40 12"/></svg></span><span class="t"><b>${q.name}</b><span>${q.sub}</span></span></button>`).join("");
+    $("done").hidden = !(done === a.length && a.length);
+    // 최근 7일
+    let h = "";
+    for (let i = 6; i >= 0; i--) { const t = new Date(); t.setDate(t.getDate() - i); const kk = dkey(t); const dd = doneOf(kk); const c = a.filter((q) => dd[q.id]).length; h += `<i class="${fullDay(kk) ? "ok" : c ? "part" : ""}" title="${kk}">${t.getDate()}</i>`; }
+    $("hist").innerHTML = h;
+    $("opts").innerHTML = QUESTS.map((q) => `<label><input type="checkbox" data-id="${q.id}" ${S.on[q.id] ? "checked" : ""}>${q.name} <span style="color:var(--dim)">· ${q.sub}</span></label>`).join("");
+  }
+  $("quests").addEventListener("click", (e) => { const b = e.target.closest(".q"); if (!b) return; const k = today(); S.days[k] = S.days[k] || {}; S.days[k][b.dataset.id] = !S.days[k][b.dataset.id]; save(); render(); });
+  $("opts").addEventListener("change", (e) => { if (e.target.dataset.id) { S.on[e.target.dataset.id] = e.target.checked; save(); render(); } });
+  // 오래된 날짜는 60일까지만 둔다
+  Object.keys(S.days).forEach((k) => { if ((Date.now() - new Date(k)) / 86400000 > 60) delete S.days[k]; });
+  render();
+  setInterval(() => { if (dkey(new Date()) !== $("hist").lastChild?.title) render(); }, 30000);
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

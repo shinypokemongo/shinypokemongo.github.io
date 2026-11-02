@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="스포트라이트 아워·레이드 아워·하루 리셋까지 남은 시간을 해가 도는 시계로 — 기기 시간 기준">
+<link rel="canonical" href="https://shinypokemongo.github.io/lab/clock/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 지금 뭐 할 시간?">
+<meta property="og:description" content="스포트라이트 아워·레이드 아워·하루 리셋까지 남은 시간을 해가 도는 시계로 — 기기 시간 기준">
+<meta property="og:url" content="https://shinypokemongo.github.io/lab/clock/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/lab/clock.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 지금 뭐 할 시간?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 하루가 도는 시계 — 매주 고정인 창(스포트라이트·레이드 아워·일일 리셋)만 올린다. 이벤트 시간은 넣지 않는다(갱신 안 하는 도구) */
+  :root {
+    --ink: #0F1430; --surface: #181E3F; --surface-2: #212857; --line: #343C78;
+    --text: #F1F3FF; --dim: #A6ACD8; --faint: #6C73A8;
+    --sun: #FFD34D; --sun-deep: #3D3212; --moon: #C7D3FF; --spot: #FF6B9A; --raid: #FFB43B; --reset: #6BD6FF;
+    --on-accent: #1B1F2A; --track: rgba(255,255,255,.06); --sky-day: #6CC0F2; --sky-night: #0A1238;
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F4F6FF; --surface: #FFFFFF; --surface-2: #EEF1FF; --line: #D5DAF2;
+      --text: #171C3A; --dim: #5A608A; --faint: #8F95BE;
+      --sun: #E0A100; --sun-deep: #FFF2C4; --moon: #4A5AA8; --spot: #D8445E; --raid: #D98A00; --reset: #1279B8;
+      --on-accent: #FFFFFF; --track: rgba(40,50,120,.07);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--reset); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--sun); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--sun); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+  .card { display: grid; gap: 18px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+
+  /* 지금 상태 */
+  .now { display: grid; gap: 6px; padding: 16px 18px; border-radius: 14px; background: var(--track); }
+  .now .k { font-size: 13px; font-weight: 700; color: var(--dim); }
+  .now .n { font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6.5vw, 34px); line-height: 1.15; letter-spacing: -.02em; }
+  .now .n b { color: var(--sun); }
+  .now.on { background: var(--sun-deep); }
+  .now.on .n b { color: var(--spot); }
+  .now .t { font-family: var(--mono); font-size: 15px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  /* 다이얼 */
+  .dialwrap { display: grid; justify-items: center; gap: 8px; }
+  svg.dial { width: min(100%, 420px); height: auto; display: block; }
+  .clock { font-family: var(--mono); font-size: 15px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .clock b { color: var(--text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--dim); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  /* 창 목록 */
+  .rows { display: grid; gap: 8px; }
+  .row { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); font-size: 15px; }
+  .row .d { font-family: var(--display); font-weight: 900; font-size: 18px; text-align: center; padding: 6px 0; border-radius: 10px; background: var(--track); }
+  .row .w b { display: block; font-family: var(--display); font-weight: 800; }
+  .row .w span { font-size: 13px; color: var(--dim); }
+  .row .t { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .row.live { border-color: var(--spot); box-shadow: 0 0 0 3px color-mix(in srgb, var(--spot) 25%, transparent); }
+  .row.live .d { background: var(--spot); color: var(--on-accent); }
+  .row.next .d { background: var(--sun); color: var(--on-accent); }
+  .tip { font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--track); color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  footer { display: grid; gap: 8px; font-size: 13px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 18px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--dim); }
+  footer .who b { color: var(--sun); }
+  footer a { color: var(--dim); }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">시간</span></div>
+    <h1>지금 뭐 할 시간?</h1>
+  </header>
+
+  <section aria-labelledby="now-h">
+    <h2 id="now-h" class="vh">지금</h2>
+    <div class="card">
+      <div class="now" id="now"><div class="k">지금</div><div class="n">…</div><div class="t"></div></div>
+      <div class="dialwrap">
+        <svg class="dial" viewBox="0 0 460 460" aria-hidden="true" id="dial"></svg>
+        <div class="clock" id="clock"></div>
+        <div class="legend"><span><i style="background:var(--spot)"></i>스포트라이트 아워</span><span><i style="background:var(--raid)"></i>레이드 아워</span><span><i style="background:var(--reset)"></i>하루 리셋</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="list-h">
+    <h2 id="list-h">매주 똑같은 창</h2>
+    <div class="rows" id="rows"></div>
+    <p class="tip">커뮤니티 데이·이벤트처럼 그때그때 다른 시간은 여기 없어요. 그건 주간 일정 영상에서 확인하세요.</p>
+  </section>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1"><b>유튜브</b><span>이번 주 일정 영상</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo"><b>블로그</b><span>이달의 일정 한장정리</span></a>
+  </nav>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">화요일 18시, 수요일 18시 — <em>해가 창에 들어가면</em> 그때예요</h2>
+    <p class="lede">스포트라이트 아워와 레이드 아워는 매주 같은 시간에 열려요. 시계의 해가 색칠된 창에 들어가면 지금이 그 시간이고, 아니면 다음 창까지 얼마나 남았는지 보여 줘요. 기기 시계를 그대로 써서 어느 나라에서 열어도 그 동네 시간으로 맞습니다.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>스포트라이트 아워 매주 화요일 18:00~19:00, 레이드 아워 매주 수요일 18:00~19:00, 일일 보너스(첫 포획·첫 포켓스톱)와 포켓코인 하루 한도는 자정에 새로 시작 — 모두 기기 현지 시간 기준. 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  // 매주 고정 창: dow 0=일 … 6=토. 시작·끝은 현지 시각(시)
+  const WINDOWS = [
+    { dow: 2, from: 18, to: 19, name: "스포트라이트 아워", sub: "한 종류가 잔뜩, 보너스 하나", color: "var(--spot)" },
+    { dow: 3, from: 18, to: 19, name: "레이드 아워", sub: "체육관 곳곳에 그 주 보스", color: "var(--raid)" },
+  ];
+  const RESET = { name: "하루 리셋", sub: "첫 포획·첫 포켓스톱 보너스, 포켓코인 한도", color: "var(--reset)" };
+  const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, "0");
+
+  // ---- 다이얼 (한 번 그리고 바늘만 움직인다)
+  const CX = 230, CY = 230, R = 160;
+  const ang = (h) => (h / 24) * Math.PI * 2 + Math.PI / 2;      // 0시 아래, 12시 위
+  const pt = (r, h) => [CX + Math.cos(ang(h)) * r, CY + Math.sin(ang(h)) * r];
+  const sector = (h1, h2, r0, r1) => {
+    const [ax, ay] = pt(r1, h1), [bx, by] = pt(r1, h2), [cx, cy] = pt(r0, h2), [dx, dy] = pt(r0, h1);
+    return `M${ax},${ay} A${r1},${r1} 0 0 1 ${bx},${by} L${cx},${cy} A${r0},${r0} 0 0 0 ${dx},${dy} Z`;
+  };
+  function drawDial(now) {
+    const dow = now.getDay();
+    let s = `<circle cx="${CX}" cy="${CY}" r="${R + 22}" fill="var(--surface-2)"/>`;
+    s += `<circle cx="${CX}" cy="${CY}" r="${R - 46}" fill="var(--track)"/>`;
+    // 18~19시 창: 오늘이 화·수면 그 색, 아니면 둘 다 흐리게 반반
+    const todays = WINDOWS.filter((w) => w.dow === dow);
+    if (todays.length) s += `<path d="${sector(todays[0].from, todays[0].to, R - 40, R + 2)}" fill="${todays[0].color}"/>`;
+    else WINDOWS.forEach((w, i) => { s += `<path d="${sector(w.from + i * 0.5, w.from + 0.5 + i * 0.5, R - 40, R + 2)}" fill="${w.color}" opacity=".35"/>`; });
+    // 하루 리셋 눈금(0시)
+    const [rx, ry] = pt(R - 40, 24), [rx2, ry2] = pt(R + 2, 24);
+    s += `<line x1="${rx}" y1="${ry}" x2="${rx2}" y2="${ry2}" stroke="var(--reset)" stroke-width="6" stroke-linecap="round"/>`;
+    for (let h = 0; h < 24; h++) {
+      const big = h % 6 === 0, [x1, y1] = pt(R + 2, h), [x2, y2] = pt(R - (big ? 16 : 8), h);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--text)" stroke-width="${big ? 3 : 1.5}" opacity="${big ? .9 : .4}"/>`;
+    }
+    [[6, "6시"], [12, "12시"], [18, "18시"], [24, "0시"]].forEach(([h, t]) => { const [x, y] = pt(R + 44, h); s += `<text x="${x}" y="${y + 5}" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="800" font-family="var(--display)">${t}</text>`; });
+    s += `<g id="hand"></g>`;
+    $("dial").innerHTML = s;
+  }
+  function moveHand(now) {
+    const h = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    const [tx, ty] = pt(R - 62, h);
+    const night = h < 6 || h >= 18;
+    let g = `<line x1="${CX}" y1="${CY}" x2="${tx}" y2="${ty}" stroke="var(--text)" stroke-width="5" stroke-linecap="round" opacity=".9"/><circle cx="${CX}" cy="${CY}" r="8" fill="var(--text)"/>`;
+    if (night) g += `<path transform="translate(${tx - 16},${ty - 16})" d="M20 3 A13 13 0 1 0 29 22 A10 10 0 1 1 20 3 Z" fill="var(--moon)"/>`;
+    else {
+      g += `<circle cx="${tx}" cy="${ty}" r="11" fill="var(--sun)"/>`;
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2; g += `<line x1="${tx + Math.cos(a) * 15}" y1="${ty + Math.sin(a) * 15}" x2="${tx + Math.cos(a) * 21}" y2="${ty + Math.sin(a) * 21}" stroke="var(--sun)" stroke-width="3" stroke-linecap="round"/>`; }
+    }
+    $("hand").innerHTML = g;
+  }
+
+  // ---- 지금 / 다음
+  function nextOf(now) {
+    // 창 안이면 그 창과 남은 시간, 아니면 가장 가까운 다음 창
+    const dow = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    for (const w of WINDOWS) if (w.dow === dow && h >= w.from && h < w.to) {
+      const end = new Date(now); end.setHours(w.to, 0, 0, 0);
+      return { live: true, w, ms: end - now };
+    }
+    let best = null;
+    for (const w of WINDOWS) {
+      const d = new Date(now); d.setHours(w.from, 0, 0, 0);
+      let diff = (w.dow - dow + 7) % 7; if (diff === 0 && d <= now) diff = 7;
+      d.setDate(d.getDate() + diff);
+      if (!best || d < best.at) best = { live: false, w, at: d, ms: d - now };
+    }
+    return best;
+  }
+  const left = (ms) => {
+    const m = Math.ceil(ms / 60000), d = Math.floor(m / 1440), hh = Math.floor((m % 1440) / 60), mm = m % 60;
+    return (d ? `${d}일 ` : "") + (hh ? `${hh}시간 ` : "") + `${mm}분`;
+  };
+  function render() {
+    const now = new Date();
+    const n = nextOf(now);
+    const box = $("now");
+    box.classList.toggle("on", n.live);
+    box.querySelector(".k").textContent = n.live ? "지금" : "다음 창";
+    box.querySelector(".n").innerHTML = n.live ? `<b>${n.w.name}</b> 열려 있어요!` : `${DAYS[n.w.dow]}요일 ${pad(n.w.from)}:00 <b>${n.w.name}</b>`;
+    box.querySelector(".t").textContent = n.live ? `끝까지 ${left(n.ms)}` : `${left(n.ms)} 뒤`;
+    $("clock").innerHTML = `지금 <b>${DAYS[now.getDay()]}요일 ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</b>`;
+    moveHand(now);
+    // 목록
+    let rows = "";
+    WINDOWS.forEach((w) => {
+      const cls = n.w === w ? (n.live ? "live" : "next") : "";
+      rows += `<div class="row ${cls}"><div class="d">${DAYS[w.dow]}</div><div class="w"><b>${w.name}</b><span>${w.sub}</span></div><div class="t">${pad(w.from)}:00~${pad(w.to)}:00</div></div>`;
+    });
+    rows += `<div class="row"><div class="d">매일</div><div class="w"><b>${RESET.name}</b><span>${RESET.sub}</span></div><div class="t">00:00</div></div>`;
+    $("rows").innerHTML = rows;
+  }
+  let lastDow = -1;
+  function tick() {
+    const now = new Date();
+    if (now.getDay() !== lastDow) { drawDial(now); lastDow = now.getDay(); }
+    render();
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="지금 받을 수 있는 필드리서치 과제와 보상 포켓몬을 한국어로 — 이벤트 과제는 맨 위에, Leek Duck 자료를 열 때마다 새로 받음">
+<link rel="canonical" href="https://shinypokemongo.github.io/lab/research/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="이로치수집가 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="이로치수집가 지금 필드리서치">
+<meta property="og:description" content="지금 받을 수 있는 필드리서치 과제와 보상 포켓몬을 한국어로 — 이벤트 과제는 맨 위에, Leek Duck 자료를 열 때마다 새로 받음">
+<meta property="og:url" content="https://shinypokemongo.github.io/lab/research/">
+<meta property="og:image" content="https://shinypokemongo.github.io/og/lab/research.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>이로치수집가 지금 필드리서치</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+  /* 지금 필드리서치 — 과제 카드(파랑) → 보상(노랑). 자료는 열 때마다 Leek Duck(ScrapedDuck)에서 받는다 */
+  :root {
+    --ink: #0F1A2A; --surface: #172538; --surface-2: #1F3048; --line: #2E4460;
+    --text: #F1F5FB; --dim: #A9B8CC; --faint: #6F809A;
+    --task: #3FC7E0; --task-deep: #123A49; --reward: #FFC94D; --reward-deep: #3D2E0C; --event: #FF9A3B;
+    --on-accent: #0F1A2A; --track: rgba(255,255,255,.06);
+    --display: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", "IBM Plex Sans KR", "Malgun Gothic", monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ink: #F3F6FB; --surface: #FFFFFF; --surface-2: #EAF0F8; --line: #D3DCE8;
+      --text: #15202E; --dim: #55667C; --faint: #8D9BB0;
+      --task: #1EA6C6; --task-deep: #DDF4F9; --reward: #D9A100; --reward-deep: #FFF3C4; --event: #E07A12;
+      --on-accent: #FFFFFF; --track: rgba(30,60,100,.07);
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.6; word-break: keep-all; }
+  .wrap { max-width: 720px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 60px; display: grid; gap: 40px; }
+  a { color: var(--task); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--reward); outline-offset: 2px; }
+  header { display: grid; gap: 2px; }
+  header + section { margin-top: -26px; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: var(--dim); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .brand .home { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; }
+  .brand .home::before { content: "\2039"; font-size: 15px; line-height: 1; margin-top: -2px; }
+  .brand .here { color: var(--faint); }
+  .brand b { color: var(--reward); }
+  .brand a { color: inherit; text-decoration: none; }
+  h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(24px, 6vw, 30px); line-height: 1.2; letter-spacing: -.03em; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .about { display: grid; gap: 10px; }
+  .about h2 { font-weight: 900; font-size: clamp(24px, 6vw, 32px); line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
+  .about h2 em { font-style: normal; color: var(--reward); }
+  .lede { margin: 0; color: var(--dim); max-width: 60ch; }
+
+  .status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; color: var(--dim); }
+  .status b { color: var(--text); }
+  .status .src { padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filters button { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 700; color: var(--dim); cursor: pointer; }
+  .filters button[aria-pressed="true"] { border-color: var(--reward); color: var(--reward); background: var(--reward-deep); }
+  .filters button b { font-family: var(--mono); margin-left: 4px; }
+
+  .group { display: grid; gap: 10px; }
+  .group h2 { display: flex; align-items: center; gap: 10px; }
+  .group h2 small { font-size: 13px; font-weight: 700; color: var(--dim); }
+  .group.event h2 { color: var(--event); }
+  .card { display: grid; grid-template-columns: minmax(0, 1fr); border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+  .card.event { border-color: var(--event); box-shadow: 0 0 0 3px color-mix(in srgb, var(--event) 22%, transparent); }
+  .card .task { display: grid; gap: 4px; padding: 14px 16px; background: var(--task-deep); border-bottom: 1px solid var(--line); }
+  .card .task .k { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: var(--task); }
+  .card .task .t { font-family: var(--display); font-weight: 900; font-size: 20px; line-height: 1.25; }
+  .card .task .en { font-size: 12px; color: var(--faint); }
+  .card .rw { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 12px 14px; background: var(--reward-deep); }
+  .mon { display: grid; grid-template-columns: 56px 1fr; gap: 8px; align-items: center; min-width: 150px; flex: 1 1 150px; padding: 8px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .mon img { width: 56px; height: 56px; object-fit: contain; }
+  .mon .nm { font-family: var(--display); font-weight: 800; font-size: 15px; line-height: 1.2; }
+  .mon .cp { font-size: 12px; color: var(--dim); font-family: var(--mono); }
+  .mon .cp b { color: var(--reward); }
+  .mon.item .nm { font-weight: 700; }
+  .empty, .err { padding: 18px; border-radius: 14px; background: var(--surface); border: 1px dashed var(--line); color: var(--dim); font-size: 14px; }
+  .skel { height: 120px; border-radius: 18px; background: linear-gradient(90deg, var(--surface), var(--surface-2), var(--surface)); background-size: 200% 100%; animation: sh 1.2s infinite; }
+  @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .tip { font-size: 13px; padding: 10px 12px; border-radius: 10px; background: var(--track); color: var(--dim); }
+
+  .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
+  .go a b { font-family: var(--display); font-weight: 800; }
+  .go a span { font-size: 13px; color: var(--dim); }
+  .go a.yt b::before { content: "▶ "; color: #FF5A5A; }
+  .go a.bl b::before { content: "▤ "; color: #4CD37A; }
+  footer { display: grid; gap: 8px; font-size: 13px; color: var(--faint); border-top: 1px solid var(--line); padding-top: 18px; }
+  footer .who { font-family: var(--display); font-weight: 800; color: var(--dim); }
+  footer .who b { color: var(--reward); }
+  footer a { color: var(--dim); }
+  @media (min-width: 560px) { .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .group.event .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="brand"><a class="home" href="/">포켓몬고 <b>이로치 수집가</b> 도구함</a><span class="here">리서치</span></div>
+    <h1>지금 필드리서치</h1>
+  </header>
+
+  <section aria-labelledby="st-h">
+    <h2 id="st-h" class="vh">상태</h2>
+    <div class="status" id="status"><span class="src">자료: Leek Duck (ScrapedDuck) · 열 때마다 새로 받음</span><span id="when">불러오는 중…</span></div>
+    <div class="filters" id="filters" style="margin-top:12px"></div>
+  </section>
+
+  <section aria-labelledby="list-h" id="list">
+    <h2 id="list-h" class="vh">과제 목록</h2>
+    <div class="skel"></div>
+  </section>
+
+  <p class="tip">과제 문구는 보기 쉽게 풀어 쓴 것이라 게임 안 문구와 조금 다를 수 있어요. 이로치 여부·보상 수량은 공식 공지에서 확인하세요. 포켓스톱을 돌리면 그 스톱의 과제 하나를 받고, 같은 날엔 모든 트레이너가 같은 과제를 받아요.</p>
+
+  <nav class="go" aria-label="더 보기">
+    <a class="yt" href="https://www.youtube.com/@ShinyPokemongo?sub_confirmation=1"><b>유튜브</b><span>이번 주 일정 영상</span></a>
+    <a class="bl" href="https://blog.naver.com/shinypokemongo"><b>블로그</b><span>이달의 일정 한장정리</span></a>
+  </nav>
+
+  <section class="about" aria-labelledby="ab-h">
+    <h2 id="ab-h">레이드 3번 이기면 <em>누굴 만나나</em> — 지금 과제가 한눈에</h2>
+    <p class="lede">포켓스톱을 돌리면 받는 필드리서치 과제와 그 보상을 한국어로 정리했어요. 이벤트 과제는 맨 위에, 나머지는 잡기·던지기·배틀처럼 종류별로요. 자료는 Leek Duck이 모은 것을 페이지가 열릴 때 바로 받아오기 때문에 이벤트가 바뀌면 자동으로 바뀝니다.</p>
+  </section>
+
+  <footer>
+    <div class="who">포켓몬고 <b>이로치 수집가</b></div>
+    <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
+    <div>과제·보상 자료: <a href="https://leekduck.com/research/">Leek Duck</a>의 공개 데이터(ScrapedDuck). CP는 100% 개체 기준 최대값. 포켓몬 이름은 게임 한국어 표기, 코스튬 설명은 공식 공지 표기(모르는 것은 "코스튬"으로만). 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+  </footer>
+</div>
+
+<script>
+  const NAMES = {"16":["구구","Pidgey"],"1":["이상해씨","Bulbasaur"],"4":["파이리","Charmander"],"2":["이상해풀","Ivysaur"],"14":["딱충이","Kakuna"],"10":["캐터피","Caterpie"],"12":["버터플","Butterfree"],"13":["뿔충이","Weedle"],"6":["리자몽","Charizard"],"15":["독침붕","Beedrill"],"7":["꼬부기","Squirtle"],"3":["이상해꽃","Venusaur"],"5":["리자드","Charmeleon"],"9":["거북왕","Blastoise"],"11":["단데기","Metapod"],"8":["어니부기","Wartortle"],"24":["아보크","Arbok"],"21":["깨비참","Spearow"],"22":["깨비드릴조","Fearow"],"23":["아보","Ekans"],"17":["피죤","Pidgeotto"],"18":["피죤투","Pidgeot"],"25":["피카츄","Pikachu"],"20":["레트라","Raticate"],"19":["꼬렛","Rattata"],"27":["모래두지","Sandshrew"],"28":["고지","Sandslash"],"31":["니드퀸","Nidoqueen"],"29":["니드런♀","Nidoran♀"],"26":["라이츄","Raichu"],"32":["니드런♂","Nidoran♂"],"30":["니드리나","Nidorina"],"43":["뚜벅쵸","Oddish"],"37":["식스테일","Vulpix"],"36":["픽시","Clefable"],"34":["니드킹","Nidoking"],"39":["푸린","Jigglypuff"],"40":["푸크린","Wigglytuff"],"41":["주뱃","Zubat"],"35":["삐삐","Clefairy"],"42":["골뱃","Golbat"],"33":["니드리노","Nidorino"],"38":["나인테일","Ninetales"],"44":["냄새꼬","Gloom"],"45":["라플레시아","Vileplume"],"46":["파라스","Paras"],"47":["파라섹트","Parasect"],"48":["콘팡","Venonat"],"49":["도나리","Venomoth"],"51":["닥트리오","Dugtrio"],"53":["페르시온","Persian"],"54":["고라파덕","Psyduck"],"52":["나옹","Meowth"],"59":["윈디","Arcanine"],"50":["디그다","Diglett"],"58":["가디","Growlithe"],"56":["망키","Mankey"],"57":["성원숭","Primeape"],"55":["골덕","Golduck"],"62":["강챙이","Poliwrath"],"60":["발챙이","Poliwag"],"63":["캐이시","Abra"],"64":["윤겔라","Kadabra"],"61":["슈륙챙이","Poliwhirl"],"70":["우츠동","Weepinbell"],"71":["우츠보트","Victreebel"],"75":["데구리","Graveler"],"74":["꼬마돌","Geodude"],"69":["모다피","Bellsprout"],"65":["후딘","Alakazam"],"73":["독파리","Tentacruel"],"78":["날쌩마","Rapidash"],"72":["왕눈해","Tentacool"],"66":["알통몬","Machop"],"68":["괴력몬","Machamp"],"67":["근육몬","Machoke"],"77":["포니타","Ponyta"],"79":["야돈","Slowpoke"],"80":["야도란","Slowbro"],"76":["딱구리","Golem"],"83":["파오리","Farfetch’d"],"84":["두두","Doduo"],"85":["두트리오","Dodrio"],"87":["쥬레곤","Dewgong"],"86":["쥬쥬","Seel"],"92":["고오스","Gastly"],"91":["파르셀","Cloyster"],"81":["코일","Magnemite"],"82":["레어코일","Magneton"],"89":["질뻐기","Muk"],"88":["질퍽이","Grimer"],"90":["셀러","Shellder"],"93":["고우스트","Haunter"],"94":["팬텀","Gengar"],"95":["롱스톤","Onix"],"96":["슬리프","Drowzee"],"103":["나시","Exeggutor"],"99":["킹크랩","Kingler"],"98":["크랩","Krabby"],"107":["홍수몬","Hitmonchan"],"97":["슬리퍼","Hypno"],"101":["붐볼","Electrode"],"106":["시라소몬","Hitmonlee"],"100":["찌리리공","Voltorb"],"105":["텅구리","Marowak"],"102":["아라리","Exeggcute"],"104":["탕구리","Cubone"],"108":["내루미","Lickitung"],"109":["또가스","Koffing"],"110":["또도가스","Weezing"],"111":["뿔카노","Rhyhorn"],"112":["코뿌리","Rhydon"],"114":["덩쿠리","Tangela"],"117":["시드라","Seadra"],"116":["쏘드라","Horsea"],"118":["콘치","Goldeen"],"120":["별가사리","Staryu"],"119":["왕콘치","Seaking"],"113":["럭키","Chansey"],"122":["마임맨","Mr. Mime"],"115":["캥카","Kangaskhan"],"121":["아쿠스타","Starmie"],"124":["루주라","Jynx"],"123":["스라크","Scyther"],"125":["에레브","Electabuzz"],"126":["마그마","Magmar"],"127":["쁘사이저","Pinsir"],"128":["켄타로스","Tauros"],"138":["암나이트","Omanyte"],"134":["샤미드","Vaporeon"],"139":["암스타","Omastar"],"140":["투구","Kabuto"],"135":["쥬피썬더","Jolteon"],"137":["폴리곤","Porygon"],"133":["이브이","Eevee"],"132":["메타몽","Ditto"],"131":["라프라스","Lapras"],"136":["부스터","Flareon"],"130":["갸라도스","Gyarados"],"141":["투구푸스","Kabutops"],"142":["프테라","Aerodactyl"],"143":["잠만보","Snorlax"],"144":["프리져","Articuno"],"129":["잉어킹","Magikarp"],"153":["베이리프","Bayleef"],"152":["치코리타","Chikorita"],"151":["뮤","Mew"],"154":["메가니움","Meganium"],"146":["파이어","Moltres"],"156":["마그케인","Quilava"],"147":["미뇽","Dratini"],"149":["망나뇽","Dragonite"],"155":["브케인","Cyndaquil"],"150":["뮤츠","Mewtwo"],"148":["신뇽","Dragonair"],"145":["썬더","Zapdos"],"157":["블레이범","Typhlosion"],"158":["리아코","Totodile"],"159":["엘리게이","Croconaw"],"160":["장크로다일","Feraligatr"],"161":["꼬리선","Sentret"],"170":["초라기","Chinchou"],"168":["아리아도스","Ariados"],"162":["다꼬리","Furret"],"165":["레디바","Ledyba"],"167":["페이검","Spinarak"],"169":["크로뱃","Crobat"],"166":["레디안","Ledian"],"163":["부우부","Hoothoot"],"164":["야부엉","Noctowl"],"171":["랜턴","Lanturn"],"174":["푸푸린","Igglybuff"],"172":["피츄","Pichu"],"173":["삐","Cleffa"],"175":["토게피","Togepi"],"183":["마릴","Marill"],"182":["아르코","Bellossom"],"179":["메리프","Mareep"],"181":["전룡","Ampharos"],"177":["네이티","Natu"],"176":["토게틱","Togetic"],"184":["마릴리","Azumarill"],"188":["두코","Skiploom"],"185":["꼬지모","Sudowoodo"],"187":["통통코","Hoppip"],"180":["보송송","Flaaffy"],"186":["왕구리","Politoed"],"189":["솜솜코","Jumpluff"],"190":["에이팜","Aipom"],"178":["네이티오","Xatu"],"191":["해너츠","Sunkern"],"201":["안농","Unown"],"203":["키링키","Girafarig"],"192":["해루미","Sunflora"],"202":["마자용","Wobbuffet"],"193":["왕자리","Yanma"],"195":["누오","Quagsire"],"194":["우파","Wooper"],"200":["무우마","Misdreavus"],"199":["야도킹","Slowking"],"204":["피콘","Pineco"],"197":["블래키","Umbreon"],"196":["에브이","Espeon"],"206":["노고치","Dunsparce"],"205":["쏘콘","Forretress"],"198":["니로우","Murkrow"],"207":["글라이거","Gligar"],"213":["단단지","Shuckle"],"211":["침바루","Qwilfish"],"208":["강철톤","Steelix"],"210":["그랑블루","Granbull"],"212":["핫삼","Scizor"],"209":["블루","Snubbull"],"216":["깜지곰","Teddiursa"],"214":["헤라크로스","Heracross"],"215":["포푸니","Sneasel"],"217":["링곰","Ursaring"],"221":["메꾸리","Piloswine"],"219":["마그카르고","Magcargo"],"218":["마그마그","Slugma"],"220":["꾸꾸리","Swinub"],"222":["코산호","Corsola"],"223":["총어","Remoraid"],"231":["코코리","Phanpy"],"232":["코리갑","Donphan"],"228":["델빌","Houndour"],"229":["헬가","Houndoom"],"226":["만타인","Mantine"],"224":["대포무노","Octillery"],"227":["무장조","Skarmory"],"225":["딜리버드","Delibird"],"235":["루브도","Smeargle"],"234":["노라키","Stantler"],"230":["킹드라","Kingdra"],"233":["폴리곤2","Porygon2"],"236":["배루키","Tyrogue"],"238":["뽀뽀라","Smoochum"],"237":["카포에라","Hitmontop"],"239":["에레키드","Elekid"],"247":["데기라스","Pupitar"],"245":["스이쿤","Suicune"],"246":["애버라스","Larvitar"],"244":["앤테이","Entei"],"243":["라이코","Raikou"],"249":["루기아","Lugia"],"248":["마기라스","Tyranitar"],"242":["해피너스","Blissey"],"241":["밀탱크","Miltank"],"252":["나무지기","Treecko"],"240":["마그비","Magby"],"250":["칠색조","Ho-Oh"],"254":["나무킹","Sceptile"],"253":["나무돌이","Grovyle"],"251":["세레비","Celebi"],"255":["아차모","Torchic"],"259":["늪짱이","Marshtomp"],"257":["번치코","Blaziken"],"262":["그라에나","Mightyena"],"261":["포챠나","Poochyena"],"263":["지그제구리","Zigzagoon"],"267":["뷰티플라이","Beautifly"],"266":["실쿤","Silcoon"],"256":["영치코","Combusken"],"260":["대짱이","Swampert"],"258":["물짱이","Mudkip"],"265":["개무소","Wurmple"],"264":["직구리","Linoone"],"270":["연꽃몬","Lotad"],"269":["독케일","Dustox"],"268":["카스쿤","Cascoon"],"271":["로토스","Lombre"],"272":["로파파","Ludicolo"],"282":["가디안","Gardevoir"],"274":["잎새코","Nuzleaf"],"281":["킬리아","Kirlia"],"283":["비구술","Surskit"],"273":["도토링","Seedot"],"276":["테일로","Taillow"],"277":["스왈로","Swellow"],"279":["패리퍼","Pelipper"],"280":["랄토스","Ralts"],"275":["다탱구","Shiftry"],"278":["갈모매","Wingull"],"286":["버섯모","Breloom"],"285":["버섯꼬","Shroomish"],"284":["비나방","Masquerain"],"287":["게을로","Slakoth"],"288":["발바로","Vigoroth"],"292":["껍질몬","Shedinja"],"295":["폭음룡","Exploud"],"289":["게을킹","Slaking"],"296":["마크탕","Makuhita"],"290":["토중몬","Nincada"],"291":["아이스크","Ninjask"],"294":["노공룡","Loudred"],"298":["루리리","Azurill"],"299":["코코파스","Nosepass"],"297":["하리뭉","Hariyama"],"300":["에나비","Skitty"],"301":["델케티","Delcatty"],"302":["깜까미","Sableye"],"303":["입치트","Mawile"],"304":["가보리","Aron"],"306":["보스로라","Aggron"],"305":["갱도라","Lairon"],"308":["요가램","Medicham"],"307":["요가랑","Meditite"],"311":["플러시","Plusle"],"310":["썬더볼트","Manectric"],"309":["썬더라이","Electrike"],"313":["볼비트","Volbeat"],"312":["마이농","Minun"],"314":["네오비트","Illumise"],"315":["로젤리아","Roselia"],"317":["꿀꺽몬","Swalot"],"316":["꼴깍몬","Gulpin"],"318":["샤프니아","Carvanha"],"293":["소곤룡","Whismur"],"322":["둔타","Numel"],"320":["고래왕자","Wailmer"],"319":["샤크니아","Sharpedo"],"321":["고래왕","Wailord"],"326":["피그킹","Grumpig"],"325":["피그점프","Spoink"],"323":["폭타","Camerupt"],"324":["코터스","Torkoal"],"328":["톱치","Trapinch"],"329":["비브라바","Vibrava"],"327":["얼루기","Spinda"],"331":["선인왕","Cacnea"],"330":["플라이곤","Flygon"],"332":["밤선인","Cacturne"],"333":["파비코","Swablu"],"334":["파비코리","Altaria"],"335":["쟝고","Zangoose"],"336":["세비퍼","Seviper"],"338":["솔록","Solrock"],"337":["루나톤","Lunatone"],"340":["메깅","Whiscash"],"339":["미꾸리","Barboach"],"343":["오뚝군","Baltoy"],"341":["가재군","Corphish"],"344":["점토도리","Claydol"],"342":["가재장군","Crawdaunt"],"345":["릴링","Lileep"],"346":["릴리요","Cradily"],"348":["아말도","Armaldo"],"347":["아노딥스","Anorith"],"350":["밀로틱","Milotic"],"349":["빈티나","Feebas"],"355":["해골몽","Duskull"],"353":["어둠대신","Shuppet"],"352":["켈리몬","Kecleon"],"358":["치렁","Chimecho"],"357":["트로피우스","Tropius"],"359":["앱솔","Absol"],"356":["미라몽","Dusclops"],"354":["다크펫","Banette"],"351":["캐스퐁","Castform"],"360":["마자","Wynaut"],"362":["얼음귀신","Glalie"],"361":["눈꼬마","Snorunt"],"363":["대굴레오","Spheal"],"364":["씨레오","Sealeo"],"366":["진주몽","Clamperl"],"365":["씨카이저","Walrein"],"373":["보만다","Salamence"],"368":["분홍장이","Gorebyss"],"367":["헌테일","Huntail"],"369":["시라칸","Relicanth"],"371":["아공이","Bagon"],"370":["사랑동이","Luvdisc"],"374":["메탕","Beldum"],"372":["쉘곤","Shelgon"],"376":["메타그로스","Metagross"],"375":["메탕구","Metang"],"377":["레지락","Regirock"],"378":["레지아이스","Regice"],"379":["레지스틸","Registeel"],"380":["라티아스","Latias"],"382":["가이오가","Kyogre"],"381":["라티오스","Latios"],"388":["수풀부기","Grotle"],"383":["그란돈","Groudon"],"384":["레쿠쟈","Rayquaza"],"385":["지라치","Jirachi"],"389":["토대부기","Torterra"],"387":["모부기","Turtwig"],"386":["테오키스","Deoxys"],"391":["파이숭이","Monferno"],"390":["불꽃숭이","Chimchar"],"393":["팽도리","Piplup"],"392":["초염몽","Infernape"],"394":["팽태자","Prinplup"],"396":["찌르꼬","Starly"],"395":["엠페르트","Empoleon"],"398":["찌르호크","Staraptor"],"397":["찌르버드","Staravia"],"399":["비버니","Bidoof"],"401":["귀뚤뚜기","Kricketot"],"402":["귀뚤톡크","Kricketune"],"400":["비버통","Bibarel"],"403":["꼬링크","Shinx"],"408":["두개도스","Cranidos"],"407":["로즈레이드","Roserade"],"410":["방패톱스","Shieldon"],"406":["꼬몽울","Budew"],"405":["렌트라","Luxray"],"404":["럭시오","Luxio"],"412":["도롱충이","Burmy"],"411":["바리톱스","Bastiodon"],"409":["램펄드","Rampardos"],"413":["도롱마담","Wormadam"],"414":["나메일","Mothim"],"417":["파치리스","Pachirisu"],"419":["플로젤","Floatzel"],"416":["비퀸","Vespiquen"],"418":["브이젤","Buizel"],"421":["체리꼬","Cherrim"],"420":["체리버","Cherubi"],"424":["겟핸보숭","Ambipom"],"423":["트리토돈","Gastrodon"],"415":["세꿀버리","Combee"],"422":["깝질무","Shellos"],"425":["흔들풍손","Drifloon"],"428":["이어롭","Lopunny"],"426":["둥실라이드","Drifblim"],"427":["이어롤","Buneary"],"429":["무우마직","Mismagius"],"431":["나옹마","Glameow"],"432":["몬냥이","Purugly"],"434":["스컹뿡","Stunky"],"435":["스컹탱크","Skuntank"],"436":["동미러","Bronzor"],"433":["랑딸랑","Chingling"],"430":["돈크로우","Honchkrow"],"438":["꼬지지","Bonsly"],"437":["동탁군","Bronzong"],"439":["흉내내","Mime Jr."],"440":["핑복","Happiny"],"441":["페라페","Chatot"],"442":["화강돌","Spiritomb"],"444":["한바이트","Gabite"],"443":["딥상어동","Gible"],"445":["한카리아스","Garchomp"],"446":["먹고자","Munchlax"],"448":["루카리오","Lucario"],"449":["히포포타스","Hippopotas"],"447":["리오르","Riolu"],"451":["스콜피","Skorupi"],"454":["독개굴","Toxicroak"],"452":["드래피온","Drapion"],"450":["하마돈","Hippowdon"],"453":["삐딱구리","Croagunk"],"456":["형광어","Finneon"],"455":["무스틈니","Carnivine"],"458":["타만타","Mantyke"],"457":["네오라이트","Lumineon"],"459":["눈쓰개","Snover"],"461":["포푸니라","Weavile"],"465":["덩쿠림보","Tangrowth"],"462":["자포코일","Magnezone"],"464":["거대코뿌리","Rhyperior"],"460":["눈설왕","Abomasnow"],"463":["내룸벨트","Lickilicky"],"466":["에레키블","Electivire"],"470":["리피아","Leafeon"],"468":["토게키스","Togekiss"],"471":["글레이시아","Glaceon"],"469":["메가자리","Yanmega"],"472":["글라이온","Gliscor"],"467":["마그마번","Magmortar"],"473":["맘모꾸리","Mamoswine"],"474":["폴리곤Z","Porygon-Z"],"476":["대코파스","Probopass"],"475":["엘레이드","Gallade"],"480":["유크시","Uxie"],"479":["로토무","Rotom"],"477":["야느와르몽","Dusknoir"],"481":["엠라이트","Mesprit"],"478":["눈여아","Froslass"],"482":["아그놈","Azelf"],"488":["크레세리아","Cresselia"],"483":["디아루가","Dialga"],"485":["히드런","Heatran"],"484":["펄기아","Palkia"],"486":["레지기가스","Regigigas"],"487":["기라티나","Giratina"],"489":["피오네","Phione"],"490":["마나피","Manaphy"],"491":["다크라이","Darkrai"],"492":["쉐이미","Shaymin"],"495":["주리비얀","Snivy"],"494":["비크티니","Victini"],"493":["아르세우스","Arceus"],"498":["뚜꾸리","Tepig"],"499":["차오꿀","Pignite"],"496":["샤비","Servine"],"497":["샤로다","Serperior"],"501":["수댕이","Oshawott"],"500":["염무왕","Emboar"],"502":["쌍검자비","Dewott"],"503":["대검귀","Samurott"],"504":["보르쥐","Patrat"],"505":["보르그","Watchog"],"506":["요테리","Lillipup"],"507":["하데리어","Herdier"],"508":["바랜드","Stoutland"],"512":["야나키","Simisage"],"511":["야나프","Pansage"],"510":["레파르다스","Liepard"],"509":["쌔비냥","Purrloin"],"513":["바오프","Pansear"],"515":["앗차프","Panpour"],"516":["앗차키","Simipour"],"514":["바오키","Simisear"],"518":["몽얌나","Musharna"],"517":["몽나","Munna"],"519":["콩둘기","Pidove"],"521":["켄호로우","Unfezant"],"520":["유토브","Tranquill"],"522":["줄뮤마","Blitzle"],"524":["단굴","Roggenrola"],"523":["제브라이카","Zebstrika"],"532":["으랏차","Timburr"],"526":["기가이어스","Gigalith"],"525":["암트르","Boldore"],"529":["두더류","Drilbur"],"528":["맘박쥐","Swoobat"],"531":["다부니","Audino"],"530":["몰드류","Excadrill"],"534":["노보청","Conkeldurr"],"533":["토쇠골","Gurdurr"],"535":["동챙이","Tympole"],"527":["또르박쥐","Woobat"],"537":["두빅굴","Seismitoad"],"536":["두까비","Palpitoad"],"538":["던지미","Throh"],"539":["타격귀","Sawk"],"540":["두르보","Sewaddle"],"543":["마디네","Venipede"],"542":["모아머","Leavanny"],"541":["두르쿤","Swadloon"],"545":["펜드라","Scolipede"],"546":["소미안","Cottonee"],"547":["엘풍","Whimsicott"],"548":["치릴리","Petilil"],"549":["드레디어","Lilligant"],"550":["배쓰나이","Basculin"],"544":["휠구","Whirlipede"],"552":["악비르","Krokorok"],"551":["깜눈크","Sandile"],"553":["악비아르","Krookodile"],"554":["달막화","Darumaka"],"555":["불비달마","Darmanitan"],"556":["마라카치","Maractus"],"557":["돌살이","Dwebble"],"558":["암팰리스","Crustle"],"563":["데스니칸","Cofagrigus"],"559":["곤율랭","Scraggy"],"561":["심보러","Sigilyph"],"560":["곤율거니","Scrafty"],"562":["데스마스","Yamask"],"564":["프로토가","Tirtouga"],"565":["늑골라","Carracosta"],"566":["아켄","Archen"],"567":["아케오스","Archeops"],"570":["조로아","Zorua"],"568":["깨봉이","Trubbish"],"569":["더스트나","Garbodor"],"571":["조로아크","Zoroark"],"572":["치라미","Minccino"],"574":["고디탱","Gothita"],"573":["치라치노","Cinccino"],"581":["스완나","Swanna"],"577":["유니란","Solosis"],"575":["고디보미","Gothorita"],"578":["듀란","Duosion"],"576":["고디모아젤","Gothitelle"],"582":["바닐프티","Vanillite"],"580":["꼬지보리","Ducklett"],"583":["바닐리치","Vanillish"],"579":["란쿨루스","Reuniclus"],"585":["사철록","Deerling"],"584":["배바닐라","Vanilluxe"],"586":["바라철록","Sawsbuck"],"587":["에몽가","Emolga"],"588":["딱정곤","Karrablast"],"589":["슈바르고","Escavalier"],"590":["깜놀버슬","Foongus"],"592":["탱그릴","Frillish"],"591":["뽀록나","Amoonguss"],"594":["맘복치","Alomomola"],"595":["파쪼옥","Joltik"],"597":["철시드","Ferroseed"],"598":["너트령","Ferrothorn"],"593":["탱탱겔","Jellicent"],"596":["전툴라","Galvantula"],"599":["기어르","Klink"],"600":["기기어르","Klang"],"602":["저리어","Tynamo"],"601":["기기기어르","Klinklang"],"603":["저리릴","Eelektrik"],"604":["저리더프","Eelektross"],"609":["샹델라","Chandelure"],"605":["리그레","Elgyem"],"607":["불켜미","Litwick"],"606":["벰크","Beheeyem"],"608":["램프라","Lampent"],"612":["액스라이즈","Haxorus"],"610":["터검니","Axew"],"613":["코고미","Cubchoo"],"616":["쪼마리","Shelmet"],"614":["툰베어","Beartic"],"611":["액슨도","Fraxure"],"615":["프리지오","Cryogonal"],"617":["어지리더","Accelgor"],"618":["메더","Stunfisk"],"619":["비조푸","Mienfoo"],"620":["비조도","Mienshao"],"624":["자망칼","Pawniard"],"625":["절각참","Bisharp"],"622":["골비람","Golett"],"621":["크리만","Druddigon"],"626":["버프론","Bouffalant"],"631":["앤티골","Heatmor"],"629":["벌차이","Vullaby"],"630":["버랜지나","Mandibuzz"],"627":["수리둥보","Rufflet"],"632":["아이앤트","Durant"],"623":["골루그","Golurk"],"633":["모노두","Deino"],"628":["워글","Braviary"],"634":["디헤드","Zweilous"],"635":["삼삼드래","Hydreigon"],"636":["활화르바","Larvesta"],"643":["레시라무","Reshiram"],"640":["비리디온","Virizion"],"639":["테라키온","Terrakion"],"638":["코바르온","Cobalion"],"641":["토네로스","Tornadus"],"642":["볼트로스","Thundurus"],"637":["불카모스","Volcarona"],"646":["큐레무","Kyurem"],"648":["메로엣타","Meloetta"],"644":["제크로무","Zekrom"],"647":["케르디오","Keldeo"],"650":["도치마론","Chespin"],"651":["도치보구","Quilladin"],"649":["게노세크트","Genesect"],"645":["랜드로스","Landorus"],"652":["브리가론","Chesnaught"],"653":["푸호꼬","Fennekin"],"657":["개굴반장","Frogadier"],"655":["마폭시","Delphox"],"658":["개굴닌자","Greninja"],"654":["테르나","Braixen"],"656":["개구마르","Froakie"],"665":["분떠도리","Spewpa"],"659":["파르빗","Bunnelby"],"660":["파르토","Diggersby"],"663":["파이어로","Talonflame"],"661":["화살꼬빈","Fletchling"],"664":["분이벌레","Scatterbug"],"662":["불화살빈","Fletchinder"],"666":["비비용","Vivillon"],"667":["레오꼬","Litleo"],"668":["화염레오","Pyroar"],"671":["플라제스","Florges"],"673":["고고트","Gogoat"],"669":["플라베베","Flabébé"],"675":["부란다","Pangoro"],"670":["플라엣테","Floette"],"672":["메이클","Skiddo"],"674":["판짱","Pancham"],"676":["트리미앙","Furfrou"],"677":["냐스퍼","Espurr"],"679":["단칼빙","Honedge"],"682":["슈쁘","Spritzee"],"678":["냐오닉스","Meowstic"],"681":["킬가르도","Aegislash"],"680":["쌍검킬","Doublade"],"683":["프레프티르","Aromatisse"],"684":["나룸퍼프","Swirlix"],"688":["거북손손","Binacle"],"686":["오케이징","Inkay"],"691":["드래캄","Dragalge"],"687":["칼라마네로","Malamar"],"689":["거북손데스","Barbaracle"],"690":["수레기","Skrelp"],"692":["완철포","Clauncher"],"693":["블로스터","Clawitzer"],"685":["나루림","Slurpuff"],"695":["일레도리자드","Heliolisk"],"696":["티고라스","Tyrunt"],"697":["견고라스","Tyrantrum"],"694":["목도리키텔","Helioptile"],"698":["아마루스","Amaura"],"699":["아마루르가","Aurorus"],"701":["루차불","Hawlucha"],"702":["데덴네","Dedenne"],"707":["클레피","Klefki"],"706":["미끄래곤","Goodra"],"703":["멜리시","Carbink"],"700":["님피아","Sylveon"],"705":["미끄네일","Sliggoo"],"704":["미끄메라","Goomy"],"709":["대로트","Trevenant"],"708":["나목령","Phantump"],"712":["꽁어름","Bergmite"],"711":["펌킨인","Gourgeist"],"713":["크레베이스","Avalugg"],"710":["호바귀","Pumpkaboo"],"714":["음뱃","Noibat"],"715":["음번","Noivern"],"719":["디안시","Diancie"],"720":["후파","Hoopa"],"717":["이벨타르","Yveltal"],"721":["볼케니온","Volcanion"],"723":["빼미스로우","Dartrix"],"724":["모크나이퍼","Decidueye"],"718":["지가르데","Zygarde"],"722":["나몰빼미","Rowlet"],"726":["냐오히트","Torracat"],"725":["냐오불","Litten"],"716":["제르네아스","Xerneas"],"727":["어흥염","Incineroar"],"728":["누리공","Popplio"],"730":["누리레느","Primarina"],"729":["키요공","Brionne"],"731":["콕코구리","Pikipek"],"733":["왕큰부리","Toucannon"],"734":["영구스","Yungoos"],"737":["전지충이","Charjabug"],"736":["턱지충이","Grubbin"],"735":["형사구스","Gumshoos"],"740":["모단단게","Crabominable"],"741":["춤추새","Oricorio"],"742":["에블리","Cutiefly"],"738":["투구뿌논","Vikavolt"],"739":["오기지게","Crabrawler"],"743":["에리본","Ribombee"],"744":["암멍이","Rockruff"],"732":["크라파","Trumbeak"],"746":["약어리","Wishiwashi"],"745":["루가루암","Lycanroc"],"747":["시마사리","Mareanie"],"750":["만마드","Mudsdale"],"749":["머드나기","Mudbray"],"751":["물거미","Dewpider"],"748":["더시마사리","Toxapex"],"752":["깨비물거미","Araquanid"],"756":["마셰이드","Shiinotic"],"759":["포곰곰","Stufful"],"753":["짜랑랑","Fomantis"],"754":["라란티스","Lurantis"],"758":["염뉴트","Salazzle"],"757":["야도뇽","Salandit"],"755":["자마슈","Morelull"],"762":["달무리나","Steenee"],"761":["달콤아","Bounsweet"],"760":["이븐곰","Bewear"],"763":["달코퀸","Tsareena"],"765":["하랑우탄","Oranguru"],"766":["내던숭이","Passimian"],"769":["모래꿍","Sandygast"],"767":["꼬시레","Wimpod"],"764":["큐아링","Comfey"],"768":["갑주무사","Golisopod"],"770":["모래성이당","Palossand"],"772":["타입:널","Type: Null"],"775":["자말라","Komala"],"776":["폭거북스","Turtonator"],"771":["해무기","Pyukumuku"],"773":["실버디","Silvally"],"774":["메테노","Minior"],"778":["따라큐","Mimikyu"],"777":["토게데마루","Togedemaru"],"779":["치갈기","Bruxish"],"780":["할비롱","Drampa"],"782":["짜랑꼬","Jangmo-o"],"781":["타타륜","Dhelmise"],"785":["카푸꼬꼬꼭","Tapu Koko"],"783":["짜랑고우","Hakamo-o"],"787":["카푸브루루","Tapu Bulu"],"786":["카푸나비나","Tapu Lele"],"788":["카푸느지느","Tapu Fini"],"791":["솔가레오","Solgaleo"],"793":["텅비드","Nihilego"],"789":["코스모그","Cosmog"],"790":["코스모움","Cosmoem"],"792":["루나아라","Lunala"],"794":["매시붕","Buzzwole"],"784":["짜랑고우거","Kommo-o"],"795":["페로코체","Pheromosa"],"796":["전수목","Xurkitree"],"800":["네크로즈마","Necrozma"],"797":["철화구야","Celesteela"],"801":["마기아나","Magearna"],"799":["악식킹","Guzzlord"],"798":["종이신도","Kartana"],"802":["마샤도","Marshadow"],"803":["베베놈","Poipole"],"804":["아고용","Naganadel"],"806":["두파팡","Blacephalon"],"805":["차곡차곡","Stakataka"],"808":["멜탄","Meltan"],"807":["제라오라","Zeraora"],"810":["흥나숭","Grookey"],"809":["멜메탈","Melmetal"],"812":["고릴타","Rillaboom"],"811":["채키몽","Thwackey"],"813":["염버니","Scorbunny"],"815":["에이스번","Cinderace"],"817":["누겔레온","Drizzile"],"814":["래비풋","Raboot"],"816":["울머기","Sobble"],"820":["요씽리스","Greedent"],"818":["인텔리레온","Inteleon"],"819":["탐리스","Skwovet"],"821":["파라꼬","Rookidee"],"823":["아머까오","Corviknight"],"822":["파크로우","Corvisquire"],"826":["이올브","Orbeetle"],"825":["레돔벌레","Dottler"],"824":["두루지벌레","Blipbug"],"827":["훔처우","Nickit"],"828":["폭슬라이","Thievul"],"829":["꼬모카","Gossifleur"],"830":["백솜모카","Eldegoss"],"832":["배우르","Dubwool"],"834":["갈가부기","Drednaw"],"835":["멍파치","Yamper"],"831":["우르","Wooloo"],"833":["깨물부기","Chewtle"],"839":["석탄산","Coalossal"],"837":["탄동","Rolycoly"],"838":["탄차곤","Carkol"],"836":["펄스멍","Boltund"],"841":["애프룡","Flapple"],"840":["과사삭벌레","Applin"],"842":["단지래플","Appletun"],"844":["사다이사","Sandaconda"],"843":["모래뱀","Silicobra"],"845":["윽우지","Cramorant"],"850":["태우지네","Sizzlipede"],"848":["일레즌","Toxel"],"847":["꼬치조","Barraskewda"],"849":["스트린더","Toxtricity"],"846":["찌로꼬치","Arrokuda"],"852":["때때무노","Clobbopus"],"854":["데인차","Sinistea"],"853":["케오퍼스","Grapploct"],"851":["다태우지네","Centiskorch"],"856":["몸지브림","Hatenna"],"855":["포트데스","Polteageist"],"858":["브리무음","Hatterene"],"857":["손지브림","Hattrem"],"859":["메롱꿍","Impidimp"],"860":["쏘겨모","Morgrem"],"862":["가로막구리","Obstagoon"],"863":["나이킹","Perrserker"],"861":["오롱털","Grimmsnarl"],"866":["마임꽁꽁","Mr. Rime"],"867":["데스판","Runerigus"],"865":["창파나이트","Sirfetch’d"],"870":["대여르","Falinks"],"868":["마빌크","Milcery"],"869":["마휘핑","Alcremie"],"864":["산호르곤","Cursola"],"874":["돌헨진","Stonjourner"],"872":["누니머기","Snom"],"871":["찌르성게","Pincurchin"],"873":["모스노우","Frosmoth"],"876":["에써르","Indeedee"],"875":["빙큐보","Eiscue"],"879":["대왕끼리동","Copperajah"],"878":["끼리동","Cufant"],"877":["모르페코","Morpeko"],"881":["파치르돈","Arctozolt"],"884":["두랄루돈","Duraludon"],"880":["파치래곤","Dracozolt"],"882":["어래곤","Dracovish"],"883":["어치르돈","Arctovish"],"885":["드라꼰","Dreepy"],"886":["드래런치","Drakloak"],"890":["무한다이노","Eternatus"],"889":["자마젠타","Zamazenta"],"887":["드래펄트","Dragapult"],"888":["자시안","Zacian"],"891":["치고마","Kubfu"],"892":["우라오스","Urshifu"],"893":["자루도","Zarude"],"894":["레지에레키","Regieleki"],"896":["블리자포스","Glastrier"],"900":["사마자르","Kleavor"],"898":["버드렉스","Calyrex"],"897":["레이스포스","Spectrier"],"895":["레지드래고","Regidrago"],"901":["다투곰","Ursaluna"],"902":["대쓰여너","Basculegion"],"899":["신비록","Wyrdeer"],"903":["포푸니크","Sneasler"],"904":["장침바루","Overqwil"],"906":["나오하","Sprigatito"],"905":["러브로스","Enamorus"],"907":["나로테","Floragato"],"908":["마스카나","Meowscarada"],"910":["악뜨거","Crocalor"],"909":["뜨아거","Fuecoco"],"911":["라우드본","Skeledirge"],"912":["꾸왁스","Quaxly"],"913":["아꾸왁","Quaxwell"],"918":["트래피더","Spidops"],"915":["맛보돈","Lechonk"],"916":["퍼퓨돈","Oinkologne"],"917":["타랜툴라","Tarountula"],"914":["웨이니발","Quaquaval"],"919":["콩알뚜기","Nymble"],"922":["빠모트","Pawmo"],"921":["빠모","Pawmi"],"920":["엑스레그","Lokix"],"923":["빠르모트","Pawmot"],"925":["파밀리쥐","Maushold"],"924":["두리쥐","Tandemaus"],"926":["쫀도기","Fidough"],"927":["바우첼","Dachsbun"],"929":["올리뇨","Dolliv"],"928":["미니브","Smoliv"],"932":["베베솔트","Nacli"],"933":["스태솔트","Naclstack"],"931":["시비꼬","Squawkabilly"],"930":["올리르바","Arboliva"],"936":["카디나르마","Armarouge"],"937":["파라블레이즈","Ceruledge"],"934":["콜로솔트","Garganacl"],"935":["카르본","Charcadet"],"938":["빈나두","Tadbulb"],"941":["찌리비크","Kilowattrel"],"940":["찌리비","Wattrel"],"939":["찌리배리","Bellibolt"],"942":["오라티프","Maschiff"],"944":["땃쭈르","Shroodle"],"943":["마피티프","Mabosstiff"],"945":["태깅구르","Grafaiai"],"946":["그푸리","Bramblin"],"947":["공푸리","Brambleghast"],"949":["육파리","Toedscruel"],"948":["들눈해","Toedscool"],"950":["절벼게","Klawf"],"951":["캡싸이","Capsakid"],"953":["구르데","Rellor"],"952":["스코빌런","Scovillain"],"955":["하느라기","Flittle"],"954":["베라카스","Rabsca"],"956":["클레스퍼트라","Espathra"],"957":["어리짱","Tinkatink"],"958":["벼리짱","Tinkatuff"],"959":["두드리짱","Tinkaton"],"960":["바다그다","Wiglett"],"961":["바닥트리오","Wugtrio"],"962":["떨구새","Bombirdier"],"964":["돌핀맨","Palafin"],"963":["맨돌핀","Finizen"],"965":["부르롱","Varoom"],"966":["부르르룸","Revavroom"],"968":["꿈트렁","Orthworm"],"969":["초롱순","Glimmet"],"967":["모토마","Cyclizar"],"970":["킬라플로르","Glimmora"],"972":["묘두기","Houndstone"],"974":["터벅고래","Cetoddle"],"973":["꼬이밍고","Flamigo"],"975":["우락고래","Cetitan"],"971":["망망이","Greavard"],"977":["어써러셔","Dondozo"],"976":["가비루사","Veluza"],"978":["싸리용","Tatsugiri"],"979":["저승갓숭","Annihilape"],"980":["토오","Clodsire"],"981":["키키링","Farigiraf"],"984":["위대한엄니","Great Tusk"],"982":["노고고치","Dudunsparce"],"983":["대도각참","Kingambit"],"985":["우렁찬꼬리","Scream Tail"],"986":["사나운버섯","Brute Bonnet"],"987":["날개치는머리","Flutter Mane"],"988":["땅을기는날개","Slither Wing"],"989":["모래털가죽","Sandy Shocks"],"990":["무쇠바퀴","Iron Treads"],"994":["무쇠독나방","Iron Moth"],"991":["무쇠보따리","Iron Bundle"],"992":["무쇠손","Iron Hands"],"997":["드니꽁","Arctibax"],"993":["무쇠머리","Iron Jugulis"],"996":["드니차","Frigibax"],"1000":["타부자고","Gholdengo"],"999":["모으령","Gimmighoul"],"1002":["파오젠","Chien-Pao"],"1003":["딩루","Ting-Lu"],"1006":["무쇠무인","Iron Valiant"],"1005":["고동치는달","Roaring Moon"],"1004":["위유이","Chi-Yu"],"1007":["코라이돈","Koraidon"],"1008":["미라이돈","Miraidon"],"995":["무쇠가시","Iron Thorns"],"1009":["굽이치는물결","Walking Wake"],"1010":["무쇠잎새","Iron Leaves"],"1011":["과미르","Dipplin"],"1012":["차데스","Poltchageist"],"1013":["그우린차","Sinistcha"],"1014":["조타구","Okidogi"],"998":["드닐레이브","Baxcalibur"],"1015":["이야후","Munkidori"],"1016":["기로치","Fezandipiti"],"1017":["오거폰","Ogerpon"],"1001":["총지엔","Wo-Chien"],"1020":["꿰뚫는화염","Gouging Fire"],"1018":["브리두라스","Archaludon"],"1021":["날뛰는우레","Raging Bolt"],"1019":["과미드라","Hydrapple"],"1022":["무쇠암석","Iron Boulder"],"1023":["무쇠감투","Iron Crown"],"1024":["테라파고스","Terapagos"],"1025":["복숭악동","Pecharunt"]};                       // 도감번호 → [한글, 영어]
+  const EN2DEX = {}; for (const k in NAMES) EN2DEX[NAMES[k][1].toLowerCase()] = +k;
+  const FEED = "https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/research.json";
+  const ICON_LD = "https://cdn.leekduck.com/assets/img/pokemon_icons_crop/";
+  const ICON_PM = "https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Pokemon%20-%20256x256/Addressable%20Assets/";
+  const TYPE = { Normal: "노말", Fire: "불꽃", Water: "물", Electric: "전기", Grass: "풀", Ice: "얼음", Fighting: "격투", Poison: "독", Ground: "땅", Flying: "비행", Psychic: "에스퍼", Bug: "벌레", Rock: "바위", Ghost: "고스트", Dragon: "드래곤", Dark: "악", Steel: "강철", Fairy: "페어리" };
+  const GROUP = { event: "지금 이벤트 과제", catch: "잡기", throw: "던지기", battle: "배틀", explore: "탐험", training: "육성", buddy: "파트너·프렌드", rocket: "GO로켓단" };
+  const ORDER = ["event", "catch", "throw", "battle", "explore", "training", "buddy", "rocket"];
+  const ONE = (n) => (n === "a" || n === "an" ? 1 : +n);
+  // 과제 문구 → 한국어(설명형). 못 맞추면 영어 그대로
+  const RULES = [
+    [/^Catch (\d+) Pokémon$/, (m) => `포켓몬 ${m[1]}마리 잡기`],
+    [/^Catch (\d+) (\w+)-type Pokémon$/, (m) => `${TYPE[m[2]] ?? m[2]}타입 포켓몬 ${m[1]}마리 잡기`],
+    [/^Catch an? (\w+)-type Pokémon$/, (m) => `${TYPE[m[1]] ?? m[1]}타입 포켓몬 1마리 잡기`],
+    [/^Catch (\d+) different species of Pokémon$/, (m) => `서로 다른 포켓몬 ${m[1]}종 잡기`],
+    [/^Catch (\d+) Pokémon with Weather Boost$/, (m) => `날씨 부스트 포켓몬 ${m[1]}마리 잡기`],
+    [/^Make (\d+) (Nice|Great|Excellent)?\s?(Curveball )?Throws?( in a row)?$/, (m) => `${m[2] ?? ""}${m[3] ? " 커브볼" : ""} ${m[1]}회${m[4] ? " 연속" : ""} 던지기`.trim()],
+    [/^Win a raid$/, () => "레이드배틀 1회 승리"],
+    [/^Win (\d+) raids$/, (m) => `레이드배틀 ${m[1]}회 승리`],
+    [/^Win an? (\w+)-star raid or higher$/, (m) => `별${{ one: 1, two: 2, three: 3, four: 4, five: 5 }[m[1]] ?? m[1]} 이상 레이드배틀 1회 승리`],
+    [/^Explore (\d+) km$/, (m) => `${m[1]}km 걷기`],
+    [/^Hatch an Egg$/, () => "알 1개 부화"],
+    [/^Hatch (\d+) Eggs$/, (m) => `알 ${m[1]}개 부화`],
+    [/^Spin (\d+) PokéStops or Gyms$/, (m) => `포켓스톱·체육관 ${m[1]}개 돌리기`],
+    [/^Spin (\d+) PokéStops$/, (m) => `포켓스톱 ${m[1]}개 돌리기`],
+    [/^Take (\d+|a) snapshots? of (a )?wild Pokémon$/, (m) => `야생 포켓몬 스냅샷 ${ONE(m[1])}장`],
+    [/^Evolve (\d+|an?) Pokémon$/, (m) => `포켓몬 ${ONE(m[1])}마리 진화`],
+    [/^Power up Pokémon (\d+) times$/, (m) => `포켓몬 ${m[1]}회 강화`],
+    [/^Earn (\d+) Candies walking with your buddy$/, (m) => `파트너와 걸어서 사탕 ${m[1]}개 받기`],
+    [/^Send (\d+) Gifts? and add a sticker to each$/, (m) => `스티커 붙인 선물 ${m[1]}개 보내기`],
+    [/^Send (\d+) Gifts?$/, (m) => `선물 ${m[1]}개 보내기`],
+    [/^Trade a Pokémon$/, () => "포켓몬 1마리 교환"],
+    [/^Defeat (\d+|an?) Team GO Rocket Grunts?$/, (m) => `GO로켓단 조무래기 ${ONE(m[1])}명 이기기`],
+    [/^Battle in (\d+|a) raids?$/, (m) => `레이드배틀 ${ONE(m[1])}회 참가`],
+    [/^Use (\d+) Berries to help catch Pokémon$/, (m) => `열매 ${m[1]}개 써서 잡기`],
+    [/^Transfer (\d+) Pokémon$/, (m) => `포켓몬 ${m[1]}마리 박사에게 보내기`],
+  ];
+  const ko = (t) => { for (const [re, f] of RULES) { const m = t.match(re); if (m) return f(m); } return null; };
+  // 보상 이름(영어) → 한국어. 코스튬·지역 폼은 공식 표기를 아는 것만 앞에 붙인다
+  const FORM = { Alolan: "알로라", Galarian: "가라르", Hisuian: "히스이", Paldean: "팔데아" };
+  const COSTUME = { "wearing a top hat": "톱 해트를 쓴", "wearing a hat and capelet": "해트와 케이프의", "wearing a bow": "리본을 단", "wearing a Pokémon Halloween costume": "핼러윈 의상의" };
+  const ITEM = { "Rare Candy": "이상한사탕", "Rare Candy XL": "이상한사탕XL", "Stardust": "별의모래", "Poké Ball": "몬스터볼", "Great Ball": "슈퍼볼", "Ultra Ball": "하이퍼볼", "Pinap Berry": "파인열매", "Silver Pinap Berry": "은빛 파인열매", "Golden Razz Berry": "황금 라즈열매", "Razz Berry": "라즈열매", "Nanab Berry": "나나열매", "Sinnoh Stone": "신오의돌", "Unova Stone": "하나의돌", "Premium Battle Pass": "프리미엄 배틀패스", "Remote Raid Pass": "리모트 레이드패스", "Max Revive": "기력의덩어리", "Hyper Potion": "고급 회복약", "Max Potion": "풀회복약", "Incense": "향로", "Lucky Egg": "행복의알", "Star Piece": "별의조각" };
+  function rewardKo(name) {
+    const mega = name.match(/^(.+?) Mega Energy$/);
+    if (mega) { const d = EN2DEX[mega[1].toLowerCase()]; return { kind: "item", ko: `${d ? NAMES[d][0] : mega[1]} 메가 에너지` }; }
+    if (ITEM[name]) return { kind: "item", ko: ITEM[name] };
+    let base = name, prefix = "", suffix = "";
+    const w = name.match(/^(.+?) (wearing .+)$/); if (w) { base = w[1]; prefix = COSTUME[w[2]] ?? ""; if (!prefix) suffix = " (코스튬)"; }
+    const p = base.match(/^(\w+) (.+)$/); if (p && FORM[p[1]]) { prefix = `${FORM[p[1]]} ${prefix}`.trim(); base = p[2]; }
+    const sz = base.match(/^(.+?) \((Small|Average|Large|Super)\)$/); if (sz) { base = sz[1]; suffix = ` (${{ Small: "작은", Average: "보통", Large: "큰", Super: "특대" }[sz[2]]})`; }
+    const sp = base.match(/^Spinda (\d+)$/); if (sp) { base = "Spinda"; suffix = ` ${sp[1]}번 무늬`; }
+    const d = EN2DEX[base.toLowerCase()];
+    return { kind: "mon", ko: `${prefix ? prefix + " " : ""}${d ? NAMES[d][0] : base}${suffix}`, dex: d };
+  }
+  // 그림: 1순위 우리 사이트 교환 리스트 그림(/trade/mon/{번호}[-{폼}].webp) → 2순위 PokeMiners → 3순위 Leek Duck
+  const iconList = (url) => {
+    const f = (url || "").split("/").pop();
+    const m = f.match(/^pm(\d+)(?:\.([^.]+))?\.icon\.png$/);
+    const list = [];
+    if (m) { list.push(`/trade/mon/${m[1]}${m[2] ? "-" + m[2] : ""}.webp`); list.push(ICON_PM + f); }
+    if (url) list.push(url);
+    return list;
+  };
+  window.fb = (img) => { const left = (img.dataset.alt || "").split("|").filter(Boolean); if (!left.length) { img.onerror = null; return; } img.src = left.shift(); img.dataset.alt = left.join("|"); };
+  const strip = (s) => (s || "").replace(/<[^>]+>/g, "").trim();
+  const $ = (id) => document.getElementById(id);
+  let DATA = null, FILTER = "all";
+
+  function render() {
+    if (!DATA) return;
+    const groups = {};
+    DATA.forEach((r) => { const g = r.type || "event"; (groups[g] ??= []).push(r); });
+    const keys = ORDER.filter((k) => groups[k]);
+    $("filters").innerHTML = [["all", "전부", DATA.length], ...keys.map((k) => [k, GROUP[k], groups[k].length])].map(([k, n, c]) => `<button type="button" data-f="${k}" aria-pressed="${FILTER === k}">${n}<b>${c}</b></button>`).join("");
+    const html = keys.filter((k) => FILTER === "all" || FILTER === k).map((k) => `
+      <div class="group ${k}">
+        <h2>${GROUP[k]} <small>${groups[k].length}개</small></h2>
+        <div class="cards">${groups[k].map(card).join("")}</div>
+      </div>`).join("");
+    $("list").innerHTML = html || `<div class="empty">보여 줄 과제가 없어요.</div>`;
+  }
+  function card(r) {
+    const en = strip(r.text), t = ko(en);
+    const isEvent = !r.type;
+    const seen = new Set();
+    const rw = (r.rewards || []).filter((w) => { const key = `${w.name}|${w.image}`; if (seen.has(key)) return false; seen.add(key); return true; }).map((w) => {
+      const k = rewardKo(w.name || "");
+      const cp = w.combatPower && w.combatPower.max ? `<div class="cp">100% CP <b>${w.combatPower.max}</b></div>` : (w.amount ? `<div class="cp">×${w.amount}</div>` : "");
+      const [first, ...rest] = iconList(w.image);
+      return `<div class="mon ${k.kind}"><img src="${first || ""}" data-alt="${rest.join("|")}" alt="" loading="lazy" onerror="fb(this)"><div><div class="nm">${k.ko}</div>${cp}</div></div>`;
+    }).join("");
+    return `<div class="card ${isEvent ? "event" : ""}"><div class="task"><div class="k">${isEvent ? "이벤트 과제" : "과제"}</div><div class="t">${t ?? en}</div>${t ? `<div class="en">${en}</div>` : ""}</div><div class="rw">${rw || `<div class="empty">보상 자료 없음</div>`}</div></div>`;
+  }
+  $("filters").addEventListener("click", (e) => { const b = e.target.closest("button[data-f]"); if (b) { FILTER = b.dataset.f; render(); } });
+  fetch(FEED, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
+    DATA = d; const now = new Date();
+    $("when").innerHTML = `불러온 시각 <b>${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}</b> · 과제 <b>${d.length}</b>개`;
+    render();
+  }).catch((e) => {
+    $("when").textContent = "자료를 못 받았어요.";
+    $("list").innerHTML = `<div class="err">지금은 자료를 불러오지 못했어요(${e.message}). 잠시 뒤 다시 열거나 <a href="https://leekduck.com/research/">Leek Duck 원본</a>을 보세요.</div>`;
+  });
+</script>
+
+<script data-goatcounter="https://shinypokemongo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

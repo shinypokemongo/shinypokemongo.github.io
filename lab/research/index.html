@@ -91,6 +91,14 @@
   .skel { height: 120px; border-radius: 18px; background: linear-gradient(90deg, var(--surface), var(--surface-2), var(--surface)); background-size: 200% 100%; animation: sh 1.2s infinite; }
   @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
   .tip { font-size: 13px; padding: 10px 12px; border-radius: 10px; background: var(--track); color: var(--dim); }
+  .sub { margin: 4px 0 12px; color: var(--dim); font-size: 14px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btns button { padding: 11px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 800; cursor: pointer; }
+  .btns button.main { background: var(--reward); color: var(--on-accent); border-color: var(--reward); }
+  .btns button:disabled { opacity: .45; cursor: not-allowed; }
+  .out { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; }
+  .out img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); }
+  .out a { font-weight: 800; }
 
   .go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .go a { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); text-decoration: none; color: var(--text); }
@@ -125,6 +133,16 @@
     <div class="skel"></div>
   </section>
 
+  <section aria-labelledby="sv-h">
+    <h2 id="sv-h">그림으로 저장</h2>
+    <p class="sub">이벤트 과제와 보상을 한 장으로 만들어요. 레이드 모임이나 친구에게 그대로 보내세요.</p>
+    <div class="btns">
+      <button type="button" class="main" id="save" disabled>이벤트 과제 그림 만들기</button>
+      <button type="button" id="saveAll" disabled>지금 보이는 묶음 전부</button>
+    </div>
+    <div class="out" id="out" hidden></div>
+  </section>
+
   <p class="tip">과제 문구는 보기 쉽게 풀어 쓴 것이라 게임 안 문구와 조금 다를 수 있어요. 이로치 여부·보상 수량은 공식 공지에서 확인하세요. 포켓스톱을 돌리면 그 스톱의 과제 하나를 받고, 같은 날엔 모든 트레이너가 같은 과제를 받아요.</p>
 
   <nav class="go" aria-label="더 보기">
@@ -140,7 +158,7 @@
   <footer>
     <div class="who">포켓몬고 <b>이로치 수집가</b></div>
     <div><a href="https://www.youtube.com/@ShinyPokemongo">YouTube @ShinyPokemongo</a> · <a href="https://blog.naver.com/shinypokemongo">blog.naver.com/shinypokemongo</a></div>
-    <div>과제·보상 자료: <a href="https://leekduck.com/research/">Leek Duck</a>의 공개 데이터(ScrapedDuck). CP는 100% 개체 기준 최대값. 포켓몬 이름은 게임 한국어 표기, 코스튬 설명은 공식 공지 표기(모르는 것은 "코스튬"으로만). 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
+    <div>과제·보상 자료: <a href="https://leekduck.com/research/">Leek Duck</a>이 정리한 것을 <a href="https://github.com/bigfoott/ScrapedDuck">ScrapedDuck</a>(Leek Duck 허락 아래 공개된 데이터)을 통해 받습니다. 이 페이지는 광고·유료 없이 운영합니다. CP는 100% 개체 기준 최대값. 포켓몬 이름은 게임 한국어 표기, 코스튬 설명은 공식 공지 표기(모르는 것은 "코스튬"으로만). 닌텐도·나이언틱과 무관한 팬 도구입니다.</div>
   </footer>
 </div>
 
@@ -239,8 +257,63 @@
     return `<div class="card ${isEvent ? "event" : ""}"><div class="task"><div class="k">${isEvent ? "이벤트 과제" : "과제"}</div><div class="t">${t ?? en}</div>${t ? `<div class="en">${en}</div>` : ""}</div><div class="rw">${rw || `<div class="empty">보상 자료 없음</div>`}</div></div>`;
   }
   $("filters").addEventListener("click", (e) => { const b = e.target.closest("button[data-f]"); if (b) { FILTER = b.dataset.f; render(); } });
+
+  // ---- 그림으로 저장 (1080px 폭, 높이는 내용만큼). 그림은 같은 출처(/trade/mon)·PokeMiners만 캔버스에 올릴 수 있어 그 둘을 쓰고, 안 되면 빈 동그라미
+  const loadImg = (srcs) => new Promise((res) => { const tryNext = () => { const s = srcs.shift(); if (!s) return res(null); const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = tryNext; im.src = s; }; tryNext(); });
+  const rr = (g, x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+  async function drawSheet(tasks, title) {
+    const W = 1080, PAD = 40, CARD_W = W - PAD * 2, COL = 2, CELL_W = (CARD_W - 24) / COL, CELL_H = 104;
+    // 그림 먼저 전부 받는다
+    await Promise.all(tasks.flatMap((t) => t.rewards.map(async (w) => { w._img = await loadImg(iconList(w.image).filter((s) => !s.includes("leekduck"))); })));
+    let y = 150;
+    const heights = tasks.map((t) => 86 + Math.ceil(t.rewards.length / COL) * (CELL_H + 12) + 20);
+    const H = y + heights.reduce((a, b) => a + b + 18, 0) + 90;
+    const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+    const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1F3048"); bg.addColorStop(1, "#0F1A2A"); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#FFC94D"; g.font = "900 44px 'Gothic A1', sans-serif"; g.textAlign = "left"; g.fillText(title, PAD, 70);
+    const d = new Date(); g.fillStyle = "#A9B8CC"; g.font = "700 24px 'IBM Plex Sans KR', sans-serif"; g.fillText(`${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} 기준 · 포켓스톱을 돌려 받는 과제`, PAD, 112);
+    tasks.forEach((t, i) => {
+      const h = heights[i];
+      g.fillStyle = "#172538"; rr(g, PAD, y, CARD_W, h, 22); g.fill();
+      g.strokeStyle = t.event ? "#FF9A3B" : "#2E4460"; g.lineWidth = 4; rr(g, PAD, y, CARD_W, h, 22); g.stroke();
+      g.fillStyle = "#123A49"; rr(g, PAD, y, CARD_W, 70, 22); g.fill(); g.fillRect(PAD, y + 40, CARD_W, 30);
+      g.fillStyle = "#F1F5FB"; g.font = "900 30px 'Gothic A1', sans-serif"; g.fillText(t.ko, PAD + 24, y + 46);
+      t.rewards.forEach((w, j) => {
+        const cx = PAD + 12 + (j % COL) * (CELL_W + 24 / COL), cy = y + 86 + Math.floor(j / COL) * (CELL_H + 12);
+        g.fillStyle = "#1F3048"; rr(g, cx, cy, CELL_W, CELL_H, 16); g.fill();
+        if (w._img) g.drawImage(w._img, cx + 10, cy + 8, 88, 88); else { g.fillStyle = "#2E4460"; g.beginPath(); g.arc(cx + 54, cy + 52, 36, 0, Math.PI * 2); g.fill(); }
+        g.fillStyle = "#F1F5FB"; g.font = "800 24px 'Gothic A1', sans-serif";
+        const lines = []; let cur = ""; for (const ch of w.ko) { if (g.measureText(cur + ch).width > CELL_W - 130) { lines.push(cur); cur = ch; } else cur += ch; } lines.push(cur);
+        lines.slice(0, 2).forEach((l, k) => g.fillText(l, cx + 110, cy + 40 + k * 28));
+        if (w.cp) { g.fillStyle = "#FFC94D"; g.font = "700 20px 'JetBrains Mono', monospace"; g.fillText(`100% CP ${w.cp}`, cx + 110, cy + 40 + Math.min(lines.length, 2) * 28); }
+      });
+      y += h + 18;
+    });
+    g.fillStyle = "#A9B8CC"; g.font = "700 22px 'IBM Plex Sans KR', sans-serif"; g.textAlign = "center";
+    g.fillText("포켓몬고 이로치 수집가 · shinypokemongo.github.io · 자료 Leek Duck (ScrapedDuck)", W / 2, H - 36);
+    return c;
+  }
+  const pack = (r) => ({ ko: ko(strip(r.text)) ?? strip(r.text), event: !r.type, rewards: (() => { const seen = new Set(); return (r.rewards || []).filter((w) => { const k = `${w.name}|${w.image}`; if (seen.has(k)) return false; seen.add(k); return true; }).map((w) => ({ ko: rewardKo(w.name || "").ko, image: w.image, cp: w.combatPower && w.combatPower.max })); })() });
+  async function saveSheet(all) {
+    // 이벤트 과제 한 장, '전부'는 보이는 묶음마다 한 장씩(한 장에 다 넣으면 세로 1만 px가 넘어 공유가 안 된다)
+    const jobs = all
+      ? ORDER.filter((k) => FILTER === "all" || FILTER === k).map((k) => [GROUP[k], DATA.filter((r) => (r.type || "event") === k)]).filter(([, l]) => l.length)
+      : [["지금 이벤트 필드리서치", DATA.filter((r) => !r.type)]];
+    if (!jobs.length) return;
+    const btn = all ? $("saveAll") : $("save"); btn.disabled = true;
+    const out = $("out"); out.hidden = false; out.innerHTML = ""; out.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      for (let i = 0; i < jobs.length; i++) {
+        const [title, list] = jobs[i]; btn.textContent = `만드는 중… ${i + 1}/${jobs.length}`;
+        const url = (await drawSheet(list.map(pack), title)).toDataURL("image/png");
+        out.insertAdjacentHTML("beforeend", `<img src="${url}" alt="${title} 그림"><a download="필드리서치_${title}.png" href="${url}">${title} 그림 내려받기</a>`);
+      }
+    } finally { btn.disabled = false; btn.textContent = all ? "지금 보이는 묶음 전부" : "이벤트 과제 그림 만들기"; }
+  }
+  $("save").addEventListener("click", () => saveSheet(false));
+  $("saveAll").addEventListener("click", () => saveSheet(true));
   fetch(FEED, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
-    DATA = d; const now = new Date();
+    DATA = d; const now = new Date(); $("save").disabled = !d.some((r) => !r.type); $("saveAll").disabled = false;
     $("when").innerHTML = `불러온 시각 <b>${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}</b> · 과제 <b>${d.length}</b>개`;
     render();
   }).catch((e) => {

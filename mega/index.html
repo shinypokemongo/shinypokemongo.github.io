@@ -83,6 +83,8 @@
   .mon small { color: var(--faint); font-size: 11px; }
   .mon[aria-pressed="true"] { border-color: var(--pick); background: var(--pick-deep); }
   .mon:hover { border-color: var(--pick-line); }
+  .picked { margin-top: 10px; padding: 10px 14px; border-radius: 12px; background: var(--pick-deep); border: 1px solid var(--pick); font-size: 14px; }
+  .picked b { font-weight: 700; }
   .none { grid-column: 1 / -1; color: var(--faint); font-size: 14px; padding: 12px 4px; }
 
   .ivs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -153,6 +155,7 @@
       <div class="q"><i>1</i> 포켓몬</div>
       <input class="search" id="q" type="search" placeholder="이름으로 찾기 (예: 칼라마네로)" autocomplete="off" aria-label="포켓몬 이름 검색">
       <div class="list" id="list" role="listbox" aria-label="메가진화할 수 있는 포켓몬"></div>
+      <div class="picked" id="picked" hidden></div>
     </div>
 
     <div class="step">
@@ -272,6 +275,12 @@ const $ = id => document.getElementById(id);
 const monKey = m => m.dex;
 
 // ---- 목록
+function markPicked() {
+  for (const el of $('list').querySelectorAll('.mon')) el.setAttribute('aria-pressed', S.mon && el.dataset.dex === String(S.mon.dex) ? 'true' : 'false');
+  const p = $('picked');
+  p.hidden = !S.mon;
+  if (S.mon) p.innerHTML = `고른 포켓몬: <b>${S.mon.ko}</b> (${S.mon.megas.map(x => x.ko).join(' · ')}) — 결과는 아래 표에 나와요`;
+}
 function renderList() {
   const q = $('q').value.trim();
   const list = $('list'); list.innerHTML = '';
@@ -279,10 +288,11 @@ function renderList() {
   if (!hits.length) { list.innerHTML = '<div class="none">메가진화할 수 있는 포켓몬 중에 없어요. 진화 전 이름이면 최종 진화형 이름으로 찾아 보세요.</div>'; return; }
   for (const m of hits) {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'mon'; b.setAttribute('role', 'option');
+    b.type = 'button'; b.className = 'mon'; b.setAttribute('role', 'option'); b.dataset.dex = m.dex;
     b.setAttribute('aria-pressed', S.mon && S.mon.dex === m.dex ? 'true' : 'false');
-    b.innerHTML = `<img src="data:image/webp;base64,${D.icons[m.dex]}" alt="" loading="lazy"><span>${m.ko}</span><small>${m.megas.map(x => x.ko).join(' · ')}</small>`;
-    b.addEventListener('click', () => { S.mon = m; S.level = null; renderList(); update(); b.scrollIntoView({ block: 'nearest' }); });
+    b.innerHTML = `<img src="data:image/webp;base64,${D.icons[m.dex]}" alt=""><span>${m.ko}</span><small>${m.megas.map(x => x.ko).join(' · ')}</small>`;
+    // 2026-11-05 사용자 "포켓몬 클릭이 안 된다": 누를 때마다 목록을 새로 그려 스크롤이 맨 위로 튀고 고른 칸이 사라졌음 → 표시만 바꾼다
+    b.addEventListener('click', () => { S.mon = m; S.level = null; markPicked(); update(); });
     list.appendChild(b);
   }
 }

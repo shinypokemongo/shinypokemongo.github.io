@@ -191,6 +191,8 @@
     [/^Take (\d+|a) snapshots? of (a )?wild Pokémon$/, (m) => `야생 포켓몬 스냅샷 ${ONE(m[1])}장`],
     [/^Evolve (\d+|an?) Pokémon$/, (m) => `포켓몬 ${ONE(m[1])}마리 진화`],
     [/^Power up Pokémon (\d+) times$/, (m) => `포켓몬 ${m[1]}회 강화`],
+    [/^Power up (\w+)-type Pokémon (\d+) times$/, (m) => `${TYPE[m[1]] ?? m[1]}타입 포켓몬 ${m[2]}회 강화`],
+    [/^Use (\d+|an?) (\w+)-type Charged Attacks? in (a )?battles?$/, (m) => `배틀에서 ${TYPE[m[2]] ?? m[2]}타입 스페셜 어택 ${ONE(m[1])}번 쓰기`],
     [/^Earn (\d+) Candies walking with your buddy$/, (m) => `파트너와 걸어서 사탕 ${m[1]}개 받기`],
     [/^Send (\d+) Gifts? and add a sticker to each$/, (m) => `스티커 붙인 선물 ${m[1]}개 보내기`],
     [/^Send (\d+) Gifts?$/, (m) => `선물 ${m[1]}개 보내기`],

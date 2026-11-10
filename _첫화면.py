@@ -66,6 +66,7 @@ for li, lang in enumerate(('en', 'ja')):
     s = s.replace('content="ko_KR"', 'content="en_US"' if lang == 'en' else 'content="ja_JP"')
     s = s.replace(' aria-current="page">한국어<', '>한국어<').replace(f'hreflang="{lang}" lang="{lang}">', f'hreflang="{lang}" lang="{lang}" aria-current="page">')
     s = s.replace('src="shop/ic/', 'src="/shop/ic/')
+    s = s.replace('src="ic/', 'src="/ic/')
     if lang == 'ja':
         s = s.replace('word-break: keep-all', 'word-break: normal; line-break: strict')
         s = s.replace('"Apple SD Gothic Neo", "Malgun Gothic"', '"Hiragino Sans", "Yu Gothic", "Meiryo"')

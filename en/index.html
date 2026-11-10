@@ -42,6 +42,7 @@
   .tools { display: grid; gap: 12px; }
   .tool { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--text); transition: border-color .15s, transform .15s; }
   .tool:hover, .tool:focus-visible { border-color: var(--gold); transform: translateY(-2px); outline: none; }
+  .tool .ic img { width: 38px; height: 38px; object-fit: contain; }
   .tool .ic { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 20px; }
   .tool b { display: block; color: var(--text); font-family: var(--display); font-weight: 800; font-size: 18px; }
   .tool span { font-size: 14px; color: var(--dim); }
@@ -65,41 +66,41 @@ footer a { display: inline; padding: 0; border: 0; border-radius: 0; background:
 
   <nav class="tools" aria-label="Tools">
     <a class="tool" href="search/">
-      <span class="ic" style="background:#0E3B27;color:#6BF2A6">&amp;!</span>
+      <span class="ic" style="background:#0E3B27;color:#6BF2A6"><img src="/ic/search.webp" alt="" width="38" height="38"></span>
       <span><b>Search String Checker</b><span>Paste a search string to see what it means, fix mistakes and copy</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="showcase/">
-      <span class="ic" style="background:#3A2F12;color:#FFD166">1178</span>
+      <span class="ic" style="background:#3A2F12;color:#FFD166"><img src="/ic/showcase.webp" alt="" width="38" height="38"></span>
       <span><b>Showcase Score Calculator</b><span>Enter height, weight and IVs to see the score</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="pick/">
-      <span class="ic" style="background:#3B2A10;color:#FFCF3A">IV</span>
+      <span class="ic" style="background:#3B2A10;color:#FFCF3A"><img src="/ic/pick.webp" alt="" width="38" height="38"></span>
       <span><b>Which one to power up?</b><span>Compare IVs of the same Pokémon — judged as the evolved form, search by type or move too</span></span>
       <span class="arrow">→</span>
     </a>    <a class="tool" href="powerup/">
-      <span class="ic" style="background:#3A1745;color:#F29BFF">Lv</span>
+      <span class="ic" style="background:#3A1745;color:#F29BFF"><img src="/ic/powerup.webp" alt="" width="38" height="38"></span>
       <span><b>Power Up Cost Calculator</b><span>Pick the number on the Power Up button to see how much Stardust it takes</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="legacy/">
-      <span class="ic" style="background:#0C3A33;color:#5FE3C8">TM</span>
+      <span class="ic" style="background:#0C3A33;color:#5FE3C8"><img src="/ic/legacy.webp" alt="" width="38" height="38"></span>
       <span><b>Legacy Moves List</b><span>Moves only learnable with an Elite TM, by evolution line</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="trade/">
-      <span class="ic" style="background:#3A2F12;color:#FFD86B">⇄</span>
+      <span class="ic" style="background:#3A2F12;color:#FFD86B"><img src="/ic/trade.webp" alt="" width="38" height="38"></span>
       <span><b>Pokémon Trade List Maker</b><span>Your “looking for” and “for trade” lists in one image, with shinies, costumes and backgrounds</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="damage/">
-      <span class="ic" style="background:#10304A;color:#5CC8FF">×5</span>
+      <span class="ic" style="background:#10304A;color:#5CC8FF"><img src="/ic/damage.webp" alt="" width="38" height="38"></span>
       <span><b>Damage Multiplier Stacker</b><span>STAB, weather, Mega, friends — how much it all adds up to</span></span>
       <span class="arrow">→</span>
     </a>
     <a class="tool" href="circle/">
-      <span class="ic" style="background:#3D1A10;color:#FF7A59">◎</span>
+      <span class="ic" style="background:#3D1A10;color:#FF7A59"><img src="/ic/circle.webp" alt="" width="38" height="38"></span>
       <span><b>Circle-Lock Throw Practice</b><span>From Nice to Excellent — practice your throw timing</span></span>
       <span class="arrow">→</span>
     </a>
